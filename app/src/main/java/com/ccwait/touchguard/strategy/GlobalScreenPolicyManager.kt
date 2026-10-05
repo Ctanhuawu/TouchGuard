@@ -1,7 +1,9 @@
 package com.ccwait.touchguard.strategy
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
@@ -14,6 +16,9 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.ScreenOrientationLock
@@ -207,6 +212,60 @@ object GlobalScreenPolicyManager : ScreenPolicyManager {
         } else {
             wakeLockController.release()
             overlayController.detach()
+        }
+    }
+
+    override fun applyToActivity(activity: Activity, isLocked: Boolean) {
+        activity.runOnUiThread {
+            val window = activity.window
+            if (isLocked) {
+                // 1. 保持屏幕常亮
+                if (AppPreferences.isKeepScreenOnEnabled) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+
+                // 2. 屏幕方向锁定
+                activity.requestedOrientation = AppPreferences.screenOrientationLock.orientationValue
+
+                // 3. 锁定当前屏幕亮度
+                if (AppPreferences.isBrightnessLockEnabled) {
+                    try {
+                        val curBrightness = Settings.System.getInt(
+                            activity.contentResolver,
+                            Settings.System.SCREEN_BRIGHTNESS
+                        ) / 255f
+                        val lp = window.attributes
+                        lp.screenBrightness = curBrightness.coerceIn(0.01f, 1.0f)
+                        window.attributes = lp
+                    } catch (_: Exception) {}
+                }
+
+                // 4. 隐藏通知栏与小白条
+                try {
+                    val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+                    if (AppPreferences.isHideSystemBarsEnabled) {
+                        insetsController.hide(WindowInsetsCompat.Type.systemBars())
+                        insetsController.systemBarsBehavior =
+                            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    } else {
+                        insetsController.show(WindowInsetsCompat.Type.systemBars())
+                    }
+                } catch (_: Throwable) {}
+            } else {
+                // 恢复默认状态
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                val lp = window.attributes
+                lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                window.attributes = lp
+
+                try {
+                    val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+                    insetsController.show(WindowInsetsCompat.Type.systemBars())
+                } catch (_: Throwable) {}
+            }
         }
     }
 }

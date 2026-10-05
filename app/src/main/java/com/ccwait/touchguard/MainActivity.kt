@@ -2,12 +2,10 @@ package com.ccwait.touchguard
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -24,6 +22,7 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.rememberNavigationEventDispatcherOwner
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
+import com.ccwait.touchguard.strategy.GlobalScreenPolicyManager
 import com.ccwait.touchguard.strategy.StrategyType
 import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultHapticFeedbackService
@@ -83,30 +82,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (intent?.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
-            DefaultSystemPanelController.collapsePanels(this@MainActivity)
-        }
-
-        val reqStrategy = intent?.getStringExtra("set_strategy")
-        if (reqStrategy != null) {
-            TouchLockManager.selectStrategy(this@MainActivity, StrategyType.fromId(reqStrategy))
-        }
-        val reqFloating = intent?.getStringExtra("set_floating_bar")
-        if (reqFloating != null) {
-            AppPreferences.updateFloatingBottomBar(reqFloating.toBoolean())
-        }
-        val reqColorMode = intent?.getStringExtra("set_color_mode")
-        if (reqColorMode != null) {
-            ColorMode.entries.firstOrNull { it.name.equals(reqColorMode, ignoreCase = true) }?.let {
-                AppPreferences.updateColorMode(it)
-            }
-        }
-        val reqLang = intent?.getStringExtra("set_language")
-        if (reqLang != null) {
-            val lang = com.ccwait.touchguard.model.AppLanguage.fromId(reqLang)
-            AppPreferences.updateAppLanguage(lang)
-            com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(lang)
-        }
+        handleIntentParameters(intent)
 
         lifecycleScope.launch {
             TouchLockManager.checkAllReadiness(this@MainActivity, forceRequest = false)
@@ -171,36 +147,14 @@ class MainActivity : ComponentActivity() {
                         val mainPagerState = rememberMainPagerState(pagerState = pagerState)
 
                         LaunchedEffect(intentSequence.longValue) {
-                            val targetIntent = latestIntent.value
-                            if (targetIntent != null) {
-                                if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
-                                    DefaultSystemPanelController.collapsePanels(this@MainActivity)
-                                    mainPagerState.animateToPage(0)
-                                }
-                                val reqStrat = targetIntent.getStringExtra("set_strategy")
-                                if (reqStrat != null) {
-                                    TouchLockManager.selectStrategy(this@MainActivity, StrategyType.fromId(reqStrat))
-                                }
-                                val reqFloat = targetIntent.getStringExtra("set_floating_bar")
-                                if (reqFloat != null) {
-                                    AppPreferences.updateFloatingBottomBar(reqFloat.toBoolean())
-                                }
-                                val reqColor = targetIntent.getStringExtra("set_color_mode")
-                                if (reqColor != null) {
-                                    ColorMode.entries.firstOrNull { it.name.equals(reqColor, ignoreCase = true) }?.let {
-                                        AppPreferences.updateColorMode(it)
-                                    }
-                                }
-                                val reqLang = targetIntent.getStringExtra("set_language")
-                                if (reqLang != null) {
-                                    val lang = com.ccwait.touchguard.model.AppLanguage.fromId(reqLang)
-                                    AppPreferences.updateAppLanguage(lang)
-                                    com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(lang)
-                                }
-                                val targetTab = targetIntent.getIntExtra("tab", -1)
-                                if (targetTab in 0..3) {
-                                    mainPagerState.animateToPage(targetTab)
-                                }
+                            val targetIntent = latestIntent.value ?: return@LaunchedEffect
+                            handleIntentParameters(targetIntent)
+                            if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
+                                mainPagerState.animateToPage(0)
+                            }
+                            val targetTab = targetIntent.getIntExtra("tab", -1)
+                            if (targetTab in 0..3) {
+                                mainPagerState.animateToPage(targetTab)
                             }
                         }
 
@@ -238,56 +192,31 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun applyScreenHoldState(locked: Boolean) {
-        runOnUiThread {
-            if (locked) {
-                // 1. 保持屏幕常亮
-                if (AppPreferences.isKeepScreenOnEnabled) {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                } else {
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                }
-
-                // 2. 屏幕方向锁定
-                requestedOrientation = AppPreferences.screenOrientationLock.orientationValue
-
-                // 3. 锁定当前屏幕亮度
-                if (AppPreferences.isBrightnessLockEnabled) {
-                    try {
-                        val curBrightness = android.provider.Settings.System.getInt(
-                            contentResolver,
-                            android.provider.Settings.System.SCREEN_BRIGHTNESS
-                        ) / 255f
-                        val lp = window.attributes
-                        lp.screenBrightness = curBrightness.coerceIn(0.01f, 1.0f)
-                        window.attributes = lp
-                    } catch (_: Exception) {}
-                }
-
-                // 4. 隐藏通知栏与小白条
-                try {
-                    val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
-                    if (AppPreferences.isHideSystemBarsEnabled) {
-                        insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                        insetsController.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    } else {
-                        insetsController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                    }
-                } catch (_: Throwable) {}
-            } else {
-                // 恢复默认状态
-                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                val lp = window.attributes
-                lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
-                window.attributes = lp
-
-                try {
-                    val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
-                    insetsController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                } catch (_: Throwable) {}
+    private fun handleIntentParameters(intent: Intent?) {
+        val targetIntent = intent ?: return
+        if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
+            DefaultSystemPanelController.collapsePanels(this)
+        }
+        targetIntent.getStringExtra("set_strategy")?.let { stratId ->
+            TouchLockManager.selectStrategy(this, StrategyType.fromId(stratId))
+        }
+        targetIntent.getStringExtra("set_floating_bar")?.let { floatingStr ->
+            AppPreferences.updateFloatingBottomBar(floatingStr.toBoolean())
+        }
+        targetIntent.getStringExtra("set_color_mode")?.let { colorModeStr ->
+            ColorMode.entries.firstOrNull { it.name.equals(colorModeStr, ignoreCase = true) }?.let {
+                AppPreferences.updateColorMode(it)
             }
         }
+        targetIntent.getStringExtra("set_language")?.let { langStr ->
+            val lang = com.ccwait.touchguard.model.AppLanguage.fromId(langStr)
+            AppPreferences.updateAppLanguage(lang)
+            com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(lang)
+        }
+    }
+
+    private fun applyScreenHoldState(locked: Boolean) {
+        GlobalScreenPolicyManager.applyToActivity(this, locked)
     }
 
     private fun lockTouch() {

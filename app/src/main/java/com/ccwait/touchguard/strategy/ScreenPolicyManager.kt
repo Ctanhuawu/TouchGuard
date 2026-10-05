@@ -1,5 +1,6 @@
 package com.ccwait.touchguard.strategy
 
+import android.app.Activity
 import android.content.Context
 
 /**
@@ -7,6 +8,7 @@ import android.content.Context
  */
 interface ScreenPolicyManager {
     fun applyPolicies(context: Context, isLocked: Boolean)
+    fun applyToActivity(activity: Activity, isLocked: Boolean)
 }
 
 /**

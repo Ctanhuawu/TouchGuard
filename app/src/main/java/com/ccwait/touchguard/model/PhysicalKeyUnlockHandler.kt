@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultHapticFeedbackService
+import com.ccwait.touchguard.system.adaptation.VendorDeviceHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,7 +29,7 @@ object PhysicalKeyUnlockHandler {
     private var lastMediaSessionAdjustTime: Long = 0
     private var isMediaSessionLongPressing: Boolean = false
 
-    private const val MIN_CLICK_INTERVAL_MS = 100L // 两次独立物理点击的最小真实间隔（滤除机械抖动与并发派发）
+    private const val MIN_CLICK_INTERVAL_MS = VendorDeviceHelper.PHYSICAL_KEY_DEBOUNCE_MS // 两次独立物理点击的最小真实间隔（滤除机械抖动与并发派发）
     private const val MAX_CLICK_INTERVAL_MS = 1000L // 双击超时
     private const val MAX_TRIPLE_INTERVAL_MS = 1200L // 三击超时
     private const val MAX_COMBO_INTERVAL_MS = 1500L // 组合键超时
