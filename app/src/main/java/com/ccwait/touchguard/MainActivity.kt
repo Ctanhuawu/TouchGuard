@@ -1,15 +1,10 @@
 package com.ccwait.touchguard
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.Toast
@@ -25,20 +20,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.lifecycleScope
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
-import com.ccwait.touchguard.model.RootPermissionManager
-import com.ccwait.touchguard.model.UnlockMechanism
 import com.ccwait.touchguard.strategy.StrategyType
 import com.ccwait.touchguard.strategy.TouchLockManager
+import com.ccwait.touchguard.system.DefaultHapticFeedbackService
 import com.ccwait.touchguard.ui.components.rememberMainPagerState
 import com.ccwait.touchguard.ui.screens.MainScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-
-    // 核心交互与恢复计时
-    private var keyPressCount = 0
-    private var lastKeyPressTime = 0L
-    private var lastKeyCode = 0
 
     private val latestIntent = mutableStateOf<Intent?>(null)
     private val intentSequence = androidx.compose.runtime.mutableLongStateOf(0L)
@@ -238,18 +227,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun lockTouch() {
-        keyPressCount = 0
-        lastKeyPressTime = 0
-        lastKeyCode = 0
         lifecycleScope.launch {
             TouchLockManager.lock(this@MainActivity, source = "应用界面")
         }
     }
 
     private fun unlockTouch() {
-        keyPressCount = 0
-        lastKeyPressTime = 0
-        lastKeyCode = 0
         lifecycleScope.launch {
             TouchLockManager.unlock(this@MainActivity, source = "应用界面")
         }
@@ -279,20 +262,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun vibratePhone(durationMs: Long) {
-        if (!AppPreferences.isHapticFeedbackEnabled) return
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                vibratorManager.defaultVibrator.vibrate(
-                    VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE)
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(durationMs)
-            }
-        } catch (_: Exception) {}
+        DefaultHapticFeedbackService.vibrate(this, durationMs)
     }
 
     override fun onResume() {

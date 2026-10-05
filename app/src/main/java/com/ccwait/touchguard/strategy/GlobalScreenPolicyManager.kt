@@ -19,69 +19,52 @@ import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.ScreenOrientationLock
 
 /**
- * 全局屏幕与画面保持策略管理器 (GlobalScreenPolicyManager)
- * 托管全局屏幕常亮、显示方向锁定、屏幕背光锁定、顶部指示悬浮药丸胶囊
- * 无论从应用内、通知栏还是控制中心快捷磁贴触发，均在全局系统层生效
+ * 屏幕 WakeLock 控制器实现，负责安全持有与释放 SCREEN_BRIGHT_WAKE_LOCK
  */
-object GlobalScreenPolicyManager {
-    private const val TAG = "TouchGuardPolicy"
+class DefaultWakeLockController : WakeLockController {
     private var wakeLock: PowerManager.WakeLock? = null
-    private var overlayView: View? = null
-    private var windowManager: WindowManager? = null
 
-    @Synchronized
-    fun applyPolicies(context: Context, isLocked: Boolean) {
-        val appContext = context.applicationContext
-        AppPreferences.init(appContext)
-
-        applyWakeLock(appContext, isLocked)
-        applyOverlay(appContext, isLocked)
-    }
-
-    private fun applyWakeLock(context: Context, isLocked: Boolean) {
+    override fun acquire(context: Context) {
         try {
             val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return
-            if (isLocked && AppPreferences.isKeepScreenOnEnabled) {
-                if (wakeLock == null || wakeLock?.isHeld == false) {
-                    @Suppress("DEPRECATION")
-                    wakeLock = pm.newWakeLock(
-                        PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE,
-                        "TouchGuard:GlobalKeepScreenOn"
-                    ).apply {
-                        setReferenceCounted(false)
-                        acquire(12 * 60 * 60 * 1000L) // 最大12小时保护超时
-                    }
-                    android.util.Log.d(TAG, "Global WakeLock acquired (SCREEN_BRIGHT_WAKE_LOCK)")
+            if (wakeLock == null || wakeLock?.isHeld == false) {
+                @Suppress("DEPRECATION")
+                wakeLock = pm.newWakeLock(
+                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE,
+                    "TouchGuard:GlobalKeepScreenOn"
+                ).apply {
+                    setReferenceCounted(false)
+                    acquire(12 * 60 * 60 * 1000L) // 最大12小时保护超时
                 }
-            } else {
-                releaseWakeLock()
+                android.util.Log.d("WakeLockController", "Global WakeLock acquired (SCREEN_BRIGHT_WAKE_LOCK)")
             }
         } catch (e: Exception) {
-            android.util.Log.w(TAG, "Failed to apply global WakeLock", e)
+            android.util.Log.w("WakeLockController", "Failed to acquire global WakeLock", e)
         }
     }
 
-    private fun releaseWakeLock() {
+    override fun release() {
         try {
             if (wakeLock?.isHeld == true) {
                 wakeLock?.release()
-                android.util.Log.d(TAG, "Global WakeLock released")
+                android.util.Log.d("WakeLockController", "Global WakeLock released")
             }
         } catch (_: Exception) {}
         wakeLock = null
     }
+}
 
-    @SuppressLint("SetTextI18n")
-    private fun applyOverlay(context: Context, isLocked: Boolean) {
-        if (!isLocked) {
-            removeOverlay()
-            return
-        }
+/**
+ * 全局屏幕保持与指示悬浮窗控制器实现
+ */
+class DefaultScreenOverlayController : ScreenOverlayController {
+    private var overlayView: View? = null
+    private var windowManager: WindowManager? = null
 
-        // 尝试自动检查/静默提权悬浮窗权限 (针对 Root 硬件级环境)
+    override fun attach(context: Context) {
         ensureOverlayPermission(context)
         if (!Settings.canDrawOverlays(context)) {
-            android.util.Log.w(TAG, "No overlay permission, skip global window policy")
+            android.util.Log.w("ScreenOverlayController", "No overlay permission, skip global window policy")
             return
         }
 
@@ -93,7 +76,6 @@ object GlobalScreenPolicyManager {
             val orientation = AppPreferences.screenOrientationLock
             val lockBrightness = AppPreferences.isBrightnessLockEnabled
             val keepScreenOn = AppPreferences.isKeepScreenOnEnabled
-
             val density = context.resources.displayMetrics.density
 
             val container = FrameLayout(context).apply {
@@ -167,16 +149,16 @@ object GlobalScreenPolicyManager {
                 }
             }
 
-            removeOverlay()
+            detach()
             wm.addView(container, layoutParams)
             overlayView = container
-            android.util.Log.d(TAG, "Global policy overlay attached (pill=$showPill, orientation=${orientation.title})")
+            android.util.Log.d("ScreenOverlayController", "Global policy overlay attached (pill=$showPill, orientation=${orientation.title})")
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Failed to attach global policy overlay", e)
+            android.util.Log.e("ScreenOverlayController", "Failed to attach global policy overlay", e)
         }
     }
 
-    private fun removeOverlay() {
+    override fun detach() {
         try {
             overlayView?.let { view ->
                 if (view.isAttachedToWindow) {
@@ -190,11 +172,37 @@ object GlobalScreenPolicyManager {
     private fun ensureOverlayPermission(context: Context) {
         if (!Settings.canDrawOverlays(context)) {
             try {
-                // 如果拥有 Root 权限，自动静默授予悬浮窗权限，免除用户手动跳转授权
                 Runtime.getRuntime().exec(
                     arrayOf("su", "-c", "appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow")
                 ).waitFor()
             } catch (_: Exception) {}
+        }
+    }
+}
+
+/**
+ * 全局屏幕与画面保持策略管理器 (GlobalScreenPolicyManager)
+ * 实现 ScreenPolicyManager 规范，门面整合 WakeLock 与悬浮保持控制器
+ */
+object GlobalScreenPolicyManager : ScreenPolicyManager {
+    private val wakeLockController: WakeLockController = DefaultWakeLockController()
+    private val overlayController: ScreenOverlayController = DefaultScreenOverlayController()
+
+    @Synchronized
+    override fun applyPolicies(context: Context, isLocked: Boolean) {
+        val appContext = context.applicationContext
+        AppPreferences.init(appContext)
+
+        if (isLocked) {
+            if (AppPreferences.isKeepScreenOnEnabled) {
+                wakeLockController.acquire(appContext)
+            } else {
+                wakeLockController.release()
+            }
+            overlayController.attach(appContext)
+        } else {
+            wakeLockController.release()
+            overlayController.detach()
         }
     }
 }

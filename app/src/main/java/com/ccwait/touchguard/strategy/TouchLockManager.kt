@@ -1,11 +1,6 @@
 package com.ccwait.touchguard.strategy
 
 import android.content.Context
-import android.content.Intent
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,29 +10,33 @@ import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.notification.TouchGuardNotificationManager
 import com.ccwait.touchguard.service.TouchGuardTileService
+import com.ccwait.touchguard.system.DefaultHapticFeedbackService
+import com.ccwait.touchguard.system.DefaultSystemPanelController
+import com.ccwait.touchguard.system.HapticFeedbackService
+import com.ccwait.touchguard.system.SystemPanelController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-object TouchLockManager {
-    val currentStrategyType: StrategyType
+object TouchLockManager : TouchLockCoordinator {
+    override val currentStrategyType: StrategyType
         get() = AppPreferences.activeStrategyType
 
-    var isTouchLocked by mutableStateOf(false)
+    override var isTouchLocked: Boolean by mutableStateOf(false)
         private set
 
     var onLockStateChanged: ((Boolean) -> Unit)? = null
 
     private val lockStateListeners = mutableListOf<(Boolean) -> Unit>()
 
-    fun addLockStateListener(listener: (Boolean) -> Unit) {
+    override fun addLockStateListener(listener: (Boolean) -> Unit) {
         if (!lockStateListeners.contains(listener)) {
             lockStateListeners.add(listener)
         }
     }
 
-    fun removeLockStateListener(listener: (Boolean) -> Unit) {
+    override fun removeLockStateListener(listener: (Boolean) -> Unit) {
         lockStateListeners.remove(listener)
     }
 
@@ -51,13 +50,13 @@ object TouchLockManager {
         StrategyType.ACCESSIBILITY_OVERLAY to WindowOverlayStrategy()
     )
 
-    val currentStrategy: TouchLockStrategy
+    override val currentStrategy: TouchLockStrategy
         get() = strategies[currentStrategyType] ?: strategies[StrategyType.ROOT_EVIOCGRAB]!!
 
     fun getStrategy(type: StrategyType): TouchLockStrategy =
         strategies[type] ?: strategies[StrategyType.ROOT_EVIOCGRAB]!!
 
-    val currentReadiness: StrategyReadiness
+    override val currentReadiness: StrategyReadiness
         get() = currentStrategy.readiness
 
     fun getAllStrategies(): List<TouchLockStrategy> = strategies.values.toList()
@@ -82,7 +81,7 @@ object TouchLockManager {
         strategies.values.forEach { it.prepare(context) }
     }
 
-    fun selectStrategy(context: Context, type: StrategyType): Boolean {
+    override fun selectStrategy(context: Context, type: StrategyType): Boolean {
         if (isTouchLocked) return false
         AppPreferences.updateActiveStrategy(type)
         CoroutineScope(Dispatchers.IO).launch {
@@ -94,28 +93,10 @@ object TouchLockManager {
     }
 
     fun collapsePanels(context: Context) {
-        // 1. 系统广播尝试
-        try {
-            @Suppress("DEPRECATION")
-            context.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
-        } catch (_: Exception) {}
-
-        // 2. 状态栏服务反射尝试
-        try {
-            val sbm = context.getSystemService("statusbar")
-            val method = sbm.javaClass.getMethod("collapsePanels")
-            method.invoke(sbm)
-        } catch (_: Exception) {}
-
-        // 3. Root 级强制收起控制中心与通知中心，100% 生效且不切换前台应用
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                Runtime.getRuntime().exec(arrayOf("su", "-c", "cmd statusbar collapse")).waitFor()
-            } catch (_: Exception) {}
-        }
+        DefaultSystemPanelController.collapsePanels(context)
     }
 
-    suspend fun lock(context: Context, source: String = "应用界面"): Result<Unit> {
+    override suspend fun lock(context: Context, source: String): Result<Unit> {
         AppPreferences.init(context)
         init(context)
         // 自动收回通知栏和控制中心，防止锁定后遮挡画面无法划走
@@ -157,7 +138,7 @@ object TouchLockManager {
         return result
     }
 
-    suspend fun unlock(context: Context, source: String = "应用界面"): Result<Unit> {
+    override suspend fun unlock(context: Context, source: String): Result<Unit> {
         if (!isTouchLocked) return Result.success(Unit)
         AppPreferences.init(context)
         init(context)
@@ -196,7 +177,7 @@ object TouchLockManager {
         return if (lastError != null) Result.failure(lastError) else Result.success(Unit)
     }
 
-    fun releaseAll(context: Context) {
+    override fun releaseAll(context: Context) {
         strategies.values.forEach { it.release(context) }
         isTouchLocked = false
         GlobalScreenPolicyManager.applyPolicies(context, false)
@@ -206,19 +187,6 @@ object TouchLockManager {
     }
 
     fun vibratePhone(context: Context, durationMs: Long) {
-        if (!AppPreferences.isHapticFeedbackEnabled) return
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
-                vibratorManager?.defaultVibrator?.vibrate(
-                    VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE)
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-                @Suppress("DEPRECATION")
-                vibrator?.vibrate(durationMs)
-            }
-        } catch (_: Exception) {}
+        DefaultHapticFeedbackService.vibrate(context, durationMs)
     }
 }
