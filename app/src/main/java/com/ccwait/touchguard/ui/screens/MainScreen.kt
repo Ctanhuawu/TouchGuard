@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.rememberNavigationEventDispatcherOwner
 import com.ccwait.touchguard.AppPreferences
-import com.ccwait.touchguard.ui.AppThemeContainer
 import com.ccwait.touchguard.ui.AppThemeMode
 import com.ccwait.touchguard.ui.components.LocalMainPagerState
 import com.ccwait.touchguard.ui.components.MainPagerState
@@ -32,7 +31,6 @@ import com.ccwait.touchguard.ui.pages.HomePage
 import com.ccwait.touchguard.ui.pages.LogsPage
 import com.ccwait.touchguard.ui.pages.PolicyPage
 import com.ccwait.touchguard.ui.pages.SettingsPage
-import com.ccwait.touchguard.ui.util.ProvideAppLanguage
 import com.ccwait.touchguard.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.blur.layerBackdrop
@@ -80,13 +78,7 @@ fun MainScreen(
         LocalMainPagerState provides mainPagerState,
         LocalNavigationEventDispatcherOwner provides navDispatcherOwner,
     ) {
-        AppThemeContainer(
-            themeMode = themeMode,
-            darkMode = AppPreferences.darkMode,
-            palette = AppPreferences.themePalette
-        ) {
-            ProvideAppLanguage {
-                val surfaceColor = MiuixTheme.colorScheme.surface
+        val surfaceColor = MiuixTheme.colorScheme.surface
                 val blurBackdrop = rememberBlurBackdrop(true)
                 val backdrop = rememberLayerBackdrop {
                     drawRect(surfaceColor)
@@ -175,7 +167,5 @@ fun MainScreen(
                         pagerContent(innerPadding.calculateBottomPadding())
                     }
                 }
-            }
-        }
     }
 }

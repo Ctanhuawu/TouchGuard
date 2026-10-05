@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.ccwait.touchguard.model.AppLanguage
@@ -11,6 +12,10 @@ import com.ccwait.touchguard.model.ScreenOrientationLock
 import com.ccwait.touchguard.model.UnlockMechanism
 import com.ccwait.touchguard.strategy.StrategyType
 import com.ccwait.touchguard.ui.AppThemeMode
+import com.ccwait.touchguard.ui.theme.AppSettings
+import com.ccwait.touchguard.ui.theme.ColorMode
+import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamiccolor.ColorSpec
 
 object AppPreferences {
     private const val PREFS_NAME = "touchguard_config"
@@ -26,9 +31,11 @@ object AppPreferences {
     private const val KEY_AUTO_START = "auto_start"
     private const val KEY_FOREGROUND_SERVICE = "foreground_service"
     private const val KEY_THEME_MODE = "theme_mode"
-    private const val KEY_COLOR_MODE = "color_mode"
-    private const val KEY_DARK_MODE = "dark_mode_option"
-    private const val KEY_THEME_PALETTE = "theme_palette"
+    private const val KEY_COLOR_MODE = "theme_color_mode"
+    private const val KEY_KEY_COLOR = "theme_key_color"
+    private const val KEY_COLOR_STYLE = "theme_color_style"
+    private const val KEY_COLOR_SPEC = "theme_color_spec"
+    private const val KEY_MIUIX_MONET = "theme_miuix_monet"
     private const val KEY_FLOATING_BOTTOM_BAR = "floating_bottom_bar"
     private const val KEY_FLOATING_BOTTOM_BAR_BLUR = "floating_bottom_bar_blur"
     private const val KEY_NAVIGATION_BADGE = "navigation_badge"
@@ -63,29 +70,42 @@ object AppPreferences {
         private set
     var themeMode by mutableStateOf(AppThemeMode.Miuix)
         private set
-    var darkMode by mutableStateOf(DarkModeOption.SYSTEM)
+    var colorMode by mutableStateOf(ColorMode.MONET_SYSTEM)
         private set
-    var themePalette by mutableStateOf(ThemePalette.MONET)
+    var keyColor by mutableIntStateOf(0)
         private set
-    val colorMode: ColorMode
-        get() = when (themePalette) {
-            ThemePalette.CLASSIC -> when (darkMode) {
-                DarkModeOption.SYSTEM -> ColorMode.SYSTEM
-                DarkModeOption.LIGHT -> ColorMode.LIGHT
-                DarkModeOption.DARK -> ColorMode.DARK
-            }
-            else -> when (darkMode) {
-                DarkModeOption.SYSTEM -> ColorMode.MONET_SYSTEM
-                DarkModeOption.LIGHT -> ColorMode.MONET_LIGHT
-                DarkModeOption.DARK -> ColorMode.MONET_DARK
-            }
-        }
+    var colorStyle by mutableStateOf(PaletteStyle.TonalSpot.name)
+        private set
+    var colorSpec by mutableStateOf(ColorSpec.SpecVersion.SPEC_2025.name)
+        private set
+    var miuixMonet by mutableStateOf(true)
+        private set
     var isFloatingBottomBarEnabled by mutableStateOf(false)
         private set
     var isFloatingBottomBarBlurEnabled by mutableStateOf(true)
         private set
     var isNavigationBadgeEnabled by mutableStateOf(true)
         private set
+
+    fun getAppSettings(): AppSettings {
+        val palette = try {
+            PaletteStyle.valueOf(colorStyle)
+        } catch (_: Exception) {
+            PaletteStyle.TonalSpot
+        }
+        val spec = try {
+            ColorSpec.SpecVersion.valueOf(colorSpec)
+        } catch (_: Exception) {
+            ColorSpec.SpecVersion.SPEC_2025
+        }
+        return AppSettings(
+            colorMode = colorMode,
+            keyColor = keyColor,
+            paletteStyle = palette,
+            colorSpec = spec,
+            miuixMonet = miuixMonet
+        )
+    }
 
     fun init(context: Context) {
         if (prefs != null) return
@@ -108,27 +128,12 @@ object AppPreferences {
         isFloatingBottomBarBlurEnabled = sp.getBoolean(KEY_FLOATING_BOTTOM_BAR_BLUR, true)
         isNavigationBadgeEnabled = sp.getBoolean(KEY_NAVIGATION_BADGE, true)
 
-        val darkModeId = sp.getString(KEY_DARK_MODE, null)
-        if (darkModeId != null) {
-            darkMode = DarkModeOption.fromId(darkModeId)
-        } else {
-            val legacyColorMode = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
-            val old = ColorMode.fromValue(legacyColorMode)
-            darkMode = when {
-                old == ColorMode.DARK || old == ColorMode.MONET_DARK -> DarkModeOption.DARK
-                old == ColorMode.LIGHT || old == ColorMode.MONET_LIGHT -> DarkModeOption.LIGHT
-                else -> DarkModeOption.SYSTEM
-            }
-        }
-
-        val paletteId = sp.getString(KEY_THEME_PALETTE, null)
-        if (paletteId != null) {
-            themePalette = ThemePalette.fromId(paletteId)
-        } else {
-            val legacyColorMode = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
-            val old = ColorMode.fromValue(legacyColorMode)
-            themePalette = if (old.isMonet) ThemePalette.MONET else ThemePalette.CLASSIC
-        }
+        val colorModeValue = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
+        colorMode = ColorMode.fromValue(colorModeValue)
+        keyColor = sp.getInt(KEY_KEY_COLOR, 0)
+        colorStyle = sp.getString(KEY_COLOR_STYLE, PaletteStyle.TonalSpot.name) ?: PaletteStyle.TonalSpot.name
+        colorSpec = sp.getString(KEY_COLOR_SPEC, ColorSpec.SpecVersion.SPEC_2025.name) ?: ColorSpec.SpecVersion.SPEC_2025.name
+        miuixMonet = sp.getBoolean(KEY_MIUIX_MONET, true)
 
         val hasUserSelectedTheme = sp.getBoolean("has_user_selected_theme", false)
         val themeName = if (hasUserSelectedTheme) sp.getString(KEY_THEME_MODE, AppThemeMode.Miuix.name) else AppThemeMode.Miuix.name
@@ -209,34 +214,35 @@ object AppPreferences {
             ?.apply()
     }
 
-    fun updateDarkMode(value: DarkModeOption) {
-        darkMode = value
-        prefs?.edit()?.putString(KEY_DARK_MODE, value.id)?.apply()
-    }
-
-    fun updateThemePalette(value: ThemePalette) {
-        themePalette = value
-        prefs?.edit()?.putString(KEY_THEME_PALETTE, value.id)?.apply()
-    }
-
-    fun isDark(systemDark: Boolean): Boolean = when (darkMode) {
-        DarkModeOption.DARK -> true
-        DarkModeOption.LIGHT -> false
-        DarkModeOption.SYSTEM -> systemDark
-    }
-
     fun updateColorMode(value: ColorMode) {
-        darkMode = when {
-            value.isDark -> DarkModeOption.DARK
-            value == ColorMode.LIGHT || value == ColorMode.MONET_LIGHT -> DarkModeOption.LIGHT
-            else -> DarkModeOption.SYSTEM
-        }
-        themePalette = if (value.isMonet) ThemePalette.MONET else ThemePalette.CLASSIC
-        prefs?.edit()
-            ?.putString(KEY_DARK_MODE, darkMode.id)
-            ?.putString(KEY_THEME_PALETTE, themePalette.id)
-            ?.putInt(KEY_COLOR_MODE, value.value)
-            ?.apply()
+        colorMode = value
+        prefs?.edit()?.putInt(KEY_COLOR_MODE, value.value)?.apply()
+    }
+
+    fun updateKeyColor(value: Int) {
+        keyColor = value
+        prefs?.edit()?.putInt(KEY_KEY_COLOR, value)?.apply()
+    }
+
+    fun updateColorStyle(value: String) {
+        colorStyle = value
+        prefs?.edit()?.putString(KEY_COLOR_STYLE, value)?.apply()
+    }
+
+    fun updateColorSpec(value: String) {
+        colorSpec = value
+        prefs?.edit()?.putString(KEY_COLOR_SPEC, value)?.apply()
+    }
+
+    fun updateMiuixMonet(value: Boolean) {
+        miuixMonet = value
+        prefs?.edit()?.putBoolean(KEY_MIUIX_MONET, value)?.apply()
+    }
+
+    fun isDark(systemDark: Boolean): Boolean = when {
+        colorMode.isDark -> true
+        colorMode == ColorMode.LIGHT || colorMode == ColorMode.MONET_LIGHT -> false
+        else -> systemDark
     }
 
     fun updateFloatingBottomBar(value: Boolean) {
@@ -259,57 +265,3 @@ object AppPreferences {
         setForegroundService(value)
     }
 }
-
-enum class DarkModeOption(
-    val id: String,
-    val label: String,
-    @StringRes val labelRes: Int
-) {
-    SYSTEM("system", "跟随系统", R.string.dark_mode_system),
-    LIGHT("light", "浅色模式", R.string.dark_mode_light),
-    DARK("dark", "深色模式", R.string.dark_mode_dark);
-
-    val isDark: Boolean get() = this == DARK
-    val isSystem: Boolean get() = this == SYSTEM
-
-    companion object {
-        fun fromId(id: String?): DarkModeOption = entries.firstOrNull { it.id == id } ?: SYSTEM
-    }
-}
-
-enum class ThemePalette(
-    val id: String,
-    val label: String,
-    val description: String,
-    val keyColorHex: Long?,
-    @StringRes val labelRes: Int,
-    @StringRes val descRes: Int
-) {
-    MONET("monet", "Monet 动态取色", "提取系统壁纸色调，自适应强调色", null, R.string.palette_monet_title, R.string.palette_monet_desc),
-    CLASSIC("classic", "经典 HyperOS 蓝", "MIUI/HyperOS 原生经典蓝色基调", null, R.string.palette_classic_title, R.string.palette_classic_desc),
-    XIAOMI_ORANGE("orange", "小米经典橙", "小米标志性活力橙色强调", 0xFFFF6900, R.string.palette_orange_title, R.string.palette_orange_desc),
-    SUKI_CYAN("cyan", "Suki 原生青", "SukiSU 质感薄荷青强调色", 0xFF009688, R.string.palette_cyan_title, R.string.palette_cyan_desc),
-    NATURE_GREEN("green", "生机绿", "清新自然绿色基调", 0xFF4CAF50, R.string.palette_green_title, R.string.palette_green_desc);
-
-    companion object {
-        fun fromId(id: String?): ThemePalette = entries.firstOrNull { it.id == id } ?: MONET
-    }
-}
-
-enum class ColorMode(val value: Int, val label: String) {
-    MONET_SYSTEM(0, "Monet (跟随系统)"),
-    MONET_LIGHT(1, "Monet (浅色模式)"),
-    MONET_DARK(2, "Monet (深色模式)"),
-    SYSTEM(3, "标准 (跟随系统)"),
-    LIGHT(4, "标准 (浅色模式)"),
-    DARK(5, "标准 (深色模式)");
-
-    val isDark: Boolean get() = this == DARK || this == MONET_DARK
-    val isSystem: Boolean get() = this == SYSTEM || this == MONET_SYSTEM
-    val isMonet: Boolean get() = this == MONET_SYSTEM || this == MONET_LIGHT || this == MONET_DARK
-
-    companion object {
-        fun fromValue(value: Int) = entries.find { it.value == value } ?: MONET_SYSTEM
-    }
-}
-

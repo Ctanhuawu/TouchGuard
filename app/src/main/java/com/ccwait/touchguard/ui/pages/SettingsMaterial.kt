@@ -41,9 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.BuildConfig
-import com.ccwait.touchguard.DarkModeOption
 import com.ccwait.touchguard.R
-import com.ccwait.touchguard.ThemePalette
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.ui.AppThemeMode
 import com.ccwait.touchguard.ui.components.material.MaterialDropdownPreference
@@ -147,34 +145,14 @@ fun SettingsMaterial(
                             }
                         )
 
-                        val darkModeOptions = DarkModeOption.entries
-                        val currentDarkModeIndex = darkModeOptions.indexOf(AppPreferences.darkMode).coerceAtLeast(0)
-                        MaterialDropdownPreference(
-                            title = stringResource(R.string.settings_dark_mode_title),
-                            summary = stringResource(R.string.settings_dark_mode_summary, stringResource(AppPreferences.darkMode.labelRes)),
-                            leadingIcon = Icons.Rounded.DarkMode,
-                            items = darkModeOptions.map { stringResource(it.labelRes) },
-                            selectedIndex = currentDarkModeIndex,
-                            showDivider = true,
-                            onSelectedIndexChange = { index ->
-                                val selected = darkModeOptions.getOrNull(index) ?: DarkModeOption.SYSTEM
-                                AppPreferences.updateDarkMode(selected)
-                                onVibrate(20)
-                            }
-                        )
-
-                        val paletteOptions = ThemePalette.entries
-                        val currentPaletteIndex = paletteOptions.indexOf(AppPreferences.themePalette).coerceAtLeast(0)
-                        MaterialDropdownPreference(
-                            title = stringResource(R.string.settings_palette_title),
-                            summary = "${stringResource(AppPreferences.themePalette.labelRes)} · ${stringResource(AppPreferences.themePalette.descRes)}",
+                        val navigator = com.ccwait.touchguard.ui.navigation.LocalNavigator.current
+                        MaterialPreferenceItem(
+                            title = stringResource(R.string.settings_theme),
+                            summary = stringResource(R.string.settings_theme_summary),
                             leadingIcon = Icons.Rounded.Palette,
-                            items = paletteOptions.map { stringResource(it.labelRes) },
-                            selectedIndex = currentPaletteIndex,
                             showDivider = true,
-                            onSelectedIndexChange = { index ->
-                                val selected = paletteOptions.getOrNull(index) ?: ThemePalette.MONET
-                                AppPreferences.updateThemePalette(selected)
+                            onClick = {
+                                navigator.push(com.ccwait.touchguard.ui.navigation.Route.ColorPalette)
                                 onVibrate(20)
                             }
                         )

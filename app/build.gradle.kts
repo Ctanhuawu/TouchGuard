@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("kotlin-parcelize")
 }
 
 
@@ -75,4 +76,7 @@ dependencies {
     implementation("top.yukonga.miuix.kmp:miuix-preference:0.9.4")
     implementation("top.yukonga.miuix.kmp:miuix-blur:0.9.4")
     implementation("androidx.navigationevent:navigationevent-compose:1.1.2")
+
+    // Dynamic Color / MaterialKolor (SukiSU-Ultra Theme Engine)
+    implementation("com.materialkolor:material-kolor:5.0.1")
 }

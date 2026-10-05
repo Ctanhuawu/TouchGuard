@@ -37,9 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.BuildConfig
-import com.ccwait.touchguard.DarkModeOption
 import com.ccwait.touchguard.R
-import com.ccwait.touchguard.ThemePalette
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.ui.AppThemeMode
 import com.ccwait.touchguard.ui.util.BlurredBar
@@ -82,10 +80,6 @@ fun SettingsMiuix(
     val styleItems = remember { listOf("Miuix", "Material 3") }
     val languageOptions = remember { com.ccwait.touchguard.model.AppLanguage.entries }
     val languageItems = remember { languageOptions.map { it.displayName } }
-    val darkModeOptions = remember { DarkModeOption.entries }
-    val darkModeItems = darkModeOptions.map { stringResource(it.labelRes) }
-    val paletteOptions = remember { ThemePalette.entries }
-    val paletteItems = paletteOptions.map { stringResource(it.labelRes) }
 
     Scaffold(
         topBar = {
@@ -186,44 +180,20 @@ fun SettingsMiuix(
                             }
                         )
 
-                        val currentDarkModeIndex = darkModeOptions.indexOf(AppPreferences.darkMode).coerceAtLeast(0)
-                        OverlayDropdownPreference(
-                            title = stringResource(R.string.settings_dark_mode_title),
-                            summary = stringResource(R.string.settings_dark_mode_summary, stringResource(AppPreferences.darkMode.labelRes)),
-                            items = darkModeItems,
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.DarkMode,
-                                    modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(R.string.settings_dark_mode_title),
-                                    tint = iconTint
-                                )
-                            },
-                            selectedIndex = currentDarkModeIndex,
-                            onSelectedIndexChange = { index ->
-                                val selected = darkModeOptions.getOrNull(index) ?: DarkModeOption.SYSTEM
-                                AppPreferences.updateDarkMode(selected)
-                                onVibrate(20)
-                            }
-                        )
-
-                        val currentPaletteIndex = paletteOptions.indexOf(AppPreferences.themePalette).coerceAtLeast(0)
-                        OverlayDropdownPreference(
-                            title = stringResource(R.string.settings_palette_title),
-                            summary = "${stringResource(AppPreferences.themePalette.labelRes)} · ${stringResource(AppPreferences.themePalette.descRes)}",
-                            items = paletteItems,
+                        val navigator = com.ccwait.touchguard.ui.navigation.LocalNavigator.current
+                        ArrowPreference(
+                            title = stringResource(R.string.settings_theme),
+                            summary = stringResource(R.string.settings_theme_summary),
                             startAction = {
                                 Icon(
                                     Icons.Rounded.Palette,
                                     modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(R.string.settings_palette_title),
+                                    contentDescription = stringResource(R.string.settings_theme),
                                     tint = iconTint
                                 )
                             },
-                            selectedIndex = currentPaletteIndex,
-                            onSelectedIndexChange = { index ->
-                                val selected = paletteOptions.getOrNull(index) ?: ThemePalette.MONET
-                                AppPreferences.updateThemePalette(selected)
+                            onClick = {
+                                navigator.push(com.ccwait.touchguard.ui.navigation.Route.ColorPalette)
                                 onVibrate(20)
                             }
                         )

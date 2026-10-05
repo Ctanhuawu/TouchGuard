@@ -195,4 +195,34 @@
     <string name="info_design_style">設計風格與規範</string>
     <string name="info_design_content">基於 Miuix UI · SukiSU-Ultra 規範</string>
     <string name="info_design_content_m3">基於 Material 3 (Material You) 規範</string>
+
+    <!-- 主題與調色盤 -->
+    <string name="settings_theme">主題設定</string>
+    <string name="settings_theme_summary">自訂更多主題與色彩選項</string>
+    <string name="settings_theme_mode_system">跟隨系統</string>
+    <string name="settings_theme_mode_light">淺色</string>
+    <string name="settings_theme_mode_dark">深色</string>
+    <string name="settings_theme_mode_amoled">純黑深色 (AMOLED)</string>
+    <string name="settings_monet">啟用 Monet 動態色彩</string>
+    <string name="settings_key_color">強調色種子</string>
+    <string name="settings_key_color_default">系統桌布預設</string>
+    <string name="settings_color_style">色彩風格</string>
+    <string name="settings_color_spec">色彩標準</string>
+    <string name="settings_enable_blur">即時毛玻璃</string>
+    <string name="settings_enable_blur_summary">為頂欄與底欄啟用即時模糊</string>
+    <string name="color_red">紅色</string>
+    <string name="color_pink">粉色</string>
+    <string name="color_purple">紫色</string>
+    <string name="color_deep_purple">深紫</string>
+    <string name="color_indigo">靛青</string>
+    <string name="color_blue">藍色</string>
+    <string name="color_cyan">青色</string>
+    <string name="color_teal">青綠</string>
+    <string name="color_green">綠色</string>
+    <string name="color_yellow">黃色</string>
+    <string name="color_amber">琥珀</string>
+    <string name="color_orange">橙色</string>
+    <string name="color_brown">棕色</string>
+    <string name="color_blue_grey">灰藍</string>
+    <string name="color_sakura">櫻花粉</string>
 </resources>

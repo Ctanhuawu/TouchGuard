@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
@@ -24,9 +25,19 @@ import com.ccwait.touchguard.strategy.StrategyType
 import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultHapticFeedbackService
 import com.ccwait.touchguard.system.DefaultSystemPanelController
+import com.ccwait.touchguard.ui.AppThemeContainer
 import com.ccwait.touchguard.ui.components.rememberMainPagerState
+import com.ccwait.touchguard.ui.navigation.LocalNavigator
+import com.ccwait.touchguard.ui.navigation.Route
+import com.ccwait.touchguard.ui.navigation.rememberNavigator
 import com.ccwait.touchguard.ui.screens.MainScreen
+import com.ccwait.touchguard.ui.screens.colorpalette.ColorPaletteScreen
+import com.ccwait.touchguard.ui.theme.ColorMode
+import com.ccwait.touchguard.ui.util.ProvideAppLanguage
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.nav.core.NavDisplay
+import top.yukonga.miuix.kmp.nav.core.NavDisplayEffects
+import top.yukonga.miuix.kmp.nav.core.rememberNavSystemCornerRadius
 
 class MainActivity : ComponentActivity() {
 
@@ -112,6 +123,8 @@ class MainActivity : ComponentActivity() {
         applyScreenHoldState(TouchLockManager.isTouchLocked)
 
         setContent {
+            val appSettings = AppPreferences.getAppSettings()
+            val themeMode = AppPreferences.themeMode
             val isDark = AppPreferences.isDark(isSystemInDarkTheme())
 
             DisposableEffect(isDark) {
@@ -131,63 +144,87 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
 
-            val initialTab = intent?.getIntExtra("tab", 0)?.coerceIn(0, 3) ?: 0
-            val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 4 })
-            val mainPagerState = rememberMainPagerState(pagerState = pagerState)
+            val navigator = rememberNavigator(Route.Main)
 
-            LaunchedEffect(intentSequence.longValue) {
-                val targetIntent = latestIntent.value
-                if (targetIntent != null) {
-                    if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
-                        DefaultSystemPanelController.collapsePanels(this@MainActivity)
-                        mainPagerState.animateToPage(0)
-                    }
-                    val reqStrat = targetIntent.getStringExtra("set_strategy")
-                    if (reqStrat != null) {
-                        TouchLockManager.selectStrategy(this@MainActivity, StrategyType.fromId(reqStrat))
-                    }
-                    val reqFloat = targetIntent.getStringExtra("set_floating_bar")
-                    if (reqFloat != null) {
-                        AppPreferences.updateFloatingBottomBar(reqFloat.toBoolean())
-                    }
-                    val reqColor = targetIntent.getStringExtra("set_color_mode")
-                    if (reqColor != null) {
-                        ColorMode.entries.firstOrNull { it.name.equals(reqColor, ignoreCase = true) }?.let {
-                            AppPreferences.updateColorMode(it)
+            CompositionLocalProvider(
+                LocalNavigator provides navigator,
+            ) {
+                AppThemeContainer(
+                    themeMode = themeMode,
+                    appSettings = appSettings
+                ) {
+                    ProvideAppLanguage {
+                        val initialTab = intent?.getIntExtra("tab", 0)?.coerceIn(0, 3) ?: 0
+                        val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 4 })
+                        val mainPagerState = rememberMainPagerState(pagerState = pagerState)
+
+                        LaunchedEffect(intentSequence.longValue) {
+                            val targetIntent = latestIntent.value
+                            if (targetIntent != null) {
+                                if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
+                                    DefaultSystemPanelController.collapsePanels(this@MainActivity)
+                                    mainPagerState.animateToPage(0)
+                                }
+                                val reqStrat = targetIntent.getStringExtra("set_strategy")
+                                if (reqStrat != null) {
+                                    TouchLockManager.selectStrategy(this@MainActivity, StrategyType.fromId(reqStrat))
+                                }
+                                val reqFloat = targetIntent.getStringExtra("set_floating_bar")
+                                if (reqFloat != null) {
+                                    AppPreferences.updateFloatingBottomBar(reqFloat.toBoolean())
+                                }
+                                val reqColor = targetIntent.getStringExtra("set_color_mode")
+                                if (reqColor != null) {
+                                    ColorMode.entries.firstOrNull { it.name.equals(reqColor, ignoreCase = true) }?.let {
+                                        AppPreferences.updateColorMode(it)
+                                    }
+                                }
+                                val reqLang = targetIntent.getStringExtra("set_language")
+                                if (reqLang != null) {
+                                    val lang = com.ccwait.touchguard.model.AppLanguage.fromId(reqLang)
+                                    AppPreferences.updateAppLanguage(lang)
+                                    com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(lang)
+                                }
+                                val targetTab = targetIntent.getIntExtra("tab", -1)
+                                if (targetTab in 0..3) {
+                                    mainPagerState.animateToPage(targetTab)
+                                }
+                            }
                         }
-                    }
-                    val reqLang = targetIntent.getStringExtra("set_language")
-                    if (reqLang != null) {
-                        val lang = com.ccwait.touchguard.model.AppLanguage.fromId(reqLang)
-                        AppPreferences.updateAppLanguage(lang)
-                        com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(lang)
-                    }
-                    val targetTab = targetIntent.getIntExtra("tab", -1)
-                    if (targetTab in 0..3) {
-                        mainPagerState.animateToPage(targetTab)
+
+                        NavDisplay(
+                            backStack = navigator.backStack,
+                            effects = NavDisplayEffects(cornerClipRadius = rememberNavSystemCornerRadius()),
+                            onBack = { navigator.pop() }
+                        ) {
+                            entry<Route.Main> {
+                                MainScreen(
+                                    initialTab = initialTab,
+                                    mainPagerState = mainPagerState,
+                                    onLockToggle = {
+                                        if (TouchLockManager.isTouchLocked) unlockTouch() else lockTouch()
+                                    },
+                                    onScreenHoldStateUpdate = {
+                                        applyScreenHoldState(true)
+                                        com.ccwait.touchguard.strategy.GlobalScreenPolicyManager.applyPolicies(this@MainActivity, true)
+                                    },
+                                    onVibrate = { duration ->
+                                        vibratePhone(duration)
+                                    },
+                                    onResetLock = {
+                                        unlockTouch()
+                                        AppLogManager.addLog("重置", "已手动重载并释放所有触控锁", isSuccess = true)
+                                        Toast.makeText(this@MainActivity, "已重置并释放所有触控锁", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                            entry<Route.ColorPalette> {
+                                ColorPaletteScreen()
+                            }
+                        }
                     }
                 }
             }
-
-            MainScreen(
-                initialTab = initialTab,
-                mainPagerState = mainPagerState,
-                onLockToggle = {
-                    if (TouchLockManager.isTouchLocked) unlockTouch() else lockTouch()
-                },
-                onScreenHoldStateUpdate = {
-                    applyScreenHoldState(true)
-                    com.ccwait.touchguard.strategy.GlobalScreenPolicyManager.applyPolicies(this@MainActivity, true)
-                },
-                onVibrate = { duration ->
-                    vibratePhone(duration)
-                },
-                onResetLock = {
-                    unlockTouch()
-                    AppLogManager.addLog("重置", "已手动重载并释放所有触控锁", isSuccess = true)
-                    Toast.makeText(this@MainActivity, "已重置并释放所有触控锁", Toast.LENGTH_SHORT).show()
-                }
-            )
         }
     }
 

@@ -70,7 +70,7 @@ import com.ccwait.touchguard.ui.components.liquid.rememberCombinedBackdrop
 import com.ccwait.touchguard.ui.components.liquid.vibrancy
 import com.ccwait.touchguard.ui.components.miuix.animation.DampedDragAnimation
 import com.ccwait.touchguard.ui.components.miuix.animation.InteractiveHighlight
-import com.ccwait.touchguard.ui.isInDarkTheme
+import com.ccwait.touchguard.ui.theme.isInDarkTheme
 import top.yukonga.miuix.kmp.blur.Backdrop
 import top.yukonga.miuix.kmp.blur.blur
 import top.yukonga.miuix.kmp.blur.drawBackdrop
