@@ -356,7 +356,7 @@ private fun MiuixSoftwareInfoCard() {
             MiuixInfoText(
                 icon = Icons.Rounded.Tag,
                 title = stringResource(R.string.info_app_version),
-                content = "v${BuildConfig.VERSION_NAME} · 稳定版"
+                content = "v${BuildConfig.VERSION_NAME} · Beta版"
             )
             MiuixInfoText(
                 icon = Icons.Rounded.Person,

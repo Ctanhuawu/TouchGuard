@@ -329,7 +329,7 @@ private fun MaterialSoftwareInfoCard() {
             MaterialInfoText(
                 icon = Icons.Rounded.Tag,
                 title = stringResource(R.string.info_app_version),
-                content = "v${BuildConfig.VERSION_NAME} · 稳定版"
+                content = "v${BuildConfig.VERSION_NAME} · Beta版"
             )
             MaterialInfoText(
                 icon = Icons.Rounded.Person,

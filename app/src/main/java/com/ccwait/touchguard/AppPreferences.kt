@@ -97,7 +97,7 @@ object AppPreferences {
         private set
     var isCheckUpdateEnabled by mutableStateOf(true)
         private set
-    var updateChannel by mutableStateOf(com.ccwait.touchguard.model.UpdateChannel.STABLE)
+    var updateChannel by mutableStateOf(com.ccwait.touchguard.model.UpdateChannel.BETA)
         private set
     var keyPressWindowMs by mutableIntStateOf(DEFAULT_KEY_PRESS_WINDOW_MS)
         private set
@@ -144,7 +144,7 @@ object AppPreferences {
         isNavigationBadgeEnabled = sp.getBoolean(KEY_NAVIGATION_BADGE, true)
         isPredictiveBackEnabled = sp.getBoolean(KEY_PREDICTIVE_BACK, true)
         isCheckUpdateEnabled = sp.getBoolean(KEY_CHECK_UPDATE, true)
-        val channelId = sp.getString(KEY_UPDATE_CHANNEL, com.ccwait.touchguard.model.UpdateChannel.STABLE.id)
+        val channelId = sp.getString(KEY_UPDATE_CHANNEL, com.ccwait.touchguard.model.UpdateChannel.BETA.id)
         updateChannel = com.ccwait.touchguard.model.UpdateChannel.fromId(channelId)
         keyPressWindowMs = sp.getInt(KEY_KEY_PRESS_WINDOW_MS, DEFAULT_KEY_PRESS_WINDOW_MS)
 

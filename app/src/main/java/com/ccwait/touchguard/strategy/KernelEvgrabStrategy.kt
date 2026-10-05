@@ -44,7 +44,7 @@ class KernelEvgrabStrategy : TouchLockStrategy {
 
     override val statusSummary: String
         get() = when (readiness) {
-            StrategyReadiness.READY -> "v${BuildConfig.VERSION_NAME} · 稳定版"
+            StrategyReadiness.READY -> "v${BuildConfig.VERSION_NAME} · Beta版"
             StrategyReadiness.PERMISSION_MISSING -> "点击申请 Root 授权 · 驱动未就绪"
             StrategyReadiness.UNSUPPORTED -> "未检测到 Root 环境 · 点击切换为免 Root"
             StrategyReadiness.CHECKING -> "正在检测底层 Root 授权..."

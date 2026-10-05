@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.ccwait.touchguard.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -43,7 +44,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
 
     override val statusSummary: String
         get() = when (readiness) {
-            StrategyReadiness.READY -> "v1.0 · 稳定版"
+            StrategyReadiness.READY -> "v${BuildConfig.VERSION_NAME} · Beta版"
             StrategyReadiness.PERMISSION_MISSING -> "点击前往系统设置开启悬浮窗"
             StrategyReadiness.UNSUPPORTED -> "系统不支持悬浮窗拦截"
             StrategyReadiness.CHECKING -> "正在检测悬浮窗权限..."
