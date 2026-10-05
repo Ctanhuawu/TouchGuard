@@ -67,137 +67,161 @@ class DefaultScreenOverlayController : ScreenOverlayController {
     private var windowManager: WindowManager? = null
 
     override fun attach(context: Context) {
-        ensureOverlayPermission(context)
-        if (!Settings.canDrawOverlays(context)) {
+        val appContext = context.applicationContext
+        ensureOverlayPermission(appContext)
+        if (!Settings.canDrawOverlays(appContext)) {
             android.util.Log.w("ScreenOverlayController", "No overlay permission, skip global window policy")
             return
         }
 
-        try {
-            val appContext = context.applicationContext
-            val wm = appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowManager = wm
+        val action = Runnable {
+            try {
+                detach()
 
-            val showPill = AppPreferences.isFloatingIndicatorEnabled
-            val orientation = AppPreferences.screenOrientationLock
-            val lockBrightness = AppPreferences.isBrightnessLockEnabled
-            val keepScreenOn = AppPreferences.isKeepScreenOnEnabled
-            val density = appContext.resources.displayMetrics.density
+                val wm = appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val showPill = AppPreferences.isFloatingIndicatorEnabled
+                val orientation = AppPreferences.screenOrientationLock
+                val lockBrightness = AppPreferences.isBrightnessLockEnabled
+                val keepScreenOn = AppPreferences.isKeepScreenOnEnabled
+                val density = appContext.resources.displayMetrics.density
 
-            val container = FrameLayout(appContext).apply {
-                setBackgroundColor(Color.TRANSPARENT)
-                isClickable = false
-                isFocusable = false
-            }
-
-            if (showPill) {
-                val promptPill = TextView(appContext).apply {
-                    val tip = appContext.getString(AppPreferences.unlockMechanism.promptTipRes)
-                    text = "🔒 " + appContext.getString(R.string.capsule_press_tip, tip)
-                    setTextColor(Color.WHITE)
-                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-                    val padH = (16 * density).toInt()
-                    val padV = (8 * density).toInt()
-                    setPadding(padH, padV, padH, padV)
-                    background = GradientDrawable().apply {
-                        setColor(Color.argb(220, 24, 24, 27))
-                        cornerRadius = 24 * density
-                        setStroke((0.8f * density).toInt(), Color.argb(50, 255, 255, 255))
-                    }
-                    val params = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-                        topMargin = (50 * density).toInt()
-                    }
-                    layoutParams = params
+                val container = FrameLayout(appContext).apply {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    isClickable = false
+                    isFocusable = false
                 }
-                container.addView(promptPill)
-            }
 
-            var flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                if (showPill) {
+                    val promptPill = TextView(appContext).apply {
+                        val tip = appContext.getString(AppPreferences.unlockMechanism.promptTipRes)
+                        text = "🔒 " + appContext.getString(R.string.capsule_press_tip, tip)
+                        setTextColor(Color.WHITE)
+                        setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                        val padH = (16 * density).toInt()
+                        val padV = (8 * density).toInt()
+                        setPadding(padH, padV, padH, padV)
+                        background = GradientDrawable().apply {
+                            setColor(Color.argb(220, 24, 24, 27))
+                            cornerRadius = 24 * density
+                            setStroke((0.8f * density).toInt(), Color.argb(50, 255, 255, 255))
+                        }
+                        val params = FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.WRAP_CONTENT,
+                            FrameLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                            topMargin = (50 * density).toInt()
+                        }
+                        layoutParams = params
+                    }
+                    container.addView(promptPill)
+                }
 
-            if (keepScreenOn) {
-                flags = flags or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            }
-            if (AppPreferences.isHideSystemBarsEnabled) {
-                @Suppress("DEPRECATION")
-                flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
-            }
+                var flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 
-            val layoutParams = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                } else {
+                if (keepScreenOn) {
+                    flags = flags or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                }
+                if (AppPreferences.isHideSystemBarsEnabled) {
                     @Suppress("DEPRECATION")
-                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-                },
-                flags,
-                PixelFormat.TRANSLUCENT
-            ).apply {
-                gravity = Gravity.TOP or Gravity.START
-                if (orientation != ScreenOrientationLock.FOLLOW_SYSTEM) {
-                    screenOrientation = orientation.orientationValue
+                    flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
                 }
-                if (lockBrightness) {
-                    try {
-                        val curBrightness = Settings.System.getInt(
-                            appContext.contentResolver,
-                            Settings.System.SCREEN_BRIGHTNESS
-                        ) / 255f
-                        screenBrightness = curBrightness.coerceIn(0.01f, 1.0f)
-                    } catch (_: Exception) {}
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                    setFitInsetsTypes(0)
-                    setFitInsetsSides(0)
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                }
-            }
 
-            detach()
-            wm.addView(container, layoutParams)
-            overlayView = container
-            android.util.Log.d("ScreenOverlayController", "Global policy overlay attached (pill=$showPill, orientation=${orientation.title})")
-        } catch (e: Exception) {
-            android.util.Log.e("ScreenOverlayController", "Failed to attach global policy overlay", e)
+                val layoutParams = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    } else {
+                        @Suppress("DEPRECATION")
+                        WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                    },
+                    flags,
+                    PixelFormat.TRANSLUCENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                    if (orientation != ScreenOrientationLock.FOLLOW_SYSTEM) {
+                        screenOrientation = orientation.orientationValue
+                    }
+                    if (lockBrightness) {
+                        try {
+                            val curBrightness = Settings.System.getInt(
+                                appContext.contentResolver,
+                                Settings.System.SCREEN_BRIGHTNESS
+                            ) / 255f
+                            screenBrightness = curBrightness.coerceIn(0.01f, 1.0f)
+                        } catch (_: Exception) {}
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                        setFitInsetsTypes(0)
+                        setFitInsetsSides(0)
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    }
+                }
+
+                wm.addView(container, layoutParams)
+                windowManager = wm
+                overlayView = container
+                android.util.Log.d("ScreenOverlayController", "Global policy overlay attached (pill=$showPill, orientation=${orientation.title})")
+            } catch (e: Exception) {
+                android.util.Log.e("ScreenOverlayController", "Failed to attach global policy overlay", e)
+            }
+        }
+
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            action.run()
+        } else {
+            android.os.Handler(android.os.Looper.getMainLooper()).post(action)
         }
     }
 
     override fun detach() {
-        val wm = windowManager
         val view = overlayView
         overlayView = null
+        val wm = windowManager ?: (view?.context?.applicationContext?.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)
         windowManager = null
-        if (view != null && wm != null) {
-            try {
-                if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-                    try { wm.removeViewImmediate(view) } catch (_: Exception) { wm.removeView(view) }
-                } else {
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
-                        try { wm.removeViewImmediate(view) } catch (_: Exception) { try { wm.removeView(view) } catch (_: Exception) {} }
+
+        if (view != null) {
+            val action = Runnable {
+                try {
+                    view.visibility = View.GONE
+                    (view as? android.view.ViewGroup)?.removeAllViews()
+                    if (wm != null) {
+                        try {
+                            wm.removeViewImmediate(view)
+                        } catch (_: Exception) {
+                            try {
+                                wm.removeView(view)
+                            } catch (_: Exception) {}
+                        }
                     }
-                }
-            } catch (_: Exception) {}
+                } catch (_: Exception) {}
+            }
+            if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                action.run()
+            } else {
+                android.os.Handler(android.os.Looper.getMainLooper()).post(action)
+            }
         }
     }
 
     private fun ensureOverlayPermission(context: Context) {
-        if (!Settings.canDrawOverlays(context)) {
-            try {
-                Runtime.getRuntime().exec(
-                    arrayOf("su", "-c", "appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow")
-                ).waitFor()
-            } catch (_: Exception) {}
-        }
+        if (Settings.canDrawOverlays(context)) return
+        try {
+            if (com.ccwait.touchguard.system.ShizukuTaskLockHelper.ensureOverlayPermission(context)) {
+                return
+            }
+        } catch (_: Throwable) {}
+        try {
+            Runtime.getRuntime().exec(
+                arrayOf("su", "-c", "appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow")
+            ).waitFor()
+        } catch (_: Throwable) {}
     }
 }
 

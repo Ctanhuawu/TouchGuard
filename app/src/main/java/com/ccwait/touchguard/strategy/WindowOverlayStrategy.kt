@@ -198,6 +198,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
             val wm = windowManager ?: (context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)
             overlayView?.let { view ->
                 try {
+                    view.visibility = View.GONE
                     wm?.removeViewImmediate(view)
                 } catch (_: Exception) {
                     try {
@@ -224,16 +225,21 @@ class WindowOverlayStrategy : TouchLockStrategy {
         overlayView = null
         windowManager = null
         _isLocked = false
-        if (view != null && wm != null) {
+        if (view != null) {
             try {
-                if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-                    try { wm.removeViewImmediate(view) } catch (_: Exception) { wm.removeView(view) }
-                } else {
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
-                        try { wm.removeViewImmediate(view) } catch (_: Exception) { try { wm.removeView(view) } catch (_: Exception) {} }
-                    }
-                }
+                view.visibility = View.GONE
             } catch (_: Exception) {}
+            if (wm != null) {
+                try {
+                    if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                        try { wm.removeViewImmediate(view) } catch (_: Exception) { wm.removeView(view) }
+                    } else {
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            try { wm.removeViewImmediate(view) } catch (_: Exception) { try { wm.removeView(view) } catch (_: Exception) {} }
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
         }
     }
 
