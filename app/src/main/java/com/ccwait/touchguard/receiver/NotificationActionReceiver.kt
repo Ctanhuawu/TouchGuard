@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.ccwait.touchguard.strategy.TouchLockManager
+import com.ccwait.touchguard.system.DefaultSystemPanelController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,7 +15,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
         android.util.Log.d("TouchGuard", "NotificationActionReceiver onReceive: action=$action")
         val pendingResult = goAsync()
 
-        TouchLockManager.collapsePanels(context)
+        DefaultSystemPanelController.collapsePanels(context)
 
         CoroutineScope(Dispatchers.Main).launch {
             try {

@@ -9,6 +9,7 @@ import android.service.quicksettings.TileService
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.strategy.TouchLockManager
+import com.ccwait.touchguard.system.DefaultSystemPanelController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ class TouchGuardTileService : TileService() {
         super.onClick()
         val isLocked = TouchLockManager.isTouchLocked
         if (!isLocked) {
-            TouchLockManager.collapsePanels(applicationContext)
+            DefaultSystemPanelController.collapsePanels(applicationContext)
         }
         CoroutineScope(Dispatchers.Main).launch {
             if (isLocked) {

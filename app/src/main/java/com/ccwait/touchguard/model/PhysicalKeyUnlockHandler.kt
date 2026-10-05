@@ -5,6 +5,7 @@ import android.view.KeyEvent
 import android.widget.Toast
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.strategy.TouchLockManager
+import com.ccwait.touchguard.system.DefaultHapticFeedbackService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -123,7 +124,7 @@ object PhysicalKeyUnlockHandler {
                         return true
                     } else {
                         lastKeyPressTime = now
-                        TouchLockManager.vibratePhone(context, 40)
+                        DefaultHapticFeedbackService.vibrate(context, 40)
                         Toast.makeText(context, "再按一次【音量减】解除锁定", Toast.LENGTH_SHORT).show()
                         return true
                     }
@@ -138,14 +139,14 @@ object PhysicalKeyUnlockHandler {
                             scheduleOrExecuteUnlock(context, "连续三击音量下键", isFromMediaSession)
                             return true
                         } else {
-                            TouchLockManager.vibratePhone(context, 40)
+                            DefaultHapticFeedbackService.vibrate(context, 40)
                             Toast.makeText(context, "还需按 1 次【音量减】解除锁定", Toast.LENGTH_SHORT).show()
                             return true
                         }
                     } else {
                         keyPressCount = 1
                         lastKeyPressTime = now
-                        TouchLockManager.vibratePhone(context, 40)
+                        DefaultHapticFeedbackService.vibrate(context, 40)
                         Toast.makeText(context, "还需按 2 次【音量减】解除锁定", Toast.LENGTH_SHORT).show()
                         return true
                     }
@@ -158,7 +159,7 @@ object PhysicalKeyUnlockHandler {
                         return true
                     } else {
                         lastKeyPressTime = now
-                        TouchLockManager.vibratePhone(context, 40)
+                        DefaultHapticFeedbackService.vibrate(context, 40)
                         Toast.makeText(context, "再按一次【音量加】解除锁定", Toast.LENGTH_SHORT).show()
                         return true
                     }
@@ -168,7 +169,7 @@ object PhysicalKeyUnlockHandler {
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                     lastKeyCode = KeyEvent.KEYCODE_VOLUME_UP
                     lastKeyPressTime = now
-                    TouchLockManager.vibratePhone(context, 40)
+                    DefaultHapticFeedbackService.vibrate(context, 40)
                     Toast.makeText(context, "再按一次【音量减】完成组合解除", Toast.LENGTH_SHORT).show()
                     return true
                 } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
@@ -177,7 +178,7 @@ object PhysicalKeyUnlockHandler {
                         return true
                     } else {
                         reset()
-                        TouchLockManager.vibratePhone(context, 40)
+                        DefaultHapticFeedbackService.vibrate(context, 40)
                         Toast.makeText(context, "需先按【音量加】再按【音量减】", Toast.LENGTH_SHORT).show()
                         return true
                     }
@@ -187,7 +188,7 @@ object PhysicalKeyUnlockHandler {
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     lastKeyCode = KeyEvent.KEYCODE_VOLUME_DOWN
                     lastKeyPressTime = now
-                    TouchLockManager.vibratePhone(context, 40)
+                    DefaultHapticFeedbackService.vibrate(context, 40)
                     Toast.makeText(context, "再按一次【音量加】完成组合解除", Toast.LENGTH_SHORT).show()
                     return true
                 } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -196,7 +197,7 @@ object PhysicalKeyUnlockHandler {
                         return true
                     } else {
                         reset()
-                        TouchLockManager.vibratePhone(context, 40)
+                        DefaultHapticFeedbackService.vibrate(context, 40)
                         Toast.makeText(context, "需先按【音量减】再按【音量加】", Toast.LENGTH_SHORT).show()
                         return true
                     }
@@ -229,7 +230,7 @@ object PhysicalKeyUnlockHandler {
      */
     fun onEvgrabStep(context: Context, current: Int, total: Int, isWrong: Boolean) {
         if (!TouchLockManager.isTouchLocked) return
-        TouchLockManager.vibratePhone(context, 40)
+        DefaultHapticFeedbackService.vibrate(context, 40)
         val text = if (isWrong) {
             when (AppPreferences.unlockMechanism) {
                 UnlockMechanism.VOLUME_UP_THEN_DOWN -> "需先按【音量加】再按【音量减】"

@@ -23,6 +23,7 @@ import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.strategy.StrategyType
 import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultHapticFeedbackService
+import com.ccwait.touchguard.system.DefaultSystemPanelController
 import com.ccwait.touchguard.ui.components.rememberMainPagerState
 import com.ccwait.touchguard.ui.screens.MainScreen
 import kotlinx.coroutines.launch
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (intent?.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
-            TouchLockManager.collapsePanels(this@MainActivity)
+            DefaultSystemPanelController.collapsePanels(this@MainActivity)
         }
 
         val reqStrategy = intent?.getStringExtra("set_strategy")
@@ -138,7 +139,7 @@ class MainActivity : ComponentActivity() {
                 val targetIntent = latestIntent.value
                 if (targetIntent != null) {
                     if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
-                        TouchLockManager.collapsePanels(this@MainActivity)
+                        DefaultSystemPanelController.collapsePanels(this@MainActivity)
                         mainPagerState.animateToPage(0)
                     }
                     val reqStrat = targetIntent.getStringExtra("set_strategy")

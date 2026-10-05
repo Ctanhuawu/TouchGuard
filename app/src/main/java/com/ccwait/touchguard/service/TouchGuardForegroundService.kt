@@ -92,7 +92,10 @@ class TouchGuardForegroundService : Service() {
         if (mediaSession != null) return
         try {
             val session = MediaSession(this, "TouchGuardKeyWatcher").apply {
-                setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+                @Suppress("DEPRECATION")
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+                }
                 val volumeProvider = object : VolumeProvider(VOLUME_CONTROL_RELATIVE, 100, 50) {
                     override fun onAdjustVolume(direction: Int) {
                         if (!TouchLockManager.isTouchLocked) return
