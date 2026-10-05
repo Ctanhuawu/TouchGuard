@@ -165,7 +165,7 @@ fun SettingsMiuix(
                             },
                             onClick = {
                                 onVibrate(20)
-                                Toast.makeText(context, "当前已是最新版本 (v${BuildConfig.VERSION_NAME})", Toast.LENGTH_SHORT).show()
+                                com.ccwait.touchguard.update.UpdateManager.checkUpdate(context, isManual = true)
                             }
                         )
                     }

@@ -246,4 +246,14 @@
     <string name="channel_stable">穩定版 (GitHub Release)</string>
     <string name="channel_beta">測試版 (Beta / 預發佈)</string>
     <string name="channel_mirror">國內加速源 (FastGit / 鏡像)</string>
+    <string name="update_dialog_title">發現新版本</string>
+    <string name="update_dialog_current_version">目前版本：%1$s</string>
+    <string name="update_dialog_latest_version">最新版本：%1$s</string>
+    <string name="update_dialog_changelog_title">更新日誌：</string>
+    <string name="update_dialog_btn_download">立即下載</string>
+    <string name="update_dialog_btn_browser">網頁查看</string>
+    <string name="update_dialog_btn_later">稍後再說</string>
+    <string name="update_checking">正在檢查更新…</string>
+    <string name="update_already_latest">目前已是最新版本 (v%1$s)</string>
+    <string name="update_check_failed">檢查更新失敗，請稍後重試</string>
 </resources>

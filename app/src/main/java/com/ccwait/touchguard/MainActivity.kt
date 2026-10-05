@@ -95,6 +95,10 @@ class MainActivity : ComponentActivity() {
             TouchLockManager.prepareAll(this@MainActivity)
         }
 
+        if (AppPreferences.isCheckUpdateEnabled) {
+            com.ccwait.touchguard.update.UpdateManager.checkUpdate(this, isManual = false)
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -191,6 +195,14 @@ class MainActivity : ComponentActivity() {
                             entry<Route.ColorPalette>(swipeDismiss = swipeDismiss) {
                                 ColorPaletteScreen()
                             }
+                        }
+
+                        val activeUpdate = com.ccwait.touchguard.update.UpdateManager.activeUpdate
+                        if (activeUpdate != null) {
+                            com.ccwait.touchguard.ui.components.UpdateDialog(
+                                updateInfo = activeUpdate,
+                                onDismiss = { com.ccwait.touchguard.update.UpdateManager.dismiss() }
+                            )
                         }
                     }
                 }

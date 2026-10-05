@@ -246,4 +246,14 @@
     <string name="channel_stable">Stable (GitHub Release)</string>
     <string name="channel_beta">Beta (Pre-release)</string>
     <string name="channel_mirror">FastGit Mirror</string>
+    <string name="update_dialog_title">New Version Available</string>
+    <string name="update_dialog_current_version">Current version: %1$s</string>
+    <string name="update_dialog_latest_version">Latest version: %1$s</string>
+    <string name="update_dialog_changelog_title">Changelog:</string>
+    <string name="update_dialog_btn_download">Download Now</string>
+    <string name="update_dialog_btn_browser">View on Web</string>
+    <string name="update_dialog_btn_later">Later</string>
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_already_latest">You are already on the latest version (v%1$s)</string>
+    <string name="update_check_failed">Failed to check for updates, please try again later</string>
 </resources>
