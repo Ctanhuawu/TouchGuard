@@ -227,4 +227,9 @@
     <string name="color_sakura">Sakura</string>
     <string name="settings_enable_predictive_back">Predictive back animation</string>
     <string name="settings_enable_predictive_back_summary">Enable system predictive back gestures and animation</string>
+    <string name="settings_update_channel_title">Update Channel</string>
+    <string name="settings_check_update_now">Check for Updates Now</string>
+    <string name="channel_stable">Stable (GitHub Release)</string>
+    <string name="channel_beta">Beta (Pre-release)</string>
+    <string name="channel_mirror">FastGit Mirror</string>
 </resources>

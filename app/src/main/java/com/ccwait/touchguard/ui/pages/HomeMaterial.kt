@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
@@ -140,7 +141,7 @@ private fun MaterialStatusCard(
 
     val watermarkIcon = when {
         isLocked -> Icons.Rounded.Lock
-        isPermMissing -> Icons.Rounded.Shield
+        isPermMissing -> Icons.Rounded.Block
         isUnsupported -> Icons.Rounded.Info
         else -> Icons.Rounded.CheckCircleOutline
     }

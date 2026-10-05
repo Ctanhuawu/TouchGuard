@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.AltRoute
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Description
@@ -18,7 +19,9 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.SystemUpdate
+import com.ccwait.touchguard.model.UpdateChannel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,6 +31,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -61,7 +65,6 @@ fun SettingsMaterial(
     onVibrate: (Long) -> Unit
 ) {
     val context = LocalContext.current
-    var checkUpdate by rememberSaveable { mutableStateOf(true) }
     val uiModeIndex = if (themeMode == AppThemeMode.Miuix) 0 else 1
 
     Scaffold(
@@ -94,17 +97,47 @@ fun SettingsMaterial(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Card 1: 更新检查
+                    // Card 1: 更新检查与更新渠道
+                    val channelOptions = remember { UpdateChannel.entries }
+                    val channelItems = remember(context) { channelOptions.map { context.getString(it.titleRes) } }
+                    val currentChannelIndex = channelOptions.indexOf(AppPreferences.updateChannel).coerceAtLeast(0)
+
                     MaterialSectionTitle(text = stringResource(R.string.settings_check_update_title))
                     MaterialPreferenceCard {
                         MaterialSwitchPreference(
                             title = stringResource(R.string.settings_check_update_title),
                             summary = stringResource(R.string.settings_check_update_summary),
                             leadingIcon = Icons.Rounded.SystemUpdate,
-                            checked = checkUpdate,
+                            checked = AppPreferences.isCheckUpdateEnabled,
+                            showDivider = true,
                             onCheckedChange = {
-                                checkUpdate = it
+                                AppPreferences.updateCheckUpdate(it)
                                 onVibrate(20)
+                            }
+                        )
+
+                        MaterialDropdownPreference(
+                            title = stringResource(R.string.settings_update_channel_title),
+                            summary = stringResource(AppPreferences.updateChannel.titleRes),
+                            leadingIcon = Icons.AutoMirrored.Rounded.AltRoute,
+                            items = channelItems,
+                            selectedIndex = currentChannelIndex,
+                            showDivider = true,
+                            onSelectedIndexChange = { index ->
+                                val selected = channelOptions.getOrNull(index) ?: UpdateChannel.STABLE
+                                AppPreferences.updateUpdateChannel(selected)
+                                onVibrate(20)
+                            }
+                        )
+
+                        MaterialPreferenceItem(
+                            title = stringResource(R.string.settings_check_update_now),
+                            summary = "v${BuildConfig.VERSION_NAME} (${stringResource(AppPreferences.updateChannel.titleRes)})",
+                            leadingIcon = Icons.Rounded.Sync,
+                            showDivider = false,
+                            onClick = {
+                                onVibrate(20)
+                                Toast.makeText(context, "当前已是最新版本 (v${BuildConfig.VERSION_NAME})", Toast.LENGTH_SHORT).show()
                             }
                         )
                     }

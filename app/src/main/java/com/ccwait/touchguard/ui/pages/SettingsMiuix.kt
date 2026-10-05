@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.AltRoute
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Description
@@ -18,7 +19,9 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.SystemUpdate
+import com.ccwait.touchguard.model.UpdateChannel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,7 +74,6 @@ fun SettingsMiuix(
     val barColor = if (blurActive) Color.Transparent else colorScheme.surface
     val iconTint = colorScheme.onBackground
 
-    var checkUpdate by rememberSaveable { mutableStateOf(true) }
     val uiModeIndex = if (themeMode == AppThemeMode.Miuix) 0 else 1
 
     val styleItems = remember { listOf("Miuix", "Material 3") }
@@ -105,7 +107,11 @@ fun SettingsMiuix(
                 overscrollEffect = null,
             ) {
                 item {
-                    // Card 1: 更新检查
+                    // Card 1: 更新检查与更新渠道
+                    val channelOptions = remember { UpdateChannel.entries }
+                    val channelItems = remember(context) { channelOptions.map { context.getString(it.titleRes) } }
+                    val currentChannelIndex = channelOptions.indexOf(AppPreferences.updateChannel).coerceAtLeast(0)
+
                     Card(
                         modifier = Modifier
                             .padding(top = 12.dp)
@@ -122,10 +128,47 @@ fun SettingsMiuix(
                                     tint = iconTint
                                 )
                             },
-                            checked = checkUpdate,
+                            checked = AppPreferences.isCheckUpdateEnabled,
                             onCheckedChange = {
-                                checkUpdate = it
+                                AppPreferences.updateCheckUpdate(it)
                                 onVibrate(20)
+                            }
+                        )
+
+                        OverlayDropdownPreference(
+                            title = stringResource(R.string.settings_update_channel_title),
+                            summary = stringResource(AppPreferences.updateChannel.titleRes),
+                            items = channelItems,
+                            startAction = {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.AltRoute,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(R.string.settings_update_channel_title),
+                                    tint = iconTint
+                                )
+                            },
+                            selectedIndex = currentChannelIndex,
+                            onSelectedIndexChange = { index ->
+                                val selected = channelOptions.getOrNull(index) ?: UpdateChannel.STABLE
+                                AppPreferences.updateUpdateChannel(selected)
+                                onVibrate(20)
+                            }
+                        )
+
+                        ArrowPreference(
+                            title = stringResource(R.string.settings_check_update_now),
+                            summary = "v${BuildConfig.VERSION_NAME} (${stringResource(AppPreferences.updateChannel.titleRes)})",
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Sync,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(R.string.settings_check_update_now),
+                                    tint = iconTint
+                                )
+                            },
+                            onClick = {
+                                onVibrate(20)
+                                Toast.makeText(context, "当前已是最新版本 (v${BuildConfig.VERSION_NAME})", Toast.LENGTH_SHORT).show()
                             }
                         )
                     }

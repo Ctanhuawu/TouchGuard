@@ -43,6 +43,8 @@ object AppPreferences {
     private const val KEY_NAVIGATION_BADGE = "navigation_badge"
     private const val KEY_PREDICTIVE_BACK = "enable_predictive_back"
     private const val KEY_APP_LANGUAGE = "app_language"
+    private const val KEY_CHECK_UPDATE = "check_update"
+    private const val KEY_UPDATE_CHANNEL = "update_channel"
 
     private var prefs: SharedPreferences? = null
 
@@ -91,6 +93,10 @@ object AppPreferences {
         private set
     var isPredictiveBackEnabled by mutableStateOf(true)
         private set
+    var isCheckUpdateEnabled by mutableStateOf(true)
+        private set
+    var updateChannel by mutableStateOf(com.ccwait.touchguard.model.UpdateChannel.STABLE)
+        private set
 
     fun getAppSettings(): AppSettings {
         val palette = try {
@@ -133,6 +139,9 @@ object AppPreferences {
         isFloatingBottomBarBlurEnabled = sp.getBoolean(KEY_FLOATING_BOTTOM_BAR_BLUR, true)
         isNavigationBadgeEnabled = sp.getBoolean(KEY_NAVIGATION_BADGE, true)
         isPredictiveBackEnabled = sp.getBoolean(KEY_PREDICTIVE_BACK, true)
+        isCheckUpdateEnabled = sp.getBoolean(KEY_CHECK_UPDATE, true)
+        val channelId = sp.getString(KEY_UPDATE_CHANNEL, com.ccwait.touchguard.model.UpdateChannel.STABLE.id)
+        updateChannel = com.ccwait.touchguard.model.UpdateChannel.fromId(channelId)
 
         val colorModeValue = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
         colorMode = ColorMode.fromValue(colorModeValue)
@@ -264,6 +273,16 @@ object AppPreferences {
     fun updateNavigationBadge(value: Boolean) {
         isNavigationBadgeEnabled = value
         prefs?.edit()?.putBoolean(KEY_NAVIGATION_BADGE, value)?.apply()
+    }
+
+    fun updateCheckUpdate(value: Boolean) {
+        isCheckUpdateEnabled = value
+        prefs?.edit()?.putBoolean(KEY_CHECK_UPDATE, value)?.apply()
+    }
+
+    fun updateUpdateChannel(value: com.ccwait.touchguard.model.UpdateChannel) {
+        updateChannel = value
+        prefs?.edit()?.putString(KEY_UPDATE_CHANNEL, value.id)?.apply()
     }
 
     fun updatePredictiveBack(value: Boolean, context: Context? = null) {

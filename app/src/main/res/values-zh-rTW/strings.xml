@@ -227,4 +227,9 @@
     <string name="color_sakura">櫻花粉</string>
     <string name="settings_enable_predictive_back">預測返回動畫</string>
     <string name="settings_enable_predictive_back_summary">啟用系統級預測性返回手勢與動畫</string>
+    <string name="settings_update_channel_title">更新渠道</string>
+    <string name="settings_check_update_now">立即檢查更新</string>
+    <string name="channel_stable">穩定版 (GitHub Release)</string>
+    <string name="channel_beta">測試版 (Beta / 預發佈)</string>
+    <string name="channel_mirror">國內加速源 (FastGit / 鏡像)</string>
 </resources>
