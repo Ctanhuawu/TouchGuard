@@ -48,6 +48,18 @@ enum class StrategyType(
         descRes = R.string.strat_accessibility_desc,
         specRes = R.string.strat_accessibility_spec,
         tagRes = R.string.tag_no_root
+    ),
+    SHIZUKU_PINNING(
+        id = "shizuku_pinning",
+        title = "Shizuku 屏幕固定方案",
+        description = "免 Root 借助 Shizuku 自动固定当前应用，彻底封死状态栏下拉与底边小白条退出",
+        technicalSpec = "Shizuku / startSystemLockTaskMode 深度接管",
+        tag = "系统级 · 免Root",
+        requiresRoot = false,
+        titleRes = R.string.strat_shizuku_title,
+        descRes = R.string.strat_shizuku_desc,
+        specRes = R.string.strat_shizuku_spec,
+        tagRes = R.string.tag_shizuku
     );
 
     @Composable

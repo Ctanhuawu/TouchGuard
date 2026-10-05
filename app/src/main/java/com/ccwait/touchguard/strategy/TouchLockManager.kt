@@ -47,7 +47,8 @@ object TouchLockManager : TouchLockCoordinator {
 
     private val strategies = mapOf<StrategyType, TouchLockStrategy>(
         StrategyType.ROOT_EVIOCGRAB to KernelEvgrabStrategy(),
-        StrategyType.ACCESSIBILITY_OVERLAY to WindowOverlayStrategy()
+        StrategyType.ACCESSIBILITY_OVERLAY to WindowOverlayStrategy(),
+        StrategyType.SHIZUKU_PINNING to ShizukuLockTaskStrategy()
     )
 
     override val currentStrategy: TouchLockStrategy

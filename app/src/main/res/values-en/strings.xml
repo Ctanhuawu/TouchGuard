@@ -17,6 +17,7 @@
     <string name="status_checking">Checking</string>
     <string name="tag_root">Hardware · Root</string>
     <string name="tag_no_root">View-level · Non-Root</string>
+    <string name="tag_shizuku">System · Non-Root</string>
 
     <!-- HomePage -->
     <string name="home_status_title">Touch Lock Status</string>
@@ -147,6 +148,9 @@
     <string name="strat_accessibility_title">Accessibility Global Overlay Strategy</string>
     <string name="strat_accessibility_desc">Global overlay touch interception</string>
     <string name="strat_accessibility_spec">Accessibility / TYPE_ACCESSIBILITY_OVERLAY</string>
+    <string name="strat_shizuku_title">Shizuku App Pinning Strategy</string>
+    <string name="strat_shizuku_desc">Pins foreground app via Shizuku to block gestures and status bar</string>
+    <string name="strat_shizuku_spec">Shizuku / startSystemLockTaskMode</string>
     <string name="accessibility_service_label">TouchGuard Protection Service</string>
     <string name="accessibility_service_description">Used in rootless mode to create an accessibility overlay covering status bar and full-screen gestures, and listen for physical key unlocks.</string>
 

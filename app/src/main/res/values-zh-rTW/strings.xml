@@ -17,6 +17,7 @@
     <string name="status_checking">檢測中</string>
     <string name="tag_root">硬體級 · Root</string>
     <string name="tag_no_root">視圖級 · 免Root</string>
+    <string name="tag_shizuku">系統級 · 免Root</string>
 
     <!-- 首頁 (HomePage) -->
     <string name="home_status_title">觸控鎖定狀態</string>
@@ -147,6 +148,9 @@
     <string name="strat_accessibility_title">無障礙全域攔截方案</string>
     <string name="strat_accessibility_desc">系統全域懸浮手勢攔截</string>
     <string name="strat_accessibility_spec">無障礙 / TYPE_ACCESSIBILITY_OVERLAY 頂層攔截</string>
+    <string name="strat_shizuku_title">Shizuku 螢幕固定方案</string>
+    <string name="strat_shizuku_desc">借助 Shizuku 自動固定當前應用，防誤觸手勢與下拉</string>
+    <string name="strat_shizuku_spec">Shizuku / startSystemLockTaskMode 深度接管</string>
     <string name="accessibility_service_label">TouchGuard 觸控防護服務</string>
     <string name="accessibility_service_description">用於在免 Root 環境下建立系統頂層無障礙攔截視圖，完美覆蓋狀態欄與全螢幕手勢，並監聽實體按鍵解鎖。</string>
 

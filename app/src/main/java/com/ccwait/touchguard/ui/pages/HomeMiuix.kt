@@ -226,8 +226,14 @@ private fun MiuixStatusCard(
                     }
                 }
                 StrategyReadiness.UNSUPPORTED -> {
-                    TouchLockManager.selectStrategy(context, StrategyType.ACCESSIBILITY_OVERLAY)
-                    Toast.makeText(context, "已为你切换为免 Root 悬浮窗锁定方案", Toast.LENGTH_SHORT).show()
+                    if (currentStrategy.type == StrategyType.SHIZUKU_PINNING) {
+                        coroutineScope.launch {
+                            currentStrategy.requestPermission(context)
+                        }
+                    } else {
+                        TouchLockManager.selectStrategy(context, StrategyType.ACCESSIBILITY_OVERLAY)
+                        Toast.makeText(context, "已为你切换为免 Root 悬浮窗锁定方案", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 StrategyReadiness.CHECKING -> {
                     Toast.makeText(context, "正在检测运行环境，请稍候...", Toast.LENGTH_SHORT).show()

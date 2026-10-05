@@ -80,4 +80,9 @@ dependencies {
 
     // Dynamic Color / MaterialKolor (SukiSU-Ultra Theme Engine)
     implementation("com.materialkolor:material-kolor:5.0.1")
+
+    // Shizuku API
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
 }
+
