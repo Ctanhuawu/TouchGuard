@@ -148,9 +148,9 @@
     <string name="strat_accessibility_title">無障礙全域攔截方案</string>
     <string name="strat_accessibility_desc">系統全域懸浮手勢攔截</string>
     <string name="strat_accessibility_spec">無障礙 / TYPE_ACCESSIBILITY_OVERLAY 頂層攔截</string>
-    <string name="strat_shizuku_title">Shizuku 螢幕固定方案</string>
-    <string name="strat_shizuku_desc">借助 Shizuku 自動固定當前應用，防誤觸手勢與下拉</string>
-    <string name="strat_shizuku_spec">Shizuku / startSystemLockTaskMode 深度接管</string>
+    <string name="strat_shizuku_title">Shizuku 特權鎖定方案</string>
+    <string name="strat_shizuku_desc">免 Root 借助 Shizuku 深度鎖定狀態列與手勢導航，保留狀態列顯示與按鍵恢復</string>
+    <string name="strat_shizuku_spec">Shizuku / IStatusBarService 系統級接管</string>
     <string name="accessibility_service_label">TouchGuard 觸控防護服務</string>
     <string name="accessibility_service_description">用於在免 Root 環境下建立系統頂層無障礙攔截視圖，完美覆蓋狀態欄與全螢幕手勢，並監聽實體按鍵解鎖。</string>
 

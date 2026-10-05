@@ -11,15 +11,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Shizuku 屏幕固定 (LockTask) 策略方案
+ * Shizuku 特权级状态栏与系统手势管控策略方案
  *
  * 核心机制：
- * 1. 利用 Shizuku (UID 2000 / MANAGE_ACTIVITY_TASKS) 特权，
- *    通过 IActivityTaskManager.startSystemLockTaskMode 自动将当前前台应用固定在屏幕上；
- * 2. 系统底层自动封死顶部状态栏下拉与底部全面屏手势（小白条退出）；
- * 3. 辅以 WindowOverlayStrategy (TYPE_ACCESSIBILITY_OVERLAY) 吞噬屏幕内所有点击滑动，
- *    实现“系统底层防逃逸 + 视图图层防乱点”的双重绝对锁定；
- * 4. 解锁时调用 stopSystemLockTaskMode 自动平滑退出固定模式。
+ * 1. 利用 Shizuku (UID 2000 shell) 特权，通过 IStatusBarService 精确禁用：
+ *    - 顶部状态栏与控制中心下拉 (DISABLE_EXPAND / DISABLE2_QUICK_SETTINGS)
+ *    - 全面屏导航手势（返回、桌面、多任务 DISABLE_BACK / DISABLE_HOME / DISABLE_RECENT）
+ *    - 完美保留时间、电量、WiFi等状态栏系统信息显示；
+ * 2. 通过 Shizuku 自动静默授权全屏悬浮窗权限 (SYSTEM_ALERT_WINDOW)，
+ *    配合 WindowOverlayStrategy 吞噬屏幕内所有触控操作；
+ * 3. 规避系统原生 LockTask 强制隐藏状态栏和切断音量键的硬性缺陷，
+ *    物理按键（如双击音量下键）应急解锁 100% 灵敏可用。
  */
 class ShizukuLockTaskStrategy : TouchLockStrategy {
     override val type: StrategyType = StrategyType.SHIZUKU_PINNING
