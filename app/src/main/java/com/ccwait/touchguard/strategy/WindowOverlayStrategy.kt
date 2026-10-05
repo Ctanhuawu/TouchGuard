@@ -341,8 +341,24 @@ class WindowOverlayStrategy : TouchLockStrategy {
                         }
                         if (AppPreferences.isAllowVolumeKeysEnabled) {
                             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
-                            val direction = if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) android.media.AudioManager.ADJUST_RAISE else android.media.AudioManager.ADJUST_LOWER
-                            audioManager?.adjustSuggestedStreamVolume(direction, android.media.AudioManager.USE_DEFAULT_STREAM_TYPE, android.media.AudioManager.FLAG_SHOW_UI)
+                            val direction = if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                                android.media.AudioManager.ADJUST_RAISE
+                            } else {
+                                android.media.AudioManager.ADJUST_LOWER
+                            }
+                            val streamType = if (audioManager?.mode == android.media.AudioManager.MODE_IN_CALL ||
+                                audioManager?.mode == android.media.AudioManager.MODE_IN_COMMUNICATION) {
+                                android.media.AudioManager.STREAM_VOICE_CALL
+                            } else {
+                                android.media.AudioManager.STREAM_MUSIC
+                            }
+                            try {
+                                audioManager?.adjustStreamVolume(
+                                    streamType,
+                                    direction,
+                                    android.media.AudioManager.FLAG_SHOW_UI or android.media.AudioManager.FLAG_PLAY_SOUND
+                                )
+                            } catch (_: Exception) {}
                         }
                         return true
                     }

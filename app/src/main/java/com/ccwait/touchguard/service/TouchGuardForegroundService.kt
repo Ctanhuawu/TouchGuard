@@ -49,6 +49,7 @@ class TouchGuardForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         TouchGuardNotificationManager.init(this)
         TouchLockManager.addLockStateListener(lockListener)
         val filter = IntentFilter(Intent.ACTION_SCREEN_OFF)
@@ -89,6 +90,10 @@ class TouchGuardForegroundService : Service() {
     }
 
     private fun startKeyIntercept() {
+        if (AppPreferences.isAllowVolumeKeysEnabled) {
+            stopKeyIntercept()
+            return
+        }
         if (mediaSession != null) return
         try {
             val session = MediaSession(this, "TouchGuardKeyWatcher").apply {
@@ -135,7 +140,16 @@ class TouchGuardForegroundService : Service() {
         mediaSession = null
     }
 
+    fun updateKeyInterceptState() {
+        if (AppPreferences.isAllowVolumeKeysEnabled) {
+            stopKeyIntercept()
+        } else if (TouchLockManager.isTouchLocked) {
+            startKeyIntercept()
+        }
+    }
+
     override fun onDestroy() {
+        instance = null
         TouchLockManager.removeLockStateListener(lockListener)
         stopKeyIntercept()
         try {
@@ -146,6 +160,10 @@ class TouchGuardForegroundService : Service() {
     }
 
     companion object {
+        @Volatile
+        var instance: TouchGuardForegroundService? = null
+            private set
+
         fun start(context: Context) {
             val intent = Intent(context, TouchGuardForegroundService::class.java)
             try {

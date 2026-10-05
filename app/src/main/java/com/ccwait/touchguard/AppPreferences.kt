@@ -236,6 +236,7 @@ object AppPreferences {
     fun setAllowVolumeKeys(value: Boolean) {
         isAllowVolumeKeysEnabled = value
         prefs?.edit()?.putBoolean(KEY_ALLOW_VOLUME_KEYS, value)?.apply()
+        com.ccwait.touchguard.service.TouchGuardForegroundService.instance?.updateKeyInterceptState()
     }
 
     fun setAutoStart(value: Boolean) {
