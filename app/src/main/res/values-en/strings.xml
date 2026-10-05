@@ -69,6 +69,8 @@
     <string name="policy_auto_unlock_desc">Unlock automatically when screen turns off</string>
     <string name="policy_haptic_title">Haptic Feedback</string>
     <string name="policy_haptic_desc">Vibration feedback on lock and key actions</string>
+    <string name="policy_allow_volume_keys_title">Allow Volume Keys</string>
+    <string name="policy_allow_volume_keys_desc">Allow physical buttons to adjust volume while locked, unlock combos remain active</string>
     <string name="policy_window_title">Key Press Window</string>
     <string name="policy_window_desc">Time window threshold for rapid key presses</string>
     <string name="policy_window_default_label">Default: %1$dms</string>

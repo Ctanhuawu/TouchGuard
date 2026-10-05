@@ -6,6 +6,7 @@ import android.os.Build
 import android.provider.Settings
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
+import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.strategy.TouchLockManager
 
@@ -50,10 +51,16 @@ class TouchGuardAccessibilityService : AccessibilityService() {
                         if (event.repeatCount == 0) {
                             PhysicalKeyUnlockHandler.onKeyDown(this, keyCode)
                         }
+                        if (AppPreferences.isAllowVolumeKeysEnabled) {
+                            return false
+                        }
                         return true
                     }
                     KeyEvent.ACTION_UP -> {
                         PhysicalKeyUnlockHandler.onKeyUp(keyCode)
+                        if (AppPreferences.isAllowVolumeKeysEnabled) {
+                            return false
+                        }
                         return true
                     }
                 }

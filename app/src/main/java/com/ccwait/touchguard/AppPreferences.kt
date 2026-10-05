@@ -31,6 +31,7 @@ object AppPreferences {
     private const val KEY_FLOATING_INDICATOR = "floating_indicator"
     private const val KEY_AUTO_UNLOCK_SCREEN_OFF = "auto_unlock_screen_off"
     private const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
+    private const val KEY_ALLOW_VOLUME_KEYS = "allow_volume_keys"
     private const val KEY_AUTO_START = "auto_start"
     private const val KEY_FOREGROUND_SERVICE = "foreground_service"
     private const val KEY_THEME_MODE = "theme_mode"
@@ -72,6 +73,8 @@ object AppPreferences {
     var isAutoUnlockOnScreenOffEnabled by mutableStateOf(true)
         private set
     var isHapticFeedbackEnabled by mutableStateOf(true)
+        private set
+    var isAllowVolumeKeysEnabled by mutableStateOf(false)
         private set
     var isAutoStartEnabled by mutableStateOf(true)
         private set
@@ -143,6 +146,7 @@ object AppPreferences {
         isFloatingIndicatorEnabled = sp.getBoolean(KEY_FLOATING_INDICATOR, true)
         isAutoUnlockOnScreenOffEnabled = sp.getBoolean(KEY_AUTO_UNLOCK_SCREEN_OFF, true)
         isHapticFeedbackEnabled = sp.getBoolean(KEY_HAPTIC_FEEDBACK, true)
+        isAllowVolumeKeysEnabled = sp.getBoolean(KEY_ALLOW_VOLUME_KEYS, false)
         isAutoStartEnabled = sp.getBoolean(KEY_AUTO_START, true)
         isForegroundServiceEnabled = sp.getBoolean(KEY_FOREGROUND_SERVICE, true)
         isKeepAliveEnabled = sp.getBoolean(KEY_FOREGROUND_SERVICE, true)
@@ -227,6 +231,11 @@ object AppPreferences {
     fun setHapticFeedback(value: Boolean) {
         isHapticFeedbackEnabled = value
         prefs?.edit()?.putBoolean(KEY_HAPTIC_FEEDBACK, value)?.apply()
+    }
+
+    fun setAllowVolumeKeys(value: Boolean) {
+        isAllowVolumeKeysEnabled = value
+        prefs?.edit()?.putBoolean(KEY_ALLOW_VOLUME_KEYS, value)?.apply()
     }
 
     fun setAutoStart(value: Boolean) {

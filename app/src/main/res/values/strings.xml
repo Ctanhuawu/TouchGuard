@@ -69,6 +69,8 @@
     <string name="policy_auto_unlock_desc">按电源键熄屏后自动解除</string>
     <string name="policy_haptic_title">按键与触觉反馈</string>
     <string name="policy_haptic_desc">锁定与按键操作时提供震动反馈</string>
+    <string name="policy_allow_volume_keys_title">不屏蔽音量按键</string>
+    <string name="policy_allow_volume_keys_desc">锁定期间允许物理音量键调节音量，同时依然支持连击解锁</string>
     <string name="policy_window_title">按键判定窗口</string>
     <string name="policy_window_desc">连按应急解锁的时间窗口</string>
     <string name="policy_window_default_label">默认: %1$dms</string>

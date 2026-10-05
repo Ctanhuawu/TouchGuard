@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MiuixDemo"
+rootProject.name = "TouchGuard"
 include(":app")

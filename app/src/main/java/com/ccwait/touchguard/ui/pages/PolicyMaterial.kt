@@ -265,6 +265,17 @@ fun PolicyMaterial(
                             }
                         )
 
+                        MaterialSwitchPreference(
+                            title = stringResource(R.string.policy_allow_volume_keys_title),
+                            summary = stringResource(R.string.policy_allow_volume_keys_desc),
+                            checked = AppPreferences.isAllowVolumeKeysEnabled,
+                            showDivider = true,
+                            onCheckedChange = {
+                                AppPreferences.setAllowVolumeKeys(it)
+                                onVibrate(25)
+                            }
+                        )
+
                         KeyPressWindowPreferenceMaterial(
                             windowMs = AppPreferences.keyPressWindowMs,
                             onWindowChange = { AppPreferences.updateKeyPressWindowMs(it) },

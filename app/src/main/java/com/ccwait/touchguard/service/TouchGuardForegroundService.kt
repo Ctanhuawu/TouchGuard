@@ -101,6 +101,11 @@ class TouchGuardForegroundService : Service() {
                         if (!TouchLockManager.isTouchLocked) return
                         android.util.Log.d("TouchGuard", "MediaSession onAdjustVolume: direction=$direction")
                         PhysicalKeyUnlockHandler.onVolumeAdjust(this@TouchGuardForegroundService, direction)
+                        if (AppPreferences.isAllowVolumeKeysEnabled) {
+                            val audioManager = getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
+                            val adjustDir = if (direction > 0) android.media.AudioManager.ADJUST_RAISE else android.media.AudioManager.ADJUST_LOWER
+                            audioManager?.adjustSuggestedStreamVolume(adjustDir, android.media.AudioManager.USE_DEFAULT_STREAM_TYPE, android.media.AudioManager.FLAG_SHOW_UI)
+                        }
                     }
                 }
                 setPlaybackToRemote(volumeProvider)

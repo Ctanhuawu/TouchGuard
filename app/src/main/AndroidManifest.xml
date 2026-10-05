@@ -20,7 +20,7 @@
         android:label="TouchGuard"
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
-        android:theme="@style/Theme.MiuixDemo">
+        android:theme="@style/Theme.TouchGuard">
         <activity
             android:name=".MainActivity"
             android:exported="true"

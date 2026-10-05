@@ -339,6 +339,11 @@ class WindowOverlayStrategy : TouchLockStrategy {
                         if (event.repeatCount == 0) {
                             PhysicalKeyUnlockHandler.onKeyDown(context, keyCode)
                         }
+                        if (AppPreferences.isAllowVolumeKeysEnabled) {
+                            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
+                            val direction = if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) android.media.AudioManager.ADJUST_RAISE else android.media.AudioManager.ADJUST_LOWER
+                            audioManager?.adjustSuggestedStreamVolume(direction, android.media.AudioManager.USE_DEFAULT_STREAM_TYPE, android.media.AudioManager.FLAG_SHOW_UI)
+                        }
                         return true
                     }
                     KeyEvent.ACTION_UP -> {

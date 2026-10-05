@@ -27,7 +27,9 @@ object DefaultSystemPanelController : SystemPanelController {
     override fun collapsePanels(context: Context) {
         for (strategy in strategies) {
             try {
-                strategy.collapse(context)
+                if (strategy.collapse(context)) {
+                    break
+                }
             } catch (e: Exception) {
                 android.util.Log.w("TouchGuard", "PanelCollapseStrategy ${strategy.name} failed", e)
             }

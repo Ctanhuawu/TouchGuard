@@ -248,10 +248,16 @@ class MainActivity : ComponentActivity() {
                         if (event.repeatCount == 0) {
                             PhysicalKeyUnlockHandler.onKeyDown(this, keyCode)
                         }
+                        if (AppPreferences.isAllowVolumeKeysEnabled) {
+                            return super.dispatchKeyEvent(event)
+                        }
                         return true // 消费按键，防止系统音量面板弹出
                     }
                     KeyEvent.ACTION_UP -> {
                         PhysicalKeyUnlockHandler.onKeyUp(keyCode)
+                        if (AppPreferences.isAllowVolumeKeysEnabled) {
+                            return super.dispatchKeyEvent(event)
+                        }
                         return true
                     }
                 }
