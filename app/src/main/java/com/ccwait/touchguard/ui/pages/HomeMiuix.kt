@@ -205,11 +205,7 @@ private fun MiuixStatusCard(
         else -> colorScheme.primary
     }
 
-    val subtitleText = if (isLocked) {
-        "${stringResource(R.string.home_desc_locked)} (${stringResource(AppPreferences.unlockMechanism.shortNameRes)})"
-    } else {
-        currentStrategy.statusSummary
-    }
+    val subtitleText = currentStrategy.statusSummary
 
     val bottomTag = when {
         isLocked -> "WORKING"

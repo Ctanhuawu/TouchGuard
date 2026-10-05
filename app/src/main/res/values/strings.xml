@@ -22,7 +22,7 @@
     <string name="home_status_title">触控锁定状态</string>
     <string name="home_status_locked">工作中</string>
     <string name="home_status_standby">未启用</string>
-    <string name="home_desc_locked">物理触控与按键手势已被全面接管拦截</string>
+    <string name="home_desc_locked">屏幕触控已锁定</string>
     <string name="home_desc_standby">点击下方大按钮或控制中心快捷开关快速锁定</string>
     <string name="home_desc_perm_missing">当前选定方案缺少必要权限，点击下方按钮完成配置</string>
     <string name="home_desc_unsupported">当前选定方案在当前设备系统环境下不可用</string>
