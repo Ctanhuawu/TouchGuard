@@ -74,25 +74,26 @@ class DefaultScreenOverlayController : ScreenOverlayController {
         }
 
         try {
-            val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val appContext = context.applicationContext
+            val wm = appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             windowManager = wm
 
             val showPill = AppPreferences.isFloatingIndicatorEnabled
             val orientation = AppPreferences.screenOrientationLock
             val lockBrightness = AppPreferences.isBrightnessLockEnabled
             val keepScreenOn = AppPreferences.isKeepScreenOnEnabled
-            val density = context.resources.displayMetrics.density
+            val density = appContext.resources.displayMetrics.density
 
-            val container = FrameLayout(context).apply {
+            val container = FrameLayout(appContext).apply {
                 setBackgroundColor(Color.TRANSPARENT)
                 isClickable = false
                 isFocusable = false
             }
 
             if (showPill) {
-                val promptPill = TextView(context).apply {
-                    val tip = context.getString(AppPreferences.unlockMechanism.promptTipRes)
-                    text = "🔒 " + context.getString(R.string.capsule_press_tip, tip)
+                val promptPill = TextView(appContext).apply {
+                    val tip = appContext.getString(AppPreferences.unlockMechanism.promptTipRes)
+                    text = "🔒 " + appContext.getString(R.string.capsule_press_tip, tip)
                     setTextColor(Color.WHITE)
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
                     val padH = (16 * density).toInt()
@@ -147,7 +148,7 @@ class DefaultScreenOverlayController : ScreenOverlayController {
                 if (lockBrightness) {
                     try {
                         val curBrightness = Settings.System.getInt(
-                            context.contentResolver,
+                            appContext.contentResolver,
                             Settings.System.SCREEN_BRIGHTNESS
                         ) / 255f
                         screenBrightness = curBrightness.coerceIn(0.01f, 1.0f)
@@ -172,14 +173,21 @@ class DefaultScreenOverlayController : ScreenOverlayController {
     }
 
     override fun detach() {
-        try {
-            overlayView?.let { view ->
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeViewImmediate(view)
-                }
-            }
-        } catch (_: Exception) {}
+        val wm = windowManager
+        val view = overlayView
         overlayView = null
+        windowManager = null
+        if (view != null && wm != null) {
+            try {
+                if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                    try { wm.removeViewImmediate(view) } catch (_: Exception) { wm.removeView(view) }
+                } else {
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        try { wm.removeViewImmediate(view) } catch (_: Exception) { try { wm.removeView(view) } catch (_: Exception) {} }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
     }
 
     private fun ensureOverlayPermission(context: Context) {

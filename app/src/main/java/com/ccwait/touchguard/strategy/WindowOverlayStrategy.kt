@@ -126,11 +126,12 @@ class WindowOverlayStrategy : TouchLockStrategy {
 
             // 确定 WindowManager 与窗口层级类型
             // 若无障碍服务已开启，使用 TYPE_ACCESSIBILITY_OVERLAY（Layer 31），直接超越状态栏（Layer 24）与导航栏（Layer 23）
+            val appContext = context.applicationContext
             val (wm, windowType) = if (accService != null) {
                 val serviceWm = accService.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                 serviceWm to WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             } else {
-                val sysWm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val sysWm = appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                 val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 } else {
@@ -141,7 +142,15 @@ class WindowOverlayStrategy : TouchLockStrategy {
             }
             windowManager = wm
 
-            val overlay = TouchLockOverlayView(context)
+            // 防重入：如果已有旧视图残留，强制先清空
+            overlayView?.let { oldView ->
+                try { wm.removeViewImmediate(oldView) } catch (_: Exception) {
+                    try { wm.removeView(oldView) } catch (_: Exception) {}
+                }
+            }
+            overlayView = null
+
+            val overlay = TouchLockOverlayView(appContext)
 
             @Suppress("DEPRECATION")
             var flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
@@ -186,34 +195,46 @@ class WindowOverlayStrategy : TouchLockStrategy {
 
     override suspend fun unlock(context: Context): Result<Unit> = withContext(Dispatchers.Main) {
         try {
+            val wm = windowManager ?: (context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)
             overlayView?.let { view ->
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeViewImmediate(view)
+                try {
+                    wm?.removeViewImmediate(view)
+                } catch (_: Exception) {
+                    try {
+                        wm?.removeView(view)
+                    } catch (_: Exception) {}
                 }
             }
             overlayView = null
+            windowManager = null
             _isLocked = false
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
             overlayView = null
+            windowManager = null
             _isLocked = false
             Result.failure(e)
         }
     }
 
     override fun release(context: Context) {
-        try {
-            overlayView?.let { view ->
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeViewImmediate(view)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        val wm = windowManager ?: (context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)
+        val view = overlayView
         overlayView = null
+        windowManager = null
         _isLocked = false
+        if (view != null && wm != null) {
+            try {
+                if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                    try { wm.removeViewImmediate(view) } catch (_: Exception) { wm.removeView(view) }
+                } else {
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        try { wm.removeViewImmediate(view) } catch (_: Exception) { try { wm.removeView(view) } catch (_: Exception) {} }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
     }
 
     private class TouchLockOverlayView(context: Context) : FrameLayout(context) {
@@ -326,17 +347,17 @@ class WindowOverlayStrategy : TouchLockStrategy {
         }
 
         @SuppressLint("ClickableViewAccessibility")
-        override fun onTouchEvent(event: MotionEvent): Boolean = true
+        override fun onTouchEvent(event: MotionEvent): Boolean = TouchLockManager.isTouchLocked
 
         override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-            if (TouchLockManager.isTouchLocked) {
-                val density = context.resources.displayMetrics.density
-                if ((ev.y < 120 * density || ev.y > height - 100 * density) && ev.action == MotionEvent.ACTION_DOWN) {
-                    TouchLockManager.collapsePanels(context)
-                }
-                return true
+            if (!TouchLockManager.isTouchLocked) {
+                return false
             }
-            return super.dispatchTouchEvent(ev)
+            val density = context.resources.displayMetrics.density
+            if ((ev.y < 120 * density || ev.y > height - 100 * density) && ev.action == MotionEvent.ACTION_DOWN) {
+                TouchLockManager.collapsePanels(context)
+            }
+            return true
         }
     }
 }
