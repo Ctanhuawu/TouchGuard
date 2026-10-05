@@ -20,7 +20,7 @@
 
     <!-- 首页 (HomePage) -->
     <string name="home_status_title">触控锁定状态</string>
-    <string name="home_status_locked">触控拦截生效中</string>
+    <string name="home_status_locked">工作中</string>
     <string name="home_status_standby">未启用</string>
     <string name="home_desc_locked">物理触控与按键手势已被全面接管拦截</string>
     <string name="home_desc_standby">点击下方大按钮或控制中心快捷开关快速锁定</string>
