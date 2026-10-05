@@ -54,13 +54,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
 
     override val statusSummary: String
         get() = when (readiness) {
-            StrategyReadiness.READY -> {
-                if (TouchGuardAccessibilityService.isEnabled) {
-                    "v${BuildConfig.VERSION_NAME} · 无障碍顶层拦截 (状态栏与手势已全覆盖)"
-                } else {
-                    "v${BuildConfig.VERSION_NAME} · 悬浮窗模式 (开启无障碍服务防状态栏下拉)"
-                }
-            }
+            StrategyReadiness.READY -> "v${BuildConfig.VERSION_NAME} · Beta版"
             StrategyReadiness.PERMISSION_MISSING -> "点击开启无障碍服务或悬浮窗权限"
             StrategyReadiness.UNSUPPORTED -> "系统不支持悬浮窗或无障碍拦截"
             StrategyReadiness.CHECKING -> "正在检测权限..."

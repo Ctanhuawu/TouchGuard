@@ -135,7 +135,6 @@ fun SettingsMiuix(
 
                         OverlayDropdownPreference(
                             title = stringResource(R.string.settings_update_channel_title),
-                            summary = stringResource(AppPreferences.updateChannel.titleRes),
                             items = channelItems,
                             startAction = {
                                 Icon(
@@ -155,7 +154,7 @@ fun SettingsMiuix(
 
                         ArrowPreference(
                             title = stringResource(R.string.settings_check_update_now),
-                            summary = "v${BuildConfig.VERSION_NAME} (${stringResource(AppPreferences.updateChannel.titleRes)})",
+                            summary = "v${BuildConfig.VERSION_NAME}",
                             startAction = {
                                 Icon(
                                     Icons.Rounded.Sync,

@@ -116,7 +116,6 @@ fun SettingsMaterial(
 
                         MaterialDropdownPreference(
                             title = stringResource(R.string.settings_update_channel_title),
-                            summary = stringResource(AppPreferences.updateChannel.titleRes),
                             leadingIcon = Icons.AutoMirrored.Rounded.AltRoute,
                             items = channelItems,
                             selectedIndex = currentChannelIndex,
@@ -130,7 +129,7 @@ fun SettingsMaterial(
 
                         MaterialPreferenceItem(
                             title = stringResource(R.string.settings_check_update_now),
-                            summary = "v${BuildConfig.VERSION_NAME} (${stringResource(AppPreferences.updateChannel.titleRes)})",
+                            summary = "v${BuildConfig.VERSION_NAME}",
                             leadingIcon = Icons.Rounded.Sync,
                             showDivider = false,
                             onClick = {
