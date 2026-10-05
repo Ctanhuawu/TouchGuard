@@ -333,12 +333,7 @@ private fun MaterialSoftwareInfoCard() {
             MaterialInfoText(
                 icon = Icons.Rounded.Person,
                 title = stringResource(R.string.settings_developer_title),
-                content = "Ctanhuawu"
-            )
-            MaterialInfoText(
-                icon = Icons.Rounded.Info,
-                title = stringResource(R.string.info_design_style),
-                content = stringResource(R.string.info_design_content_m3),
+                content = "Ctanhuawu",
                 bottomPadding = 0.dp
             )
         }

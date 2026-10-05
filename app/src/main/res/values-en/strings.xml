@@ -21,7 +21,7 @@
     <!-- HomePage -->
     <string name="home_status_title">Touch Lock Status</string>
     <string name="home_status_locked">Touch Lock Active</string>
-    <string name="home_status_standby">Standby</string>
+    <string name="home_status_standby">Not Enabled</string>
     <string name="home_desc_locked">All physical touch and key gestures are actively intercepted</string>
     <string name="home_desc_standby">Tap the button below or QS Tile to instantly lock screen input</string>
     <string name="home_desc_perm_missing">Selected strategy lacks required permissions. Tap below to configure.</string>
