@@ -2,18 +2,21 @@ package com.ccwait.touchguard.ui.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -279,12 +282,35 @@ private fun KeyPressWindowPreferenceMaterial(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.policy_window_title),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.policy_window_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    val isDefault = windowMs == AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .background(if (isDefault) Color.Transparent else MaterialTheme.colorScheme.primaryContainer)
+                            .clickable {
+                                onWindowChange(AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS)
+                                textValue = AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS.toString()
+                                onVibrate(25)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.RestartAlt,
+                            contentDescription = stringResource(R.string.policy_window_reset),
+                            tint = if (isDefault) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(R.string.policy_window_desc),
                     style = MaterialTheme.typography.bodyMedium,
@@ -380,60 +406,6 @@ private fun KeyPressWindowPreferenceMaterial(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-
-        // 底部：默认值提示与恢复默认按钮
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.policy_window_default_label, AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            val isDefault = windowMs == AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS
-            val resetBg = if (isDefault) {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            } else {
-                MaterialTheme.colorScheme.primaryContainer
-            }
-            val resetContentColor = if (isDefault) {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            } else {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(resetBg)
-                    .clickable {
-                        onWindowChange(AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS)
-                        textValue = AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS.toString()
-                        onVibrate(25)
-                    }
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.RestartAlt,
-                    contentDescription = stringResource(R.string.policy_window_reset),
-                    tint = resetContentColor,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                Text(
-                    text = stringResource(R.string.policy_window_reset),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = resetContentColor
-                )
-            }
         }
     }
 }

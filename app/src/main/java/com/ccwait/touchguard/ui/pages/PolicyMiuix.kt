@@ -16,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -296,12 +297,35 @@ private fun KeyPressWindowPreferenceMiuix(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.policy_window_title),
-                    fontSize = MiuixTheme.textStyles.headline1.fontSize,
-                    fontWeight = FontWeight.Medium,
-                    color = colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.policy_window_title),
+                        fontSize = MiuixTheme.textStyles.headline1.fontSize,
+                        fontWeight = FontWeight.Medium,
+                        color = colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    val isDefault = windowMs == AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .background(if (isDefault) Color.Transparent else colorScheme.primary.copy(alpha = 0.12f))
+                            .clickable {
+                                onWindowChange(AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS)
+                                textValue = AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS.toString()
+                                onVibrate(25)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.RestartAlt,
+                            contentDescription = stringResource(R.string.policy_window_reset),
+                            tint = if (isDefault) colorScheme.onSurfaceVariantSummary.copy(alpha = 0.35f) else colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(R.string.policy_window_desc),
                     fontSize = MiuixTheme.textStyles.body2.fontSize,
@@ -397,52 +421,6 @@ private fun KeyPressWindowPreferenceMiuix(
                 fontSize = 11.sp,
                 color = colorScheme.onSurfaceVariantSummary
             )
-        }
-
-        // 底部：默认值提示与恢复默认按钮
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.policy_window_default_label, AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS),
-                fontSize = 11.sp,
-                color = colorScheme.onSurfaceVariantSummary
-            )
-
-            val isDefault = windowMs == AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS
-            val resetBg = if (isDefault) colorScheme.surfaceVariant else colorScheme.primary.copy(alpha = 0.12f)
-            val resetContentColor = if (isDefault) colorScheme.onSurfaceVariantSummary else colorScheme.primary
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(resetBg)
-                    .clickable {
-                        onWindowChange(AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS)
-                        textValue = AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS.toString()
-                        onVibrate(25)
-                    }
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.RestartAlt,
-                    contentDescription = stringResource(R.string.policy_window_reset),
-                    tint = resetContentColor,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                Text(
-                    text = stringResource(R.string.policy_window_reset),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = resetContentColor
-                )
-            }
         }
     }
 }
