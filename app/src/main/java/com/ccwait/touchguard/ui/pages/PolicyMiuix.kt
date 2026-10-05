@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -340,7 +342,7 @@ private fun KeyPressWindowPreferenceMiuix(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .background(colorScheme.surfaceVariant)
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .padding(horizontal = 8.dp, vertical = 5.dp)
             ) {
                 BasicTextField(
                     value = textValue,
@@ -369,10 +371,11 @@ private fun KeyPressWindowPreferenceMiuix(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = colorScheme.primary,
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.Start
                     ),
                     modifier = Modifier
-                        .width(44.dp)
+                        .width(IntrinsicSize.Min)
+                        .widthIn(min = 16.dp)
                         .onFocusChanged { focusState ->
                             if (!focusState.isFocused) {
                                 val num = textValue.toIntOrNull()?.coerceIn(300, 3000) ?: 1000
@@ -381,9 +384,10 @@ private fun KeyPressWindowPreferenceMiuix(
                             }
                         }
                 )
+                Spacer(modifier = Modifier.width(2.dp))
                 Text(
-                    text = " ms",
-                    fontSize = 13.sp,
+                    text = "ms",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = colorScheme.onSurfaceVariantSummary
                 )
