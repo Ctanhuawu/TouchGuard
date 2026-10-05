@@ -36,6 +36,17 @@
             </intent-filter>
         </activity>
 
+        <!-- 从 Quick Settings Tile 触发安全收起控制中心的无感透明跳板 -->
+        <activity
+            android:name=".ui.TransparentCollapseActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:launchMode="singleInstance"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
         <!-- 前台保活与通知服务 -->
         <service
             android:name=".service.TouchGuardForegroundService"

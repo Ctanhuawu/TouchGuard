@@ -7,6 +7,7 @@ import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultSystemPanelController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class NotificationActionReceiver : BroadcastReceiver() {
@@ -21,6 +22,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
             try {
                 when (action) {
                     ACTION_LOCK -> {
+                        delay(100)
                         val res = TouchLockManager.lock(context.applicationContext, source = "通知中心")
                         android.util.Log.d("TouchGuard", "ACTION_LOCK result: $res, isTouchLocked=${TouchLockManager.isTouchLocked}")
                     }
@@ -33,6 +35,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
                             val res = TouchLockManager.unlock(context.applicationContext, source = "通知中心")
                             android.util.Log.d("TouchGuard", "ACTION_TOGGLE (unlock) result: $res")
                         } else {
+                            delay(100)
                             val res = TouchLockManager.lock(context.applicationContext, source = "通知中心")
                             android.util.Log.d("TouchGuard", "ACTION_TOGGLE (lock) result: $res")
                         }

@@ -1,7 +1,9 @@
 package com.ccwait.touchguard.service
 
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
@@ -10,8 +12,10 @@ import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultSystemPanelController
+import com.ccwait.touchguard.ui.TransparentCollapseActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TouchGuardTileService : TileService() {
@@ -30,15 +34,39 @@ class TouchGuardTileService : TileService() {
         super.onClick()
         val isLocked = TouchLockManager.isTouchLocked
         if (!isLocked) {
+            collapseFromTile()
             DefaultSystemPanelController.collapsePanels(applicationContext)
         }
         CoroutineScope(Dispatchers.Main).launch {
             if (isLocked) {
                 TouchLockManager.unlock(applicationContext, source = "控制中心")
             } else {
+                delay(120)
                 TouchLockManager.lock(applicationContext, source = "控制中心")
             }
             updateTileInternal()
+        }
+    }
+
+    private fun collapseFromTile() {
+        try {
+            val intent = Intent(this, TransparentCollapseActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val pendingIntent = PendingIntent.getActivity(
+                    this,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                startActivityAndCollapse(pendingIntent)
+            } else {
+                @Suppress("DEPRECATION")
+                startActivityAndCollapse(intent)
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("TouchGuard", "collapseFromTile failed", e)
         }
     }
 

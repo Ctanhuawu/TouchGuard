@@ -2,6 +2,7 @@ package com.ccwait.touchguard.service
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
+import android.os.Build
 import android.provider.Settings
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
@@ -63,6 +64,30 @@ class TouchGuardAccessibilityService : AccessibilityService() {
         return super.onKeyEvent(event)
     }
 
+    /**
+     * 免 Root 核心：通过无障碍服务的系统权限收起通知栏与控制中心
+     */
+    fun dismissNotificationShade(): Boolean {
+        var handled = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                handled = performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+                android.util.Log.d("TouchGuard", "dismissNotificationShade: GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE handled=$handled")
+            } catch (e: Exception) {
+                android.util.Log.w("TouchGuard", "GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE failed", e)
+            }
+        }
+        if (!handled) {
+            try {
+                handled = performGlobalAction(GLOBAL_ACTION_BACK)
+                android.util.Log.d("TouchGuard", "dismissNotificationShade: fallback GLOBAL_ACTION_BACK handled=$handled")
+            } catch (e: Exception) {
+                android.util.Log.w("TouchGuard", "GLOBAL_ACTION_BACK failed", e)
+            }
+        }
+        return handled
+    }
+
     companion object {
         @Volatile
         var instance: TouchGuardAccessibilityService? = null
@@ -70,6 +95,11 @@ class TouchGuardAccessibilityService : AccessibilityService() {
 
         val isEnabled: Boolean
             get() = instance != null
+
+        fun collapsePanels(): Boolean {
+            val service = instance ?: return false
+            return service.dismissNotificationShade()
+        }
 
         fun isAccessibilitySettingsEnabled(context: Context): Boolean {
             if (isEnabled) return true
