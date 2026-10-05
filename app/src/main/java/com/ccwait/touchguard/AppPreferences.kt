@@ -26,6 +26,7 @@ object AppPreferences {
     private const val KEY_KEEP_SCREEN_ON = "keep_screen_on"
     private const val KEY_SCREEN_ORIENTATION = "screen_orientation"
     private const val KEY_BRIGHTNESS_LOCK = "brightness_lock"
+    private const val KEY_HIDE_SYSTEM_BARS = "hide_system_bars"
     private const val KEY_UNLOCK_MECHANISM = "unlock_mechanism"
     private const val KEY_FLOATING_INDICATOR = "floating_indicator"
     private const val KEY_AUTO_UNLOCK_SCREEN_OFF = "auto_unlock_screen_off"
@@ -60,6 +61,8 @@ object AppPreferences {
     var screenOrientationLock by mutableStateOf(ScreenOrientationLock.FOLLOW_SYSTEM)
         private set
     var isBrightnessLockEnabled by mutableStateOf(false)
+        private set
+    var isHideSystemBarsEnabled by mutableStateOf(false)
         private set
     var unlockMechanism by mutableStateOf(UnlockMechanism.DOUBLE_VOLUME_DOWN)
         private set
@@ -131,6 +134,7 @@ object AppPreferences {
         val orientationId = sp.getString(KEY_SCREEN_ORIENTATION, ScreenOrientationLock.FOLLOW_SYSTEM.id)
         screenOrientationLock = ScreenOrientationLock.fromId(orientationId)
         isBrightnessLockEnabled = sp.getBoolean(KEY_BRIGHTNESS_LOCK, false)
+        isHideSystemBarsEnabled = sp.getBoolean(KEY_HIDE_SYSTEM_BARS, false)
         val unlockId = sp.getString(KEY_UNLOCK_MECHANISM, UnlockMechanism.DOUBLE_VOLUME_DOWN.id)
         unlockMechanism = UnlockMechanism.fromId(unlockId)
         isFloatingIndicatorEnabled = sp.getBoolean(KEY_FLOATING_INDICATOR, true)
@@ -194,6 +198,11 @@ object AppPreferences {
     fun setBrightnessLock(value: Boolean) {
         isBrightnessLockEnabled = value
         prefs?.edit()?.putBoolean(KEY_BRIGHTNESS_LOCK, value)?.apply()
+    }
+
+    fun setHideSystemBars(value: Boolean) {
+        isHideSystemBarsEnabled = value
+        prefs?.edit()?.putBoolean(KEY_HIDE_SYSTEM_BARS, value)?.apply()
     }
 
     fun updateUnlockMechanism(value: UnlockMechanism) {

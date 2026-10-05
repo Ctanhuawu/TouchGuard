@@ -61,6 +61,8 @@
     <string name="policy_brightness_lock_desc">Fix current display brightness</string>
     <string name="policy_capsule_title">Status Indicator Capsule</string>
     <string name="policy_capsule_desc">Display pill capsule showing lock status</string>
+    <string name="policy_hide_system_bars_title">Hide Status Bar &amp; Navigation Pill</string>
+    <string name="policy_hide_system_bars_desc">Hide the status bar and bottom gesture navigation pill when locked</string>
     <string name="policy_automation_safety">Automation &amp; Safe Release</string>
     <string name="policy_auto_unlock_title">Auto Unlock on Screen Off</string>
     <string name="policy_auto_unlock_desc">Unlock automatically when screen turns off</string>

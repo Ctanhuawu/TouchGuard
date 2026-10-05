@@ -213,6 +213,20 @@ fun PolicyMaterial(
                         )
 
                         MaterialSwitchPreference(
+                            title = stringResource(R.string.policy_hide_system_bars_title),
+                            summary = stringResource(R.string.policy_hide_system_bars_desc),
+                            checked = AppPreferences.isHideSystemBarsEnabled,
+                            showDivider = true,
+                            onCheckedChange = {
+                                AppPreferences.setHideSystemBars(it)
+                                onVibrate(25)
+                                if (TouchLockManager.isTouchLocked) {
+                                    onScreenHoldStateUpdate()
+                                }
+                            }
+                        )
+
+                        MaterialSwitchPreference(
                             title = stringResource(R.string.policy_capsule_title),
                             summary = stringResource(R.string.policy_capsule_desc),
                             checked = AppPreferences.isFloatingIndicatorEnabled,

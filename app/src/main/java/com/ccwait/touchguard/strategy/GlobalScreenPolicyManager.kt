@@ -118,6 +118,10 @@ class DefaultScreenOverlayController : ScreenOverlayController {
             if (keepScreenOn) {
                 flags = flags or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
             }
+            if (AppPreferences.isHideSystemBarsEnabled) {
+                @Suppress("DEPRECATION")
+                flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
+            }
 
             val layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,

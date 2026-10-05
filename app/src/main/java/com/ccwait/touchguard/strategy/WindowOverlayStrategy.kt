@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.BuildConfig
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.service.TouchGuardAccessibilityService
@@ -149,12 +150,16 @@ class WindowOverlayStrategy : TouchLockStrategy {
             val overlay = TouchLockOverlayView(context)
 
             @Suppress("DEPRECATION")
-            val flags = WindowManager.LayoutParams.FLAG_FULLSCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            var flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or
                 WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION or
                 WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
+
+            @Suppress("DEPRECATION")
+            if (AppPreferences.isHideSystemBarsEnabled) {
+                flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
+            }
 
             val layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -232,6 +237,19 @@ class WindowOverlayStrategy : TouchLockStrategy {
         }
 
         private fun applyImmersiveMode() {
+            if (!AppPreferences.isHideSystemBarsEnabled) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    windowInsetsController?.show(WindowInsets.Type.systemBars())
+                }
+                @Suppress("DEPRECATION")
+                systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
+                return
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 windowInsetsController?.let { controller ->
                     controller.hide(WindowInsets.Type.systemBars())

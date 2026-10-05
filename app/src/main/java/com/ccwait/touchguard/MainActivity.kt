@@ -268,6 +268,23 @@ class MainActivity : ComponentActivity() {
                         window.attributes = lp
                     } catch (_: Exception) {}
                 }
+
+                // 4. 隐藏通知栏与小白条
+                if (AppPreferences.isHideSystemBarsEnabled) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        window.insetsController?.let { controller ->
+                            controller.hide(android.view.WindowInsets.Type.systemBars())
+                            controller.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                        }
+                    } else {
+                        @Suppress("DEPRECATION")
+                        window.decorView.systemUiVisibility = (
+                            android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        )
+                    }
+                }
             } else {
                 // 恢复默认状态
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -275,6 +292,13 @@ class MainActivity : ComponentActivity() {
                 val lp = window.attributes
                 lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 window.attributes = lp
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    window.insetsController?.show(android.view.WindowInsets.Type.systemBars())
+                } else {
+                    @Suppress("DEPRECATION")
+                    window.decorView.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_VISIBLE
+                }
             }
         }
     }

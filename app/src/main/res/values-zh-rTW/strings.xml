@@ -61,6 +61,8 @@
     <string name="policy_brightness_lock_desc">固定當前螢幕背光亮度</string>
     <string name="policy_capsule_title">鎖定指示懸浮膠囊</string>
     <string name="policy_capsule_desc">頂部膠囊提示鎖定狀態與按鍵</string>
+    <string name="policy_hide_system_bars_title">隱藏通知欄與小白條</string>
+    <string name="policy_hide_system_bars_desc">鎖定時隱藏頂部狀態欄與手勢導航小白條</string>
     <string name="policy_automation_safety">自動化與安全解除</string>
     <string name="policy_auto_unlock_title">熄屏自動解除鎖定</string>
     <string name="policy_auto_unlock_desc">按電源鍵熄屏後自動解除</string>

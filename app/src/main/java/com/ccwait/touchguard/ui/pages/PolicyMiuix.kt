@@ -226,6 +226,19 @@ fun PolicyMiuix(
                             )
 
                             SwitchPreference(
+                                title = stringResource(R.string.policy_hide_system_bars_title),
+                                summary = stringResource(R.string.policy_hide_system_bars_desc),
+                                checked = AppPreferences.isHideSystemBarsEnabled,
+                                onCheckedChange = {
+                                    AppPreferences.setHideSystemBars(it)
+                                    onVibrate(25)
+                                    if (TouchLockManager.isTouchLocked) {
+                                        onScreenHoldStateUpdate()
+                                    }
+                                }
+                            )
+
+                            SwitchPreference(
                                 title = stringResource(R.string.policy_capsule_title),
                                 summary = stringResource(R.string.policy_capsule_desc),
                                 checked = AppPreferences.isFloatingIndicatorEnabled,
