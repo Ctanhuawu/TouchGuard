@@ -78,6 +78,9 @@
     <string name="logs_summary_format">已記錄 %1$d 條觸控鎖定生命週期事件</string>
     <string name="logs_stream_title">即時事件流</string>
     <string name="logs_empty">暫無鎖定事件記錄</string>
+    <string name="logs_status_disabled">日誌記錄已停用 (預設關閉)</string>
+    <string name="logs_disabled_empty_tip">事件日誌記錄未啟用，開啟後將記錄觸控與按鍵事件</string>
+    <string name="logs_enable_button">啟用日誌記錄</string>
 
     <!-- 設定頁 (SettingsPage) -->
     <string name="settings_title">全域偏好設定</string>
@@ -112,6 +115,8 @@
     <string name="settings_check_update_summary">每次啟動應用時檢查 TouchGuard 核心版本</string>
     <string name="settings_reset_lock_title">重載並釋放觸控攔截</string>
     <string name="settings_reset_lock_summary">緊急釋放底層硬件攔截與所有守護服務</string>
+    <string name="settings_enable_logging_title">記錄運行事件日誌</string>
+    <string name="settings_enable_logging_summary">記錄防誤觸鎖定、解除與實體按鍵審計事件（預設關閉）</string>
     <string name="settings_clear_logs_title">清空事件日誌</string>
     <string name="settings_clear_logs_summary">清除本地所有已記錄的防誤觸與按鍵審計日誌</string>
     <string name="settings_clear_logs_toast">已清空所有安全日誌</string>

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.ui.components.material.MaterialPreferenceCard
@@ -103,13 +104,18 @@ fun LogsMaterial(bottomInnerPadding: Dp) {
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = stringResource(R.string.logs_summary_format, AppLogManager.logs.size),
+                                    text = if (AppPreferences.isLoggingEnabled) {
+                                        stringResource(R.string.logs_summary_format, AppLogManager.logs.size)
+                                    } else {
+                                        stringResource(R.string.logs_status_disabled)
+                                    },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             FilledTonalButton(
                                 onClick = { AppLogManager.clear() },
+                                enabled = AppLogManager.logs.isNotEmpty(),
                                 colors = ButtonDefaults.filledTonalButtonColors()
                             ) {
                                 Icon(
@@ -127,17 +133,29 @@ fun LogsMaterial(bottomInnerPadding: Dp) {
                     MaterialSectionTitle(text = stringResource(R.string.logs_stream_title))
                     MaterialPreferenceCard {
                         if (AppLogManager.logs.isEmpty()) {
-                            Box(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 32.dp),
-                                contentAlignment = Alignment.Center
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = stringResource(R.string.logs_empty),
+                                    text = if (!AppPreferences.isLoggingEnabled) {
+                                        stringResource(R.string.logs_disabled_empty_tip)
+                                    } else {
+                                        stringResource(R.string.logs_empty)
+                                    },
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                if (!AppPreferences.isLoggingEnabled) {
+                                    FilledTonalButton(
+                                        onClick = { AppPreferences.updateLoggingEnabled(true) }
+                                    ) {
+                                        Text(text = stringResource(R.string.logs_enable_button), fontSize = 13.sp)
+                                    }
+                                }
                             }
                         } else {
                             Column(

@@ -293,6 +293,23 @@ fun SettingsMiuix(
                                 onVibrate(30)
                             }
                         )
+                        SwitchPreference(
+                            title = stringResource(R.string.settings_enable_logging_title),
+                            summary = stringResource(R.string.settings_enable_logging_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Description,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(R.string.settings_enable_logging_title),
+                                    tint = iconTint
+                                )
+                            },
+                            checked = AppPreferences.isLoggingEnabled,
+                            onCheckedChange = {
+                                AppPreferences.updateLoggingEnabled(it)
+                                onVibrate(20)
+                            }
+                        )
                         val clearToast = stringResource(R.string.settings_clear_logs_toast)
                         ArrowPreference(
                             title = stringResource(R.string.settings_clear_logs_title),

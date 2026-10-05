@@ -78,6 +78,9 @@
     <string name="logs_summary_format">Recorded %1$d touch lock lifecycle events</string>
     <string name="logs_stream_title">Real-time Event Stream</string>
     <string name="logs_empty">No lock events recorded</string>
+    <string name="logs_status_disabled">Logging disabled (Off by default)</string>
+    <string name="logs_disabled_empty_tip">Event logging is disabled. Enable it to record touch lock and key events.</string>
+    <string name="logs_enable_button">Enable Event Logging</string>
 
     <!-- SettingsPage -->
     <string name="settings_title">Global Preferences</string>
@@ -112,6 +115,8 @@
     <string name="settings_check_update_summary">Check TouchGuard core version on app launch</string>
     <string name="settings_reset_lock_title">Reload and Release Interceptions</string>
     <string name="settings_reset_lock_summary">Emergency release of underlying hardware grab and services</string>
+    <string name="settings_enable_logging_title">Record Event Logs</string>
+    <string name="settings_enable_logging_summary">Record touch lock, unlock, and physical key audit events (Disabled by default)</string>
     <string name="settings_clear_logs_title">Clear Event Logs</string>
     <string name="settings_clear_logs_summary">Clear all recorded local touch prevention logs</string>
     <string name="settings_clear_logs_toast">All security logs cleared</string>

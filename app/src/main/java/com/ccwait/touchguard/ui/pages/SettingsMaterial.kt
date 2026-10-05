@@ -223,6 +223,18 @@ fun SettingsMaterial(
                             }
                         )
 
+                        MaterialSwitchPreference(
+                            title = stringResource(R.string.settings_enable_logging_title),
+                            summary = stringResource(R.string.settings_enable_logging_summary),
+                            leadingIcon = Icons.Rounded.Description,
+                            checked = AppPreferences.isLoggingEnabled,
+                            showDivider = true,
+                            onCheckedChange = {
+                                AppPreferences.updateLoggingEnabled(it)
+                                onVibrate(20)
+                            }
+                        )
+
                         val clearToast = stringResource(R.string.settings_clear_logs_toast)
                         MaterialPreferenceItem(
                             title = stringResource(R.string.settings_clear_logs_title),

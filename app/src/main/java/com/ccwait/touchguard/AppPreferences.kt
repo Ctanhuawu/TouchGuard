@@ -47,6 +47,7 @@ object AppPreferences {
     private const val KEY_CHECK_UPDATE = "check_update"
     private const val KEY_UPDATE_CHANNEL = "update_channel"
     private const val KEY_KEY_PRESS_WINDOW_MS = "key_press_window_ms"
+    private const val KEY_ENABLE_LOGGING = "enable_logging"
     const val DEFAULT_KEY_PRESS_WINDOW_MS = 1000
 
     private var prefs: SharedPreferences? = null
@@ -104,6 +105,8 @@ object AppPreferences {
         private set
     var keyPressWindowMs by mutableIntStateOf(DEFAULT_KEY_PRESS_WINDOW_MS)
         private set
+    var isLoggingEnabled by mutableStateOf(false)
+        private set
 
     fun getAppSettings(): AppSettings {
         val palette = try {
@@ -151,6 +154,7 @@ object AppPreferences {
         val channelId = sp.getString(KEY_UPDATE_CHANNEL, com.ccwait.touchguard.model.UpdateChannel.BETA.id)
         updateChannel = com.ccwait.touchguard.model.UpdateChannel.fromId(channelId)
         keyPressWindowMs = sp.getInt(KEY_KEY_PRESS_WINDOW_MS, DEFAULT_KEY_PRESS_WINDOW_MS)
+        isLoggingEnabled = sp.getBoolean(KEY_ENABLE_LOGGING, false)
 
         val colorModeValue = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
         colorMode = ColorMode.fromValue(colorModeValue)
@@ -324,5 +328,14 @@ object AppPreferences {
     fun setKeepAlive(value: Boolean) {
         isKeepAliveEnabled = value
         setForegroundService(value)
+    }
+
+    fun updateLoggingEnabled(value: Boolean) {
+        val changed = isLoggingEnabled != value
+        isLoggingEnabled = value
+        prefs?.edit()?.putBoolean(KEY_ENABLE_LOGGING, value)?.apply()
+        if (changed && value) {
+            com.ccwait.touchguard.model.AppLogManager.addLog("系统", "已启用事件日志记录", isSuccess = true)
+        }
     }
 }

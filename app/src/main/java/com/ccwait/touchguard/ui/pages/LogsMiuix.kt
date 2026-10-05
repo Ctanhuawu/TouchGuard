@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.ui.util.BlurredBar
@@ -117,13 +118,18 @@ fun LogsMiuix(bottomInnerPadding: Dp) {
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = stringResource(R.string.logs_summary_format, AppLogManager.logs.size),
+                                        text = if (AppPreferences.isLoggingEnabled) {
+                                            stringResource(R.string.logs_summary_format, AppLogManager.logs.size)
+                                        } else {
+                                            stringResource(R.string.logs_status_disabled)
+                                        },
                                         fontSize = 12.sp,
                                         color = summaryTextColor
                                     )
                                 }
                                 Button(
-                                    onClick = { AppLogManager.clear() }
+                                    onClick = { AppLogManager.clear() },
+                                    enabled = AppLogManager.logs.isNotEmpty()
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.DeleteOutline,
@@ -146,17 +152,29 @@ fun LogsMiuix(bottomInnerPadding: Dp) {
                             insideMargin = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
                         ) {
                             if (AppLogManager.logs.isEmpty()) {
-                                Box(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 32.dp),
-                                    contentAlignment = Alignment.Center
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Text(
-                                        text = stringResource(R.string.logs_empty),
+                                        text = if (!AppPreferences.isLoggingEnabled) {
+                                            stringResource(R.string.logs_disabled_empty_tip)
+                                        } else {
+                                            stringResource(R.string.logs_empty)
+                                        },
                                         fontSize = 14.sp,
                                         color = summaryTextColor
                                     )
+                                    if (!AppPreferences.isLoggingEnabled) {
+                                        Button(
+                                            onClick = { AppPreferences.updateLoggingEnabled(true) }
+                                        ) {
+                                            Text(text = stringResource(R.string.logs_enable_button), fontSize = 13.sp)
+                                        }
+                                    }
                                 }
                             } else {
                                 Column(
