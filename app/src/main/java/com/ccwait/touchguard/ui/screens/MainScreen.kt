@@ -19,8 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
-import androidx.navigationevent.compose.rememberNavigationEventDispatcherOwner
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.ui.AppThemeMode
 import com.ccwait.touchguard.ui.components.LocalMainPagerState
@@ -77,11 +75,8 @@ fun MainScreen(
         mainPagerState.syncPage()
     }
 
-    val navDispatcherOwner = rememberNavigationEventDispatcherOwner(parent = null)
-
     CompositionLocalProvider(
         LocalMainPagerState provides mainPagerState,
-        LocalNavigationEventDispatcherOwner provides navDispatcherOwner,
     ) {
         val surfaceColor = MiuixTheme.colorScheme.surface
                 val blurBackdrop = rememberBlurBackdrop(true)

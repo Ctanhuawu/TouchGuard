@@ -3,6 +3,7 @@ package com.ccwait.touchguard
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -19,6 +20,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.rememberNavigationEventDispatcherOwner
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.strategy.StrategyType
@@ -57,6 +60,13 @@ class MainActivity : ComponentActivity() {
         // 初始化持久化配置与方案管理器
         AppPreferences.init(this)
         com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(AppPreferences.appLanguage)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            runCatching {
+                val method = ApplicationInfo::class.java.getDeclaredMethod("setEnableOnBackInvokedCallback", Boolean::class.javaPrimitiveType)
+                method.isAccessible = true
+                method.invoke(applicationInfo, AppPreferences.isPredictiveBackEnabled)
+            }
+        }
         TouchLockManager.init(this)
 
         TouchLockManager.onLockStateChanged = { locked ->
@@ -145,9 +155,11 @@ class MainActivity : ComponentActivity() {
             }
 
             val navigator = rememberNavigator(Route.Main)
+            val navDispatcherOwner = rememberNavigationEventDispatcherOwner(parent = null)
 
             CompositionLocalProvider(
                 LocalNavigator provides navigator,
+                LocalNavigationEventDispatcherOwner provides navDispatcherOwner,
             ) {
                 AppThemeContainer(
                     themeMode = themeMode,

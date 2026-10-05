@@ -2,6 +2,8 @@ package com.ccwait.touchguard
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
+import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,6 +41,7 @@ object AppPreferences {
     private const val KEY_FLOATING_BOTTOM_BAR = "floating_bottom_bar"
     private const val KEY_FLOATING_BOTTOM_BAR_BLUR = "floating_bottom_bar_blur"
     private const val KEY_NAVIGATION_BADGE = "navigation_badge"
+    private const val KEY_PREDICTIVE_BACK = "enable_predictive_back"
     private const val KEY_APP_LANGUAGE = "app_language"
 
     private var prefs: SharedPreferences? = null
@@ -86,6 +89,8 @@ object AppPreferences {
         private set
     var isNavigationBadgeEnabled by mutableStateOf(true)
         private set
+    var isPredictiveBackEnabled by mutableStateOf(true)
+        private set
 
     fun getAppSettings(): AppSettings {
         val palette = try {
@@ -127,6 +132,7 @@ object AppPreferences {
         isFloatingBottomBarEnabled = sp.getBoolean(KEY_FLOATING_BOTTOM_BAR, false)
         isFloatingBottomBarBlurEnabled = sp.getBoolean(KEY_FLOATING_BOTTOM_BAR_BLUR, true)
         isNavigationBadgeEnabled = sp.getBoolean(KEY_NAVIGATION_BADGE, true)
+        isPredictiveBackEnabled = sp.getBoolean(KEY_PREDICTIVE_BACK, true)
 
         val colorModeValue = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
         colorMode = ColorMode.fromValue(colorModeValue)
@@ -258,6 +264,18 @@ object AppPreferences {
     fun updateNavigationBadge(value: Boolean) {
         isNavigationBadgeEnabled = value
         prefs?.edit()?.putBoolean(KEY_NAVIGATION_BADGE, value)?.apply()
+    }
+
+    fun updatePredictiveBack(value: Boolean, context: Context? = null) {
+        isPredictiveBackEnabled = value
+        prefs?.edit()?.putBoolean(KEY_PREDICTIVE_BACK, value)?.apply()
+        if (context != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            runCatching {
+                val method = ApplicationInfo::class.java.getDeclaredMethod("setEnableOnBackInvokedCallback", Boolean::class.javaPrimitiveType)
+                method.isAccessible = true
+                method.invoke(context.applicationInfo, value)
+            }
+        }
     }
 
     fun setKeepAlive(value: Boolean) {

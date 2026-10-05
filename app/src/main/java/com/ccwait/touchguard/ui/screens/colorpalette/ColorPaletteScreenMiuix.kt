@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.Colorize
 import androidx.compose.material.icons.rounded.Pin
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
@@ -75,6 +77,7 @@ import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 fun ColorPaletteScreenMiuix(
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = MiuixScrollBehavior()
     val backdrop = rememberBlurBackdrop(AppPreferences.isFloatingBottomBarBlurEnabled)
     val blurActive = backdrop != null
@@ -327,6 +330,23 @@ fun ColorPaletteScreenMiuix(
                             checked = AppPreferences.isNavigationBadgeEnabled,
                             onCheckedChange = {
                                 AppPreferences.updateNavigationBadge(it)
+                            }
+                        )
+
+                        SwitchPreference(
+                            title = stringResource(R.string.settings_enable_predictive_back),
+                            summary = stringResource(R.string.settings_enable_predictive_back_summary),
+                            startAction = {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = null,
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            checked = AppPreferences.isPredictiveBackEnabled,
+                            onCheckedChange = {
+                                AppPreferences.updatePredictiveBack(it, context)
                             }
                         )
                     }

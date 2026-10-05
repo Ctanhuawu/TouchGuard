@@ -225,4 +225,6 @@
     <string name="color_brown">棕色</string>
     <string name="color_blue_grey">灰藍</string>
     <string name="color_sakura">櫻花粉</string>
+    <string name="settings_enable_predictive_back">預測返回動畫</string>
+    <string name="settings_enable_predictive_back_summary">啟用系統級預測性返回手勢與動畫</string>
 </resources>

@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,6 +74,7 @@ import com.materialkolor.dynamiccolor.ColorSpec
 fun ColorPaletteScreenMaterial(
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val currentColorMode = AppPreferences.colorMode
     val isDark = currentColorMode.isDark || (currentColorMode.isSystem && isSystemInDarkTheme())
     val isAmoled = currentColorMode.isAmoled
@@ -248,7 +250,16 @@ fun ColorPaletteScreenMaterial(
                         summary = stringResource(R.string.settings_badge_summary),
                         leadingIcon = Icons.Rounded.Pin,
                         checked = AppPreferences.isNavigationBadgeEnabled,
+                        showDivider = true,
                         onCheckedChange = { AppPreferences.updateNavigationBadge(it) }
+                    )
+
+                    MaterialSwitchPreference(
+                        title = stringResource(R.string.settings_enable_predictive_back),
+                        summary = stringResource(R.string.settings_enable_predictive_back_summary),
+                        leadingIcon = Icons.AutoMirrored.Rounded.ArrowBack,
+                        checked = AppPreferences.isPredictiveBackEnabled,
+                        onCheckedChange = { AppPreferences.updatePredictiveBack(it, context) }
                     )
                 }
 
