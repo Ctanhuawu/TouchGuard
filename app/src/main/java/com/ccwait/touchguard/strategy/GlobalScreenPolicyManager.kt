@@ -153,7 +153,11 @@ class DefaultScreenOverlayController : ScreenOverlayController {
                         screenBrightness = curBrightness.coerceIn(0.01f, 1.0f)
                     } catch (_: Exception) {}
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    setFitInsetsTypes(0)
+                    setFitInsetsSides(0)
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
                 }
             }

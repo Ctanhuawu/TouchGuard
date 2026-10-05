@@ -146,8 +146,6 @@ class WindowOverlayStrategy : TouchLockStrategy {
             @Suppress("DEPRECATION")
             var flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION or
                 WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 
             @Suppress("DEPRECATION")
@@ -167,6 +165,8 @@ class WindowOverlayStrategy : TouchLockStrategy {
                 y = 0
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    setFitInsetsTypes(0)
+                    setFitInsetsSides(0)
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
                 }
@@ -261,18 +261,31 @@ class WindowOverlayStrategy : TouchLockStrategy {
             )
         }
 
+        override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                WindowInsets.CONSUMED
+            } else {
+                @Suppress("DEPRECATION")
+                insets.consumeSystemWindowInsets()
+            }
+        }
+
         override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
             super.onLayout(changed, left, top, right, bottom)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // 排除两侧边缘与底部的系统手势拦截，令全面屏手势全部落入当前 View 吞噬
+                // 排除边缘系统手势拦截（单侧高度限制在 Android 规范的 200dp 内，防止系统丢弃请求）
                 val density = context.resources.displayMetrics.density
-                val exclusionWidth = (60 * density).toInt().coerceAtMost(width / 4)
-                val exclusionBottomHeight = (60 * density).toInt().coerceAtMost(height / 4)
-                val leftRect = Rect(0, 0, exclusionWidth, height)
-                val rightRect = Rect(width - exclusionWidth, 0, width, height)
-                val bottomRect = Rect(0, height - exclusionBottomHeight, width, height)
-                val topRect = Rect(0, 0, width, (60 * density).toInt())
-                systemGestureExclusionRects = listOf(leftRect, rightRect, bottomRect, topRect)
+                val maxExclusionPx = (200 * density).toInt()
+                val edgeWidth = (60 * density).toInt().coerceAtMost(width / 4)
+                val edgeHeight = (60 * density).toInt().coerceAtMost(height / 4)
+
+                val leftRect = Rect(0, (height - maxExclusionPx).coerceAtLeast(0) / 2, edgeWidth, ((height + maxExclusionPx) / 2).coerceAtMost(height))
+                val rightRect = Rect(width - edgeWidth, (height - maxExclusionPx).coerceAtLeast(0) / 2, width, ((height + maxExclusionPx) / 2).coerceAtMost(height))
+                val topRect = Rect(0, 0, width, edgeHeight)
+                val bottomRect = Rect(0, height - edgeHeight, width, height)
+                try {
+                    systemGestureExclusionRects = listOf(leftRect, rightRect, topRect, bottomRect)
+                } catch (_: Exception) {}
             }
         }
 
@@ -317,7 +330,8 @@ class WindowOverlayStrategy : TouchLockStrategy {
 
         override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
             if (TouchLockManager.isTouchLocked) {
-                if (ev.y < 120 * context.resources.displayMetrics.density && ev.action == MotionEvent.ACTION_DOWN) {
+                val density = context.resources.displayMetrics.density
+                if ((ev.y < 120 * density || ev.y > height - 100 * density) && ev.action == MotionEvent.ACTION_DOWN) {
                     TouchLockManager.collapsePanels(context)
                 }
                 return true
