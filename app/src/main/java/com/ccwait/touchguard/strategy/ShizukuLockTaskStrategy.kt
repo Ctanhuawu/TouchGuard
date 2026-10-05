@@ -30,7 +30,6 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
         get() = _isLocked
 
     private val overlayStrategy = WindowOverlayStrategy()
-    private var pinnedTaskId: Int? = null
 
     override val readiness: StrategyReadiness
         get() = when (ShizukuPermissionManager.status) {
@@ -83,8 +82,11 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
         return isGranted
     }
 
-    override suspend fun prepare(context: Context): Boolean {
-        return overlayStrategy.prepare(context)
+    override suspend fun prepare(context: Context): Boolean = withContext(Dispatchers.IO) {
+        if (readiness == StrategyReadiness.READY) {
+            ShizukuTaskLockHelper.ensureOverlayPermission(context)
+        }
+        overlayStrategy.prepare(context)
     }
 
     override suspend fun lock(context: Context): Result<Unit> = withContext(Dispatchers.IO) {
@@ -93,44 +95,26 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
                 checkReadiness(context, forceRequest = true)
             }
 
-            // 0. 确保系统底层屏幕固定总开关已开启 (Settings.System.LOCK_TO_APP_ENABLED)
-            if (!ShizukuTaskLockHelper.isLockToAppEnabled(context)) {
-                val autoEnabled = ShizukuTaskLockHelper.ensureLockToAppEnabled(context)
-                if (!autoEnabled) {
-                    AppLogManager.addLog("Shizuku", "系统未开启【屏幕固定】，请在系统安全设置中开启", isWarning = true)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "⚠️ 请在 ColorOS 设置中开启「屏幕固定」方可生效！", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    AppLogManager.addLog("Shizuku", "已自动通过 Shizuku 激活系统屏幕固定总开关")
-                }
+            // 1. 静默确保悬浮窗权限 (SYSTEM_ALERT_WINDOW) 已获得
+            val hasOverlay = ShizukuTaskLockHelper.ensureOverlayPermission(context)
+            if (hasOverlay) {
+                AppLogManager.addLog("Shizuku", "已自动通过 Shizuku 授权悬浮窗权限")
             }
 
-            // 1. 获取当前正在前台播放或运行的目标应用 Task ID
-            val targetTaskId = ShizukuTaskLockHelper.getForegroundTaskId(context)
-            pinnedTaskId = targetTaskId
-
-            // 2. 触发系统级屏幕固定（打入 LockTask 模式，封死状态栏与手势）
-            var pinSuccess = false
-            if (targetTaskId != null && targetTaskId > 0) {
-                pinSuccess = ShizukuTaskLockHelper.startLockTask(targetTaskId)
-                if (pinSuccess) {
-                    AppLogManager.addLog("Shizuku", "已自动固定当前任务 (TaskID: $targetTaskId)，手势退出已锁死")
-                } else {
-                    AppLogManager.addLog("Shizuku", "任务固定请求未响应，降级使用状态栏与视图遮罩", isWarning = true)
-                }
+            // 2. 通过 IStatusBarService 冻结状态栏下拉与底层手势（禁用下拉、返回、多任务、桌面手势，保留时间与电量显示）
+            val barSuccess = ShizukuTaskLockHelper.setSystemBarsAndGesturesDisabled(context, true)
+            if (barSuccess) {
+                AppLogManager.addLog("Shizuku", "已冻结顶部状态栏下拉与全面屏导航手势")
             } else {
-                AppLogManager.addLog("Shizuku", "未捕获到前台任务 ID，降级启用视图遮罩", isWarning = true)
+                AppLogManager.addLog("Shizuku", "状态栏/手势冻结未响应，降级使用常规遮罩", isWarning = true)
             }
 
-            // 3. 辅助冻结状态栏下拉（双保险）
-            ShizukuTaskLockHelper.setStatusBarExpandDisabled(context, true)
-
-            // 4. 覆盖全屏透明无障碍遮罩，吞噬应用内所有触控操作
+            // 3. 覆盖全屏透明遮罩，吞噬应用内所有触控操作
             val overlayRes = overlayStrategy.lock(context)
             if (overlayRes.isFailure) {
-                // 如果遮罩加载失败，记录日志但不中断主流程
-                AppLogManager.addLog("Shizuku", "悬浮视图加载提示: ${overlayRes.exceptionOrNull()?.message}", isWarning = true)
+                AppLogManager.addLog("Shizuku", "全屏遮罩加载提示: ${overlayRes.exceptionOrNull()?.message}", isWarning = true)
+            } else {
+                AppLogManager.addLog("Shizuku", "全屏防误触触控拦截已激活")
             }
 
             _isLocked = true
@@ -147,15 +131,11 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
             // 1. 移除全屏透明触控遮罩
             overlayStrategy.unlock(context)
 
-            // 2. 恢复状态栏下拉
-            ShizukuTaskLockHelper.setStatusBarExpandDisabled(context, false)
-
-            // 3. 退出系统屏幕固定模式
-            ShizukuTaskLockHelper.stopLockTask()
-            pinnedTaskId = null
+            // 2. 恢复状态栏下拉与全面屏导航手势
+            ShizukuTaskLockHelper.setSystemBarsAndGesturesDisabled(context, false)
 
             _isLocked = false
-            AppLogManager.addLog("Shizuku", "屏幕固定模式已安全退出，手势与多任务已恢复正常", isSuccess = true)
+            AppLogManager.addLog("Shizuku", "状态栏与系统手势已完全恢复正常", isSuccess = true)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -167,12 +147,10 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
     override fun release(context: Context) {
         try {
             overlayStrategy.release(context)
-            ShizukuTaskLockHelper.setStatusBarExpandDisabled(context, false)
-            ShizukuTaskLockHelper.stopLockTask()
+            ShizukuTaskLockHelper.setSystemBarsAndGesturesDisabled(context, false)
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        pinnedTaskId = null
         _isLocked = false
     }
 }

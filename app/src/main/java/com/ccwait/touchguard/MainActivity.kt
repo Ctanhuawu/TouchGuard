@@ -56,6 +56,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            runCatching {
+                org.lsposed.hiddenapibypass.HiddenApiBypass.addHiddenApiExemptions("")
+            }
+        }
+
         // 初始化持久化配置与方案管理器
         AppPreferences.init(this)
         com.ccwait.touchguard.ui.util.LocalizationManager.updateLocaleOnly(AppPreferences.appLanguage)

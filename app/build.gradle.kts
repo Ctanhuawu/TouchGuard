@@ -84,5 +84,8 @@ dependencies {
     // Shizuku API
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
+
+    // HiddenApiBypass for accessing hidden IActivityTaskManager
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 }
 
