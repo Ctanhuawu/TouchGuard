@@ -93,6 +93,19 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
                 checkReadiness(context, forceRequest = true)
             }
 
+            // 0. 确保系统底层屏幕固定总开关已开启 (Settings.System.LOCK_TO_APP_ENABLED)
+            if (!ShizukuTaskLockHelper.isLockToAppEnabled(context)) {
+                val autoEnabled = ShizukuTaskLockHelper.ensureLockToAppEnabled(context)
+                if (!autoEnabled) {
+                    AppLogManager.addLog("Shizuku", "系统未开启【屏幕固定】，请在系统安全设置中开启", isWarning = true)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "⚠️ 请在 ColorOS 设置中开启「屏幕固定」方可生效！", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    AppLogManager.addLog("Shizuku", "已自动通过 Shizuku 激活系统屏幕固定总开关")
+                }
+            }
+
             // 1. 获取当前正在前台播放或运行的目标应用 Task ID
             val targetTaskId = ShizukuTaskLockHelper.getForegroundTaskId(context)
             pinnedTaskId = targetTaskId

@@ -121,6 +121,8 @@ object ShizukuTaskLockHelper {
         }
     }
 
+    private val statusBarToken: IBinder = Binder()
+
     /**
      * 辅助双保险：通过 IStatusBarService 彻底冻结状态栏下拉
      */
@@ -133,10 +135,56 @@ object ShizukuTaskLockHelper {
             val service = asInterface.invoke(null, wrappedBinder) ?: return false
             val disableMethod = service.javaClass.methods.firstOrNull { it.name == "disable" && it.parameterTypes.size == 3 }
             val flag = if (disabled) 0x00010000 /* DISABLE_EXPAND */ else 0
-            disableMethod?.invoke(service, flag, Binder(), context.packageName)
+            disableMethod?.invoke(service, flag, statusBarToken, context.packageName)
             true
         } catch (_: Throwable) {
             false
         }
     }
+
+    /**
+     * 检查系统屏幕固定开关是否已开启 (Settings.System.LOCK_TO_APP_ENABLED)
+     */
+    fun isLockToAppEnabled(context: Context): Boolean {
+        return try {
+            android.provider.Settings.System.getInt(context.contentResolver, "lock_to_app_enabled", 0) != 0
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /**
+     * 尝试通过 Shizuku 自动开启系统的屏幕固定总开关 (小米 / ColorOS 强启)
+     */
+    fun ensureLockToAppEnabled(context: Context): Boolean {
+        if (isLockToAppEnabled(context)) return true
+        return try {
+            val method = rikka.shizuku.Shizuku::class.java.declaredMethods.firstOrNull {
+                it.name == "newProcess" && it.parameterTypes.size == 3
+            }?.apply { isAccessible = true } ?: return false
+
+            // 先给 shell 授权 WRITE_SETTINGS，确保 settings put 能够写入系统表
+            val p1 = method.invoke(
+                null,
+                arrayOf("appops", "set", "com.android.shell", "WRITE_SETTINGS", "allow"),
+                null,
+                null
+            ) as? Process
+            p1?.waitFor()
+
+            // 写入系统全局屏幕固定总开关
+            val p2 = method.invoke(
+                null,
+                arrayOf("settings", "put", "system", "lock_to_app_enabled", "1"),
+                null,
+                null
+            ) as? Process
+            p2?.waitFor()
+
+            isLockToAppEnabled(context)
+        } catch (_: Throwable) {
+            false
+        }
+    }
 }
+
