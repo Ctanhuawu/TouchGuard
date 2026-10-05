@@ -88,6 +88,7 @@ object AppPreferences {
         private set
 
     fun init(context: Context) {
+        if (prefs != null) return
         val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs = sp
 

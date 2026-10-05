@@ -15,6 +15,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.ccwait.touchguard.AppPreferences
+import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.ScreenOrientationLock
 
 /**
@@ -103,7 +104,8 @@ object GlobalScreenPolicyManager {
 
             if (showPill) {
                 val promptPill = TextView(context).apply {
-                    text = "🔒 触控已保护 · ${AppPreferences.unlockMechanism.promptTip}"
+                    val tip = context.getString(AppPreferences.unlockMechanism.promptTipRes)
+                    text = "🔒 " + context.getString(R.string.capsule_press_tip, tip)
                     setTextColor(Color.WHITE)
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
                     val padH = (16 * density).toInt()

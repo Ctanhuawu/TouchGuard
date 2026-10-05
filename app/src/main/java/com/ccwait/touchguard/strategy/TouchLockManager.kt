@@ -62,7 +62,11 @@ object TouchLockManager {
 
     fun getAllStrategies(): List<TouchLockStrategy> = strategies.values.toList()
 
+    private var isInitialized = false
+
     fun init(context: Context) {
+        if (isInitialized) return
+        isInitialized = true
         AppPreferences.init(context)
         TouchGuardNotificationManager.init(context)
         CoroutineScope(Dispatchers.IO).launch {

@@ -10,6 +10,7 @@ import com.ccwait.touchguard.model.RootPermissionManager
 import com.ccwait.touchguard.model.RootStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -23,6 +24,7 @@ class KernelEvgrabStrategy : TouchLockStrategy {
         get() = _isLocked
 
     private var grabProcess: Process? = null
+    private var listenerJob: Job? = null
 
     override val readiness: StrategyReadiness
         get() = when (RootPermissionManager.status) {
@@ -113,7 +115,8 @@ class KernelEvgrabStrategy : TouchLockStrategy {
                 AppLogManager.addLog("驱动", "触控硬件独占已就绪 ($line)")
 
                 // 启动后台协程持续监听 evgrab 的底层实体按键输出
-                CoroutineScope(Dispatchers.IO).launch {
+                listenerJob?.cancel()
+                listenerJob = CoroutineScope(Dispatchers.IO).launch {
                     try {
                         var logLine: String?
                         while (reader.readLine().also { logLine = it } != null) {
@@ -139,6 +142,9 @@ class KernelEvgrabStrategy : TouchLockStrategy {
                         }
                     } catch (_: Exception) {
                     } finally {
+                        try {
+                            reader.close()
+                        } catch (_: Exception) {}
                         if (_isLocked) {
                             withContext(Dispatchers.Main) {
                                 TouchLockManager.unlock(context, source = "驱动退出")
@@ -161,6 +167,9 @@ class KernelEvgrabStrategy : TouchLockStrategy {
 
     override suspend fun unlock(context: Context): Result<Unit> = withContext(Dispatchers.IO) {
         try {
+            _isLocked = false
+            listenerJob?.cancel()
+            listenerJob = null
             try {
                 grabProcess?.outputStream?.write("QUIT\n".toByteArray())
                 grabProcess?.outputStream?.flush()
@@ -173,7 +182,6 @@ class KernelEvgrabStrategy : TouchLockStrategy {
             try {
                 Runtime.getRuntime().exec(arrayOf("su", "-c", "killall -9 evgrab 2>/dev/null")).waitFor()
             } catch (_: Exception) {}
-            _isLocked = false
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -183,6 +191,9 @@ class KernelEvgrabStrategy : TouchLockStrategy {
     }
 
     override fun release(context: Context) {
+        _isLocked = false
+        listenerJob?.cancel()
+        listenerJob = null
         try {
             grabProcess?.outputStream?.write("QUIT\n".toByteArray())
             grabProcess?.outputStream?.flush()
@@ -197,6 +208,5 @@ class KernelEvgrabStrategy : TouchLockStrategy {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        _isLocked = false
     }
 }

@@ -50,9 +50,9 @@ class TouchGuardTileService : TileService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.subtitle = if (isLocked) {
-                "已锁定 · ${AppPreferences.unlockMechanism.shortName}"
+                "${getString(R.string.home_status_locked)} · ${getString(AppPreferences.unlockMechanism.shortNameRes)}"
             } else {
-                "未锁定 · 点击锁定"
+                getString(R.string.home_btn_lock)
             }
         }
 

@@ -71,38 +71,44 @@ object TouchGuardNotificationManager {
             .setOnlyAlertOnce(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
+        val strategyTitle = context.getString(strategy.titleRes)
+        val unlockPrompt = context.getString(unlockMech.promptTipRes)
+        val actionUnlock = context.getString(R.string.notif_action_unlock)
+        val actionLock = context.getString(R.string.notif_action_lock)
+        val navOverview = context.getString(R.string.nav_overview)
+
         if (isLocked) {
             // 锁定状态下的通知：醒目提示，附带解除与打开主页按钮
             builder
-                .setContentTitle("⚠️ 屏幕触控已锁定")
-                .setContentText("轻触直接解除锁定 · ${strategy.title} · ${unlockMech.promptTip}")
+                .setContentTitle(context.getString(R.string.notif_title_locked))
+                .setContentText("$actionUnlock · $strategyTitle · $unlockPrompt")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setOngoing(true)
                 .addAction(
                     R.drawable.ic_qs_touch_unlock,
-                    "🔓 立即解除",
+                    "🔓 $actionUnlock",
                     togglePendingIntent
                 )
                 .addAction(
                     R.drawable.ic_stat_touchguard,
-                    "📱 打开主页",
+                    "📱 $navOverview",
                     openAppPendingIntent
                 )
         } else {
             // 就绪状态下的通知：轻量常驻，轻触卡片或操作按钮均可一键锁定
             builder
-                .setContentTitle("TouchGuard · 轻触立即锁定")
-                .setContentText("轻触直接锁定触控 · 引擎: ${strategy.title}")
+                .setContentTitle(context.getString(R.string.notif_title_ready))
+                .setContentText("$actionLock · $strategyTitle")
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setOngoing(AppPreferences.isKeepAliveEnabled)
                 .addAction(
                     R.drawable.ic_qs_touch_lock,
-                    "🔒 立即锁定",
+                    "🔒 $actionLock",
                     togglePendingIntent
                 )
                 .addAction(
                     R.drawable.ic_stat_touchguard,
-                    "📱 打开主页",
+                    "📱 $navOverview",
                     openAppPendingIntent
                 )
         }
