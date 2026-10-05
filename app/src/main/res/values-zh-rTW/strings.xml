@@ -68,6 +68,8 @@
     <string name="policy_haptic_desc">鎖定與按鍵操作時提供振動回饋</string>
     <string name="policy_window_title">按鍵判定窗口</string>
     <string name="policy_window_desc">連按應急解鎖的時間窗口</string>
+    <string name="policy_window_default_label">預設: %1$dms</string>
+    <string name="policy_window_reset">恢復預設</string>
 
     <!-- 日誌頁 (LogsPage) -->
     <string name="logs_title">運行日誌</string>

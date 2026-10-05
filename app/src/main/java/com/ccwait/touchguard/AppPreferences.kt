@@ -296,6 +296,10 @@ object AppPreferences {
         prefs?.edit()?.putInt(KEY_KEY_PRESS_WINDOW_MS, clamped)?.apply()
     }
 
+    fun resetKeyPressWindowMs() {
+        updateKeyPressWindowMs(DEFAULT_KEY_PRESS_WINDOW_MS)
+    }
+
     fun updatePredictiveBack(value: Boolean, context: Context? = null) {
         isPredictiveBackEnabled = value
         prefs?.edit()?.putBoolean(KEY_PREDICTIVE_BACK, value)?.apply()

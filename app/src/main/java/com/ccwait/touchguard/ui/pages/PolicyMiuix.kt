@@ -12,12 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
+import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Slider
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme.colorScheme
@@ -392,6 +397,52 @@ private fun KeyPressWindowPreferenceMiuix(
                 fontSize = 11.sp,
                 color = colorScheme.onSurfaceVariantSummary
             )
+        }
+
+        // 底部：默认值提示与恢复默认按钮
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.policy_window_default_label, AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS),
+                fontSize = 11.sp,
+                color = colorScheme.onSurfaceVariantSummary
+            )
+
+            val isDefault = windowMs == AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS
+            val resetBg = if (isDefault) colorScheme.surfaceVariant else colorScheme.primary.copy(alpha = 0.12f)
+            val resetContentColor = if (isDefault) colorScheme.onSurfaceVariantSummary else colorScheme.primary
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(resetBg)
+                    .clickable {
+                        onWindowChange(AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS)
+                        textValue = AppPreferences.DEFAULT_KEY_PRESS_WINDOW_MS.toString()
+                        onVibrate(25)
+                    }
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.RestartAlt,
+                    contentDescription = stringResource(R.string.policy_window_reset),
+                    tint = resetContentColor,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+                Text(
+                    text = stringResource(R.string.policy_window_reset),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = resetContentColor
+                )
+            }
         }
     }
 }

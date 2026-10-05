@@ -68,6 +68,8 @@
     <string name="policy_haptic_desc">Vibration feedback on lock and key actions</string>
     <string name="policy_window_title">Key Press Window</string>
     <string name="policy_window_desc">Time window threshold for rapid key presses</string>
+    <string name="policy_window_default_label">Default: %1$dms</string>
+    <string name="policy_window_reset">Reset to Default</string>
 
     <!-- LogsPage -->
     <string name="logs_title">Runtime Logs</string>
