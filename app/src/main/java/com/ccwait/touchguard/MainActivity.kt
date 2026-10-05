@@ -270,21 +270,15 @@ class MainActivity : ComponentActivity() {
                 }
 
                 // 4. 隐藏通知栏与小白条
-                if (AppPreferences.isHideSystemBarsEnabled) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        window.insetsController?.let { controller ->
-                            controller.hide(android.view.WindowInsets.Type.systemBars())
-                            controller.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                        }
+                try {
+                    val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+                    if (AppPreferences.isHideSystemBarsEnabled) {
+                        insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                        insetsController.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                     } else {
-                        @Suppress("DEPRECATION")
-                        window.decorView.systemUiVisibility = (
-                            android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        )
+                        insetsController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
                     }
-                }
+                } catch (_: Throwable) {}
             } else {
                 // 恢复默认状态
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -293,12 +287,10 @@ class MainActivity : ComponentActivity() {
                 lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 window.attributes = lp
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    window.insetsController?.show(android.view.WindowInsets.Type.systemBars())
-                } else {
-                    @Suppress("DEPRECATION")
-                    window.decorView.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_VISIBLE
-                }
+                try {
+                    val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+                    insetsController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                } catch (_: Throwable) {}
             }
         }
     }
