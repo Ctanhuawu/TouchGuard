@@ -142,15 +142,15 @@
     <string name="dialog_orientation_desc">Select display orientation to retain during touch lock</string>
 
     <!-- StrategyType -->
-    <string name="strat_root_title">Root Hardware Exclusive Strategy</string>
-    <string name="strat_root_desc">Hardware-level input interception</string>
-    <string name="strat_root_spec">ioctl(EVIOCGRAB) hardware exclusive primitive</string>
-    <string name="strat_accessibility_title">Accessibility Global Overlay Strategy</string>
-    <string name="strat_accessibility_desc">Global overlay touch interception</string>
-    <string name="strat_accessibility_spec">Accessibility / TYPE_ACCESSIBILITY_OVERLAY</string>
-    <string name="strat_shizuku_title">Shizuku Privileged Strategy</string>
-    <string name="strat_shizuku_desc">Privileged status bar and gesture suppression via Shizuku without Root, preserving system info and volume unlock</string>
-    <string name="strat_shizuku_spec">Shizuku / IStatusBarService Privileged Control</string>
+    <string name="strat_root_title">Root</string>
+    <string name="strat_root_desc">Hardware-level exclusive touch blocking</string>
+    <string name="strat_root_spec">Linux EVIOCGRAB</string>
+    <string name="strat_accessibility_title">Accessibility</string>
+    <string name="strat_accessibility_desc">Overlay touch blocking, rootless</string>
+    <string name="strat_accessibility_spec">Accessibility Overlay</string>
+    <string name="strat_shizuku_title">Shizuku</string>
+    <string name="strat_shizuku_desc">Privileged gesture &amp; pulldown lock, rootless</string>
+    <string name="strat_shizuku_spec">IStatusBarService Control</string>
     <string name="accessibility_service_label">TouchGuard Protection Service</string>
     <string name="accessibility_service_description">Used in rootless mode to create an accessibility overlay covering status bar and full-screen gestures, and listen for physical key unlocks.</string>
 

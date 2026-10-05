@@ -142,15 +142,15 @@
     <string name="dialog_orientation_desc">选择屏幕防触锁定期间强制保持的机身显示朝向</string>
 
     <!-- 策略方案 (StrategyType) -->
-    <string name="strat_root_title">Root 硬件独占方案</string>
-    <string name="strat_root_desc">底层硬件级触控信号拦截</string>
-    <string name="strat_root_spec">ioctl(EVIOCGRAB) 硬件独占原语</string>
-    <string name="strat_accessibility_title">无障碍全局拦截方案</string>
-    <string name="strat_accessibility_desc">系统全局悬浮手势拦截</string>
-    <string name="strat_accessibility_spec">无障碍 / TYPE_ACCESSIBILITY_OVERLAY 顶层拦截</string>
-    <string name="strat_shizuku_title">Shizuku 特权锁定方案</string>
-    <string name="strat_shizuku_desc">免 Root 借助 Shizuku 深度锁定状态栏与手势导航，保留状态栏显示与按键恢复</string>
-    <string name="strat_shizuku_spec">Shizuku / IStatusBarService 系统级接管</string>
+    <string name="strat_root_title">Root</string>
+    <string name="strat_root_desc">底层硬件独占，彻底阻断触控</string>
+    <string name="strat_root_spec">Linux EVIOCGRAB 独占</string>
+    <string name="strat_accessibility_title">无障碍</string>
+    <string name="strat_accessibility_desc">悬浮遮罩拦截，无需 Root 权限</string>
+    <string name="strat_accessibility_spec">无障碍顶层遮罩</string>
+    <string name="strat_shizuku_title">Shizuku</string>
+    <string name="strat_shizuku_desc">特权锁定手势与下拉，保留状态栏</string>
+    <string name="strat_shizuku_spec">IStatusBarService 特权接管</string>
     <string name="accessibility_service_label">TouchGuard 触控防护服务</string>
     <string name="accessibility_service_description">用于在免 Root 环境下创建系统顶层无障碍拦截视图，完美覆盖状态栏与全面屏手势，并监听实体按键解锁。</string>
 
