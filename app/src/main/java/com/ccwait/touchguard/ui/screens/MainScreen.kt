@@ -60,8 +60,13 @@ fun MainScreen(
 ) {
     val themeMode = AppPreferences.themeMode
 
+    val navigator = com.ccwait.touchguard.ui.navigation.LocalNavigator.current
     val isBackEnabled by remember {
-        derivedStateOf { mainPagerState.selectedPage != 0 }
+        derivedStateOf {
+            navigator.current() is com.ccwait.touchguard.ui.navigation.Route.Main &&
+                navigator.backStackSize() == 1 &&
+                mainPagerState.selectedPage != 0
+        }
     }
     BackHandler(enabled = isBackEnabled) {
         mainPagerState.animateToPage(0)

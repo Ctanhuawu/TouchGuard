@@ -192,6 +192,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
+                        val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+                        val swipeDismiss = if (isRtl) top.yukonga.miuix.kmp.nav.transition.NavSwipeDirection.RightToLeft else top.yukonga.miuix.kmp.nav.transition.NavSwipeDirection.LeftToRight
+
                         NavDisplay(
                             backStack = navigator.backStack,
                             effects = NavDisplayEffects(cornerClipRadius = rememberNavSystemCornerRadius()),
@@ -218,7 +221,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                            entry<Route.ColorPalette> {
+                            entry<Route.ColorPalette>(swipeDismiss = swipeDismiss) {
                                 ColorPaletteScreen()
                             }
                         }

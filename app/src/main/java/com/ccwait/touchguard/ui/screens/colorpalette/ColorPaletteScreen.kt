@@ -1,5 +1,6 @@
 package com.ccwait.touchguard.ui.screens.colorpalette
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.ccwait.touchguard.ui.AppThemeMode
 import com.ccwait.touchguard.ui.LocalAppThemeMode
@@ -12,6 +13,9 @@ import com.ccwait.touchguard.ui.navigation.LocalNavigator
 @Composable
 fun ColorPaletteScreen() {
     val navigator = LocalNavigator.current
+    BackHandler {
+        navigator.pop()
+    }
     when (LocalAppThemeMode.current) {
         AppThemeMode.Miuix -> ColorPaletteScreenMiuix(onBack = { navigator.pop() })
         AppThemeMode.Material3 -> ColorPaletteScreenMaterial(onBack = { navigator.pop() })

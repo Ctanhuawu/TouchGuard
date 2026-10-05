@@ -11,17 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.SystemUpdate
-import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -150,46 +147,9 @@ fun SettingsMaterial(
                             title = stringResource(R.string.settings_theme),
                             summary = stringResource(R.string.settings_theme_summary),
                             leadingIcon = Icons.Rounded.Palette,
-                            showDivider = true,
+                            showDivider = false,
                             onClick = {
                                 navigator.push(com.ccwait.touchguard.ui.navigation.Route.ColorPalette)
-                                onVibrate(20)
-                            }
-                        )
-
-                        MaterialSwitchPreference(
-                            title = stringResource(R.string.settings_floating_bar_title),
-                            summary = stringResource(R.string.settings_floating_bar_summary),
-                            leadingIcon = Icons.Rounded.CallToAction,
-                            checked = AppPreferences.isFloatingBottomBarEnabled,
-                            showDivider = AppPreferences.isFloatingBottomBarEnabled,
-                            onCheckedChange = {
-                                AppPreferences.updateFloatingBottomBar(it)
-                                onVibrate(25)
-                            }
-                        )
-
-                        if (AppPreferences.isFloatingBottomBarEnabled) {
-                            MaterialSwitchPreference(
-                                title = stringResource(R.string.settings_blur_title),
-                                summary = stringResource(R.string.settings_blur_summary),
-                                leadingIcon = Icons.Rounded.WaterDrop,
-                                checked = AppPreferences.isFloatingBottomBarBlurEnabled,
-                                showDivider = true,
-                                onCheckedChange = {
-                                    AppPreferences.updateFloatingBottomBarBlur(it)
-                                    onVibrate(20)
-                                }
-                            )
-                        }
-
-                        MaterialSwitchPreference(
-                            title = stringResource(R.string.settings_badge_title),
-                            summary = stringResource(R.string.settings_badge_summary),
-                            leadingIcon = Icons.Rounded.Pin,
-                            checked = AppPreferences.isNavigationBadgeEnabled,
-                            onCheckedChange = {
-                                AppPreferences.updateNavigationBadge(it)
                                 onVibrate(20)
                             }
                         )

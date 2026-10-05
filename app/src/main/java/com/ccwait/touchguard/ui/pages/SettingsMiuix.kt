@@ -11,17 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.SystemUpdate
-import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -198,61 +195,6 @@ fun SettingsMiuix(
                             }
                         )
 
-                        SwitchPreference(
-                            title = stringResource(R.string.settings_floating_bar_title),
-                            summary = stringResource(R.string.settings_floating_bar_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.CallToAction,
-                                    modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(R.string.settings_floating_bar_title),
-                                    tint = iconTint
-                                )
-                            },
-                            checked = AppPreferences.isFloatingBottomBarEnabled,
-                            onCheckedChange = {
-                                AppPreferences.updateFloatingBottomBar(it)
-                                onVibrate(25)
-                            }
-                        )
-
-                        if (AppPreferences.isFloatingBottomBarEnabled) {
-                            SwitchPreference(
-                                title = stringResource(R.string.settings_blur_title),
-                                summary = stringResource(R.string.settings_blur_summary),
-                                startAction = {
-                                    Icon(
-                                        Icons.Rounded.WaterDrop,
-                                        modifier = Modifier.padding(end = 6.dp),
-                                        contentDescription = stringResource(R.string.settings_blur_title),
-                                        tint = iconTint
-                                    )
-                                },
-                                checked = AppPreferences.isFloatingBottomBarBlurEnabled,
-                                onCheckedChange = {
-                                    AppPreferences.updateFloatingBottomBarBlur(it)
-                                    onVibrate(20)
-                                }
-                            )
-                        }
-
-                        SwitchPreference(
-                            title = stringResource(R.string.settings_badge_title),
-                            summary = stringResource(R.string.settings_badge_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Pin,
-                                    modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(R.string.settings_badge_title),
-                                    tint = iconTint
-                                )
-                            },
-                            checked = AppPreferences.isNavigationBadgeEnabled,
-                            onCheckedChange = {
-                                AppPreferences.updateNavigationBadge(it)
-                                onVibrate(20)
-                            }
-                        )
                     }
 
                     // Card 3: 运行与后台保活
