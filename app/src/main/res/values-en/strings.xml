@@ -142,7 +142,9 @@
     <string name="strat_root_spec">ioctl(EVIOCGRAB) hardware exclusive primitive</string>
     <string name="strat_accessibility_title">Accessibility Global Overlay Strategy</string>
     <string name="strat_accessibility_desc">Global overlay touch interception</string>
-    <string name="strat_accessibility_spec">Accessibility / TYPE_APPLICATION_OVERLAY</string>
+    <string name="strat_accessibility_spec">Accessibility / TYPE_ACCESSIBILITY_OVERLAY</string>
+    <string name="accessibility_service_label">TouchGuard Protection Service</string>
+    <string name="accessibility_service_description">Used in rootless mode to create an accessibility overlay covering status bar and full-screen gestures, and listen for physical key unlocks.</string>
 
     <!-- UnlockMechanism -->
     <string name="unlock_double_vol_down_title">Double-press Volume Down</string>

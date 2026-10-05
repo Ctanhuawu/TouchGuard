@@ -142,7 +142,9 @@
     <string name="strat_root_spec">ioctl(EVIOCGRAB) 硬件独占原语</string>
     <string name="strat_accessibility_title">无障碍全局拦截方案</string>
     <string name="strat_accessibility_desc">系统全局悬浮手势拦截</string>
-    <string name="strat_accessibility_spec">无障碍 / TYPE_APPLICATION_OVERLAY 顶层拦截</string>
+    <string name="strat_accessibility_spec">无障碍 / TYPE_ACCESSIBILITY_OVERLAY 顶层拦截</string>
+    <string name="accessibility_service_label">TouchGuard 触控防护服务</string>
+    <string name="accessibility_service_description">用于在免 Root 环境下创建系统顶层无障碍拦截视图，完美覆盖状态栏与全面屏手势，并监听实体按键解锁。</string>
 
     <!-- 解锁机制 (UnlockMechanism) -->
     <string name="unlock_double_vol_down_title">双击音量下键</string>

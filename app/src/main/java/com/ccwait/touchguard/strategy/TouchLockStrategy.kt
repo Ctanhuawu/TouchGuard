@@ -41,7 +41,7 @@ enum class StrategyType(
         id = "accessibility_overlay",
         title = "无障碍全局拦截方案",
         description = "创建系统全局顶层透明无障碍视图消费所有触摸与手势，免 Root 环境也可稳定生效",
-        technicalSpec = "无障碍 / TYPE_APPLICATION_OVERLAY 顶层拦截",
+        technicalSpec = "无障碍 / TYPE_ACCESSIBILITY_OVERLAY 顶层拦截",
         tag = "视图级 · 免Root",
         requiresRoot = false,
         titleRes = R.string.strat_accessibility_title,
