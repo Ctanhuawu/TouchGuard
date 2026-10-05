@@ -22,7 +22,7 @@ interface PanelCollapseStrategy {
 /**
  * 策略 1: 无障碍服务全局折叠策略（免 Root 核心）
  * 原理：通过 Android 12+ (API 31+) 官方标准 GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE 接口，
- * 兜底使用 GLOBAL_ACTION_BACK，无侵入、零动画打扰且不切换前台应用。
+ * 无侵入、零动画打扰且绝不派发全局返回键误退前台应用。
  */
 class AccessibilityCollapseStrategy : PanelCollapseStrategy {
     override val name: String = "AccessibilityService"

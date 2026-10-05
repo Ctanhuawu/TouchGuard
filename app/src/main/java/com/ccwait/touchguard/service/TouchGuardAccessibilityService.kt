@@ -68,24 +68,16 @@ class TouchGuardAccessibilityService : AccessibilityService() {
      * 免 Root 核心：通过无障碍服务的系统权限收起通知栏与控制中心
      */
     fun dismissNotificationShade(): Boolean {
-        var handled = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
-                handled = performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+                val handled = performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
                 android.util.Log.d("TouchGuard", "dismissNotificationShade: GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE handled=$handled")
+                return handled
             } catch (e: Exception) {
                 android.util.Log.w("TouchGuard", "GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE failed", e)
             }
         }
-        if (!handled) {
-            try {
-                handled = performGlobalAction(GLOBAL_ACTION_BACK)
-                android.util.Log.d("TouchGuard", "dismissNotificationShade: fallback GLOBAL_ACTION_BACK handled=$handled")
-            } catch (e: Exception) {
-                android.util.Log.w("TouchGuard", "GLOBAL_ACTION_BACK failed", e)
-            }
-        }
-        return handled
+        return false
     }
 
     companion object {

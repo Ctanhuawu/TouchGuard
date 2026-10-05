@@ -99,8 +99,10 @@ object TouchLockManager : TouchLockCoordinator {
     override suspend fun lock(context: Context, source: String): Result<Unit> {
         AppPreferences.init(context)
         init(context)
-        // 自动收回通知栏和控制中心，防止锁定后遮挡画面无法划走
-        collapsePanels(context)
+        // 若非应用内触发（如通知栏/控制中心触发），自动收回下拉面板以防锁定后遮挡前台画面
+        if (source != "应用界面") {
+            collapsePanels(context)
+        }
         // 保证前台常驻服务已启动以承载息屏监听、WakeLock 与全局按键
         com.ccwait.touchguard.service.TouchGuardForegroundService.start(context)
         // 重置物理按键恢复处理器的防误触与点击计数状态
