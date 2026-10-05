@@ -139,4 +139,10 @@ interface TouchLockStrategy {
      * 释放所有底层句柄
      */
     fun release(context: Context) {}
+
+    /**
+     * 屏幕重新点亮或用户解锁锁屏后，加固并重新激活锁定状态
+     * 避免系统在解锁清理过程中重置状态栏标志或使顶层遮罩失去焦点
+     */
+    fun reassert(context: Context) {}
 }

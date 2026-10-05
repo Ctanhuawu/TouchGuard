@@ -18,4 +18,5 @@ interface TouchLockCoordinator {
     suspend fun lock(context: Context, source: String = "应用界面"): Result<Unit>
     suspend fun unlock(context: Context, source: String = "应用界面"): Result<Unit>
     fun releaseAll(context: Context)
+    fun reassert(context: Context) {}
 }

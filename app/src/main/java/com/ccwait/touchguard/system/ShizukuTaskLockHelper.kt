@@ -92,25 +92,27 @@ object ShizukuTaskLockHelper {
      *                 false: 完全恢复所有状态栏下拉与手势操作
      */
     fun setSystemBarsAndGesturesDisabled(context: Context, disabled: Boolean): Boolean {
-        return try {
-            val service = getStatusBarService() ?: return false
-            ensureMethods(service)
+        for (attempt in 1..2) {
+            try {
+                val service = getStatusBarService() ?: return false
+                ensureMethods(service)
 
-            val flag1 = if (disabled) LOCK_FLAG1 else 0
-            val flag2 = if (disabled) LOCK_FLAG2 else 0
+                val flag1 = if (disabled) LOCK_FLAG1 else 0
+                val flag2 = if (disabled) LOCK_FLAG2 else 0
 
-            cachedDisableMethod?.invoke(service, flag1, statusBarToken, context.packageName)
-            cachedDisable2Method?.invoke(service, flag2, statusBarToken, context.packageName)
+                cachedDisableMethod?.invoke(service, flag1, statusBarToken, context.packageName)
+                cachedDisable2Method?.invoke(service, flag2, statusBarToken, context.packageName)
 
-            Log.d(TAG, "setSystemBarsAndGesturesDisabled: disabled=$disabled, flag1=$flag1, flag2=$flag2")
-            true
-        } catch (e: Throwable) {
-            Log.e(TAG, "setSystemBarsAndGesturesDisabled failed", e)
-            // 异常时重置缓存，以便下次重新获取服务引用
-            cachedStatusBarService = null
-            isMethodsCached = false
-            false
+                Log.d(TAG, "setSystemBarsAndGesturesDisabled: disabled=$disabled, flag1=$flag1, flag2=$flag2")
+                return true
+            } catch (e: Throwable) {
+                Log.e(TAG, "setSystemBarsAndGesturesDisabled failed (attempt $attempt)", e)
+                // 异常时重置缓存，以便重试时重新获取服务引用
+                cachedStatusBarService = null
+                isMethodsCached = false
+            }
         }
+        return false
     }
 
     /**
@@ -142,17 +144,20 @@ object ShizukuTaskLockHelper {
 
     /**
      * 通过 Shizuku 静默为 TouchGuard 授予悬浮窗权限 (SYSTEM_ALERT_WINDOW)
+     * 同步注入 HyperOS / MIUI 锁屏显示(10008)与悬浮窗(10021)专属权限
      */
     fun ensureOverlayPermission(context: Context): Boolean {
         if (Settings.canDrawOverlays(context)) return true
         return try {
             val method = getNewProcessMethod() ?: return false
-            val p = method.invoke(
-                null,
-                arrayOf("appops", "set", context.packageName, "SYSTEM_ALERT_WINDOW", "allow"),
-                null,
-                null
-            ) as? Process
+            val cmds = arrayOf(
+                "sh", "-c",
+                "appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow; " +
+                "appops set ${context.packageName} 10021 allow; " +
+                "appops set ${context.packageName} 10020 allow; " +
+                "appops set ${context.packageName} 10008 allow"
+            )
+            val p = method.invoke(null, cmds, null, null) as? Process
             p?.waitFor()
             Settings.canDrawOverlays(context)
         } catch (e: Throwable) {

@@ -155,4 +155,21 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
         }
         _isLocked = false
     }
+
+    override fun reassert(context: Context) {
+        if (!_isLocked) return
+        try {
+            // 重新冻结状态栏与全面屏手势（防止解锁锁屏后系统清理了 disable 状态）
+            val barSuccess = ShizukuTaskLockHelper.setSystemBarsAndGesturesDisabled(context, true)
+            if (barSuccess) {
+                AppLogManager.addLog("Shizuku", "已重新加固状态栏与全面屏手势冻结")
+            } else {
+                AppLogManager.addLog("Shizuku", "状态栏重加固未响应", isWarning = true)
+            }
+            // 重新加固全屏触控遮罩置顶与焦点
+            overlayStrategy.reassert(context)
+        } catch (e: Exception) {
+            AppLogManager.addLog("Shizuku", "重加固失败: ${e.message}", isWarning = true)
+        }
+    }
 }

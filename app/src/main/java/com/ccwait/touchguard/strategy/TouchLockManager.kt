@@ -189,6 +189,18 @@ object TouchLockManager : TouchLockCoordinator {
         TouchGuardTileService.updateTileState(context)
     }
 
+    override fun reassert(context: Context) {
+        if (!isTouchLocked) return
+        try {
+            currentStrategy.reassert(context)
+            GlobalScreenPolicyManager.applyPolicies(context, true)
+            TouchGuardNotificationManager.updateNotification(context)
+            TouchGuardTileService.updateTileState(context)
+        } catch (e: Exception) {
+            AppLogManager.addLog("核心", "加固失败: ${e.message}", isWarning = true)
+        }
+    }
+
     fun vibratePhone(context: Context, durationMs: Long) {
         DefaultHapticFeedbackService.vibrate(context, durationMs)
     }

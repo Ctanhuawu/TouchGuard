@@ -284,6 +284,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (TouchLockManager.isTouchLocked) {
+            TouchLockManager.reassert(this)
+        }
         lifecycleScope.launch {
             TouchLockManager.checkAllReadiness(this@MainActivity, forceRequest = false)
         }

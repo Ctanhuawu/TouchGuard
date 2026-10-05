@@ -25,7 +25,9 @@ import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.BuildConfig
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.service.TouchGuardAccessibilityService
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class WindowOverlayStrategy : TouchLockStrategy {
@@ -243,6 +245,45 @@ class WindowOverlayStrategy : TouchLockStrategy {
         }
     }
 
+    override fun reassert(context: Context) {
+        if (!_isLocked) return
+        val appContext = context.applicationContext
+        val wm = windowManager ?: (appContext.getSystemService(Context.WINDOW_SERVICE) as? WindowManager) ?: return
+        val currentView = overlayView
+
+        val action = Runnable {
+            if (currentView == null || !currentView.isAttachedToWindow) {
+                // 视图未附加或被系统回收，重新执行 lock
+                kotlinx.coroutines.CoroutineScope(Dispatchers.Main).launch {
+                    lock(context)
+                }
+                return@Runnable
+            }
+
+            try {
+                currentView.visibility = View.VISIBLE
+                currentView.bringToFront()
+                currentView.requestFocus()
+                (currentView as? TouchLockOverlayView)?.applyImmersiveMode()
+                currentView.layoutParams?.let { lp ->
+                    wm.updateViewLayout(currentView, lp)
+                }
+                com.ccwait.touchguard.model.AppLogManager.addLog("遮罩", "全屏触控拦截遮罩已加固并重置焦点")
+            } catch (e: Exception) {
+                com.ccwait.touchguard.model.AppLogManager.addLog("遮罩", "遮罩刷新异常，重新加载: ${e.message}", isWarning = true)
+                kotlinx.coroutines.CoroutineScope(Dispatchers.Main).launch {
+                    lock(context)
+                }
+            }
+        }
+
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            action.run()
+        } else {
+            android.os.Handler(android.os.Looper.getMainLooper()).post(action)
+        }
+    }
+
     private class TouchLockOverlayView(context: Context) : FrameLayout(context) {
         init {
             setBackgroundColor(Color.TRANSPARENT)
@@ -257,7 +298,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
             applyImmersiveMode()
         }
 
-        private fun applyImmersiveMode() {
+        fun applyImmersiveMode() {
             if (!AppPreferences.isHideSystemBarsEnabled) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     windowInsetsController?.show(WindowInsets.Type.systemBars())

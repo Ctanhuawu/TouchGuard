@@ -26,11 +26,25 @@ class TouchGuardForegroundService : Service() {
 
     private val screenOffReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == Intent.ACTION_SCREEN_OFF) {
-                if (AppPreferences.isAutoUnlockOnScreenOffEnabled && TouchLockManager.isTouchLocked) {
-                    AppLogManager.addLog("熄屏", "后台服务检测到熄屏 (SCREEN_OFF)，执行安全自动解除")
-                    CoroutineScope(Dispatchers.Main).launch {
-                        TouchLockManager.unlock(this@TouchGuardForegroundService, source = "熄屏自动解除")
+            when (intent?.action) {
+                Intent.ACTION_SCREEN_OFF -> {
+                    if (AppPreferences.isAutoUnlockOnScreenOffEnabled && TouchLockManager.isTouchLocked) {
+                        AppLogManager.addLog("熄屏", "后台服务检测到熄屏 (SCREEN_OFF)，执行安全自动解除")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            TouchLockManager.unlock(this@TouchGuardForegroundService, source = "熄屏自动解除")
+                        }
+                    }
+                }
+                Intent.ACTION_SCREEN_ON, Intent.ACTION_USER_PRESENT -> {
+                    // 当没有开启熄屏自动解除且当前处于锁定中时：
+                    // 屏幕唤醒或用户解锁锁屏后，系统可能重置了系统栏状态或使顶层悬浮窗失去焦点。
+                    // 必须立即重新加固触控拦截与系统手势管控！
+                    if (!AppPreferences.isAutoUnlockOnScreenOffEnabled && TouchLockManager.isTouchLocked) {
+                        val eventName = if (intent.action == Intent.ACTION_USER_PRESENT) "解锁进入系统" else "屏幕点亮"
+                        AppLogManager.addLog("唤醒加固", "检测到$eventName，立即重新激活全屏触控拦截与状态栏冻结")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            TouchLockManager.reassert(this@TouchGuardForegroundService)
+                        }
                     }
                 }
             }
@@ -52,7 +66,11 @@ class TouchGuardForegroundService : Service() {
         instance = this
         TouchGuardNotificationManager.init(this)
         TouchLockManager.addLockStateListener(lockListener)
-        val filter = IntentFilter(Intent.ACTION_SCREEN_OFF)
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
         registerReceiver(screenOffReceiver, filter)
         if (TouchLockManager.isTouchLocked) {
             startKeyIntercept()
