@@ -109,6 +109,9 @@ object PhysicalKeyUnlockHandler {
     private fun processKeyAction(context: Context, keyCode: Int, isFromMediaSession: Boolean): Boolean {
         val now = System.currentTimeMillis()
         val mechanism = AppPreferences.unlockMechanism
+        val maxClickInterval = AppPreferences.keyPressWindowMs.toLong()
+        val maxTripleInterval = (maxClickInterval * 1.2f).toLong()
+        val maxComboInterval = (maxClickInterval * 1.5f).toLong()
 
         // 防抖：两次按键间隔小于 180ms 判定为按键抖动或并发派发，予以忽略
         val interval = now - lastKeyPressTime
@@ -119,7 +122,7 @@ object PhysicalKeyUnlockHandler {
         when (mechanism) {
             UnlockMechanism.DOUBLE_VOLUME_DOWN -> {
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    if (interval < MAX_CLICK_INTERVAL_MS) {
+                    if (interval < maxClickInterval) {
                         scheduleOrExecuteUnlock(context, "连续双击音量下键", isFromMediaSession)
                         return true
                     } else {
@@ -132,7 +135,7 @@ object PhysicalKeyUnlockHandler {
             }
             UnlockMechanism.TRIPLE_VOLUME_DOWN -> {
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    if (interval < MAX_TRIPLE_INTERVAL_MS) {
+                    if (interval < maxTripleInterval) {
                         keyPressCount++
                         lastKeyPressTime = now
                         if (keyPressCount >= 2) {
@@ -154,7 +157,7 @@ object PhysicalKeyUnlockHandler {
             }
             UnlockMechanism.DOUBLE_VOLUME_UP -> {
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                    if (interval < MAX_CLICK_INTERVAL_MS) {
+                    if (interval < maxClickInterval) {
                         scheduleOrExecuteUnlock(context, "连续双击音量上键", isFromMediaSession)
                         return true
                     } else {
@@ -173,7 +176,7 @@ object PhysicalKeyUnlockHandler {
                     Toast.makeText(context, "再按一次【音量减】完成组合解除", Toast.LENGTH_SHORT).show()
                     return true
                 } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    if (lastKeyCode == KeyEvent.KEYCODE_VOLUME_UP && interval < MAX_COMBO_INTERVAL_MS) {
+                    if (lastKeyCode == KeyEvent.KEYCODE_VOLUME_UP && interval < maxComboInterval) {
                         scheduleOrExecuteUnlock(context, "「音量加 + 音量减」组合键", isFromMediaSession)
                         return true
                     } else {

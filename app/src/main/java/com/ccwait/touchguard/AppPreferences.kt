@@ -45,6 +45,8 @@ object AppPreferences {
     private const val KEY_APP_LANGUAGE = "app_language"
     private const val KEY_CHECK_UPDATE = "check_update"
     private const val KEY_UPDATE_CHANNEL = "update_channel"
+    private const val KEY_KEY_PRESS_WINDOW_MS = "key_press_window_ms"
+    const val DEFAULT_KEY_PRESS_WINDOW_MS = 1000
 
     private var prefs: SharedPreferences? = null
 
@@ -97,6 +99,8 @@ object AppPreferences {
         private set
     var updateChannel by mutableStateOf(com.ccwait.touchguard.model.UpdateChannel.STABLE)
         private set
+    var keyPressWindowMs by mutableIntStateOf(DEFAULT_KEY_PRESS_WINDOW_MS)
+        private set
 
     fun getAppSettings(): AppSettings {
         val palette = try {
@@ -142,6 +146,7 @@ object AppPreferences {
         isCheckUpdateEnabled = sp.getBoolean(KEY_CHECK_UPDATE, true)
         val channelId = sp.getString(KEY_UPDATE_CHANNEL, com.ccwait.touchguard.model.UpdateChannel.STABLE.id)
         updateChannel = com.ccwait.touchguard.model.UpdateChannel.fromId(channelId)
+        keyPressWindowMs = sp.getInt(KEY_KEY_PRESS_WINDOW_MS, DEFAULT_KEY_PRESS_WINDOW_MS)
 
         val colorModeValue = sp.getInt(KEY_COLOR_MODE, ColorMode.MONET_SYSTEM.value)
         colorMode = ColorMode.fromValue(colorModeValue)
@@ -283,6 +288,12 @@ object AppPreferences {
     fun updateUpdateChannel(value: com.ccwait.touchguard.model.UpdateChannel) {
         updateChannel = value
         prefs?.edit()?.putString(KEY_UPDATE_CHANNEL, value.id)?.apply()
+    }
+
+    fun updateKeyPressWindowMs(value: Int) {
+        val clamped = value.coerceIn(300, 3000)
+        keyPressWindowMs = clamped
+        prefs?.edit()?.putInt(KEY_KEY_PRESS_WINDOW_MS, clamped)?.apply()
     }
 
     fun updatePredictiveBack(value: Boolean, context: Context? = null) {

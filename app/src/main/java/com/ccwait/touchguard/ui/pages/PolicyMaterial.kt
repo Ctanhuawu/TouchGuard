@@ -9,19 +9,40 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.ScreenOrientationLock
@@ -220,17 +241,140 @@ fun PolicyMaterial(
                             }
                         )
 
-                        MaterialSwitchPreference(
-                            title = stringResource(R.string.policy_window_title),
-                            summary = stringResource(R.string.policy_window_desc),
-                            checked = true,
-                            onCheckedChange = {}
+                        KeyPressWindowPreferenceMaterial(
+                            windowMs = AppPreferences.keyPressWindowMs,
+                            onWindowChange = { AppPreferences.updateKeyPressWindowMs(it) },
+                            onVibrate = onVibrate
                         )
                     }
 
                     Spacer(modifier = Modifier.height(bottomInnerPadding))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun KeyPressWindowPreferenceMaterial(
+    windowMs: Int,
+    onWindowChange: (Int) -> Unit,
+    onVibrate: (Long) -> Unit
+) {
+    var textValue by remember(windowMs) { mutableStateOf(windowMs.toString()) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.policy_window_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.policy_window_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+
+            // 数字输入框 (加 "ms" 后缀)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+                BasicTextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 4 && newText.all { it.isDigit() }) {
+                            textValue = newText
+                            val num = newText.toIntOrNull()
+                            if (num != null && num in 300..3000) {
+                                onWindowChange(num)
+                            }
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            val num = textValue.toIntOrNull()?.coerceIn(300, 3000) ?: 1000
+                            textValue = num.toString()
+                            onWindowChange(num)
+                        }
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.End
+                    ),
+                    modifier = Modifier
+                        .width(44.dp)
+                        .onFocusChanged { focusState ->
+                            if (!focusState.isFocused) {
+                                val num = textValue.toIntOrNull()?.coerceIn(300, 3000) ?: 1000
+                                textValue = num.toString()
+                                onWindowChange(num)
+                            }
+                        }
+                )
+                Text(
+                    text = " ms",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        // 拖动条 (Slider)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "300ms",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Slider(
+                value = windowMs.toFloat(),
+                onValueChange = { floatVal ->
+                    val intVal = ((floatVal.roundToInt() + 25) / 50) * 50
+                    if (intVal != windowMs) {
+                        onWindowChange(intVal)
+                        onVibrate(15)
+                    }
+                },
+                valueRange = 300f..3000f,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 10.dp)
+            )
+            Text(
+                text = "3000ms",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
