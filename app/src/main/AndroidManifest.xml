@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <uses-sdk tools:overrideLibrary="top.yukonga.miuix.kmp.blur" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="TouchGuard"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MiuixDemo">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|locale|layoutDirection|uiMode">
+            <!-- 单一 Intent Filter，彻底杜绝部分系统桌面（如 HyperOS）扫描到多 Filter 生成双桌面图标的问题 -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 前台保活与通知服务 -->
+        <service
+            android:name=".service.TouchGuardForegroundService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Touch lock protection and device input interception" />
+        </service>
+
+        <!-- 控制中心快捷开关 (Quick Settings Tile) -->
+        <service
+            android:name=".service.TouchGuardTileService"
+            android:icon="@drawable/ic_qs_touch_lock"
+            android:label="@string/tile_touch_lock"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+        </service>
+
+        <!-- 通知栏快捷操作广播接收器 -->
+        <receiver
+            android:name=".receiver.NotificationActionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.ccwait.touchguard.ACTION_LOCK" />
+                <action android:name="com.ccwait.touchguard.ACTION_UNLOCK" />
+                <action android:name="com.ccwait.touchguard.ACTION_TOGGLE" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

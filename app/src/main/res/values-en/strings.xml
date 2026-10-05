@@ -1,0 +1,198 @@
+<resources>
+    <string name="app_name">TouchGuard</string>
+    <string name="tile_touch_lock">Touch Lock</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_overview">Overview</string>
+    <string name="nav_policy">Policy</string>
+    <string name="nav_logs">Logs</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Common Actions & Badges -->
+    <string name="action_close">Close</string>
+    <string name="action_clear">Clear</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_perm_missing">Permission Required</string>
+    <string name="status_unsupported">Unsupported</string>
+    <string name="status_checking">Checking</string>
+    <string name="tag_root">Hardware · Root</string>
+    <string name="tag_no_root">View-level · Non-Root</string>
+
+    <!-- HomePage -->
+    <string name="home_status_title">Touch Lock Status</string>
+    <string name="home_status_locked">Touch Lock Active</string>
+    <string name="home_status_standby">Standby</string>
+    <string name="home_desc_locked">All physical touch and key gestures are actively intercepted</string>
+    <string name="home_desc_standby">Tap the button below or QS Tile to instantly lock screen input</string>
+    <string name="home_desc_perm_missing">Selected strategy lacks required permissions. Tap below to configure.</string>
+    <string name="home_desc_unsupported">Selected strategy is unavailable on this device environment.</string>
+    <string name="home_btn_unlock">Unlock</string>
+    <string name="home_btn_lock">Lock Screen Input</string>
+    <string name="home_btn_grant_perm">Grant Permissions</string>
+    <string name="home_btn_switch_strategy">Switch Strategy</string>
+    <string name="home_quick_controls">Quick Lock Controls</string>
+    <string name="home_current_strategy">Current Strategy</string>
+    <string name="home_unlock_mechanism">Unlock Mechanism</string>
+    <string name="home_keep_screen_on">Keep Screen On</string>
+    <string name="home_keep_screen_on_summary">Prevent display sleep during lock</string>
+    <string name="home_quick_settings">Quick Settings</string>
+    <string name="home_switch_strategy">Switch Lock Strategy</string>
+    <string name="home_switch_strategy_summary">View permissions and compatibility</string>
+    <string name="home_configure_unlock">Configure Unlock Method</string>
+    <string name="home_configure_unlock_summary">Select double-tap or long-press volume keys</string>
+    <string name="home_screen_orientation">Screen Orientation</string>
+    <string name="home_about_section">About &amp; Device Status</string>
+    <string name="home_developer">Developer</string>
+    <string name="home_version_spec">Architecture Spec</string>
+    <string name="home_license">Open Source License</string>
+
+    <!-- PolicyPage -->
+    <string name="policy_title">Lock Policy</string>
+    <string name="policy_core_controls">Core Lock Controls</string>
+    <string name="policy_toast_unlock_first">Please unlock before switching strategy</string>
+    <string name="policy_strategy_dropdown_title">Touch Lock Strategy</string>
+    <string name="policy_unlock_dropdown_title">Unlock Mechanism</string>
+    <string name="policy_emergency_tip_prefix">Emergency Tip: %1$s</string>
+    <string name="policy_display_retention">Display &amp; Retention</string>
+    <string name="policy_keep_screen_on_title">Keep Screen On</string>
+    <string name="policy_keep_screen_on_desc">Keep display awake, prevent screen sleep</string>
+    <string name="policy_orientation_title">Display Orientation</string>
+    <string name="policy_brightness_lock_title">Lock Brightness</string>
+    <string name="policy_brightness_lock_desc">Fix current display brightness</string>
+    <string name="policy_capsule_title">Status Indicator Capsule</string>
+    <string name="policy_capsule_desc">Display pill capsule showing lock status</string>
+    <string name="policy_automation_safety">Automation &amp; Safe Release</string>
+    <string name="policy_auto_unlock_title">Auto Unlock on Screen Off</string>
+    <string name="policy_auto_unlock_desc">Unlock automatically when screen turns off</string>
+    <string name="policy_haptic_title">Haptic Feedback</string>
+    <string name="policy_haptic_desc">Vibration feedback on lock and key actions</string>
+    <string name="policy_window_title">Key Press Window</string>
+    <string name="policy_window_desc">Time window threshold for rapid key presses</string>
+
+    <!-- LogsPage -->
+    <string name="logs_title">Runtime Logs</string>
+    <string name="logs_summary_format">Recorded %1$d touch lock lifecycle events</string>
+    <string name="logs_stream_title">Real-time Event Stream</string>
+    <string name="logs_empty">No lock events recorded</string>
+
+    <!-- SettingsPage -->
+    <string name="settings_title">Global Preferences</string>
+    <string name="settings_appearance">Interface &amp; Appearance</string>
+    <string name="settings_style_title">Design Style</string>
+    <string name="settings_style_miuix_summary">Current: Miuix Design Style</string>
+    <string name="settings_style_m3_summary">Current: Material 3 Design Style</string>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_summary">Choose application global language</string>
+    <string name="settings_dark_mode_title">Dark Mode</string>
+    <string name="settings_dark_mode_summary">Current: %1$s</string>
+    <string name="settings_palette_title">Color Palette</string>
+    <string name="settings_palette_summary">Choose global color theme palette</string>
+    <string name="settings_floating_bar_title">Floating Bottom Bar</string>
+    <string name="settings_floating_bar_summary">Switch bottom navigation to a floating pill</string>
+    <string name="settings_blur_title">Real-time Background Blur</string>
+    <string name="settings_blur_summary">Acrylic frosted glass visual effect for floating bar</string>
+    <string name="settings_badge_title">Navigation Badges</string>
+    <string name="settings_badge_summary">Display active event counts on bottom log icon</string>
+    <string name="settings_system_section">System Integration &amp; Keep-Alive</string>
+    <string name="settings_autostart_title">Auto-start on Boot</string>
+    <string name="settings_autostart_summary">Automatically launch touch guard core after device boot</string>
+    <string name="settings_fgs_title">Foreground Service</string>
+    <string name="settings_fgs_summary">Keep persistent notification service to prevent system kill</string>
+    <string name="settings_about_section">About TouchGuard</string>
+    <string name="settings_developer_title">Developer</string>
+    <string name="settings_license_title">Open Source License</string>
+    <string name="settings_source_title">Source Repository</string>
+    <string name="settings_source_summary">GitHub open source repository link</string>
+    <string name="settings_copied_toast">Repository link copied to clipboard</string>
+    <string name="settings_check_update_title">Check for Updates</string>
+    <string name="settings_check_update_summary">Check TouchGuard core version on app launch</string>
+    <string name="settings_reset_lock_title">Reload and Release Interceptions</string>
+    <string name="settings_reset_lock_summary">Emergency release of underlying hardware grab and services</string>
+    <string name="settings_clear_logs_title">Clear Event Logs</string>
+    <string name="settings_clear_logs_summary">Clear all recorded local touch prevention logs</string>
+    <string name="settings_clear_logs_toast">All security logs cleared</string>
+    <string name="settings_reset_lock_toast">All touch locks reset and released</string>
+    <string name="settings_about_app_title">About TouchGuard</string>
+    <string name="settings_about_app_summary">Version %1$s · Developer: %2$s</string>
+    <string name="palette_monet_title">Monet Dynamic</string>
+    <string name="palette_monet_desc">Extract wallpaper tones, adaptive accent color</string>
+    <string name="palette_classic_title">Classic HyperOS Blue</string>
+    <string name="palette_classic_desc">MIUI/HyperOS native classic blue</string>
+    <string name="palette_orange_title">Xiaomi Classic Orange</string>
+    <string name="palette_orange_desc">Xiaomi iconic vivid orange accent</string>
+    <string name="palette_cyan_title">Suki Native Cyan</string>
+    <string name="palette_cyan_desc">SukiSU mint cyan accent color</string>
+    <string name="palette_green_title">Nature Green</string>
+    <string name="palette_green_desc">Fresh and natural green tone</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_strategy_title">Select Screen Lock Strategy</string>
+    <string name="dialog_strategy_desc">Choose interception engine based on device environment</string>
+    <string name="dialog_spec_prefix">Spec: %1$s</string>
+    <string name="dialog_unlock_title">Select Unlock Mechanism</string>
+    <string name="dialog_unlock_desc">Choose physical key interaction to instantaneously release touch lock</string>
+    <string name="dialog_orientation_title">Lock Screen Orientation</string>
+    <string name="dialog_orientation_desc">Select display orientation to retain during touch lock</string>
+
+    <!-- StrategyType -->
+    <string name="strat_root_title">Root Hardware Exclusive Strategy</string>
+    <string name="strat_root_desc">Hardware-level input interception</string>
+    <string name="strat_root_spec">ioctl(EVIOCGRAB) hardware exclusive primitive</string>
+    <string name="strat_accessibility_title">Accessibility Global Overlay Strategy</string>
+    <string name="strat_accessibility_desc">Global overlay touch interception</string>
+    <string name="strat_accessibility_spec">Accessibility / TYPE_APPLICATION_OVERLAY</string>
+
+    <!-- UnlockMechanism -->
+    <string name="unlock_double_vol_down_title">Double-press Volume Down</string>
+    <string name="unlock_double_vol_down_short">Double Vol-</string>
+    <string name="unlock_double_vol_down_desc">Double-press Volume Down to unlock</string>
+    <string name="unlock_double_vol_down_tip">Double-press Volume Down to unlock</string>
+    <string name="unlock_triple_vol_down_title">Triple-press Volume Down</string>
+    <string name="unlock_triple_vol_down_short">Triple Vol-</string>
+    <string name="unlock_triple_vol_down_desc">Triple-press Volume Down to unlock</string>
+    <string name="unlock_triple_vol_down_tip">Triple-press Volume Down to unlock</string>
+    <string name="unlock_double_vol_up_title">Double-press Volume Up</string>
+    <string name="unlock_double_vol_up_short">Double Vol+</string>
+    <string name="unlock_double_vol_up_desc">Double-press Volume Up to unlock</string>
+    <string name="unlock_double_vol_up_tip">Double-press Volume Up to unlock</string>
+    <string name="unlock_vol_up_down_title">Volume Up + Volume Down</string>
+    <string name="unlock_vol_up_down_short">Vol+ then Vol-</string>
+    <string name="unlock_vol_up_down_desc">Press Vol+ then Vol- to unlock</string>
+    <string name="unlock_vol_up_down_tip">Press Vol+ then Vol- to unlock</string>
+    <string name="unlock_vol_down_up_title">Volume Down + Volume Up</string>
+    <string name="unlock_vol_down_up_short">Vol- then Vol+</string>
+    <string name="unlock_vol_down_up_desc">Press Vol- then Vol+ to unlock</string>
+    <string name="unlock_vol_down_up_tip">Press Vol- then Vol+ to unlock</string>
+
+    <!-- ScreenOrientationLock -->
+    <string name="orient_follow_title">Follow System</string>
+    <string name="orient_follow_desc">Follow system gravity sensor</string>
+    <string name="orient_current_title">Lock Current Orientation</string>
+    <string name="orient_current_desc">Freeze current device orientation</string>
+    <string name="orient_portrait_title">Force Portrait</string>
+    <string name="orient_portrait_desc">Force standard vertical display</string>
+    <string name="orient_landscape_title">Force Landscape</string>
+    <string name="orient_landscape_desc">Force wide landscape display</string>
+
+    <!-- Dark Mode -->
+    <string name="dark_mode_system">Follow System</string>
+    <string name="dark_mode_light">Light Mode</string>
+    <string name="dark_mode_dark">Dark Mode</string>
+
+    <!-- Notifications & Overlays -->
+    <string name="notif_title_locked">TouchGuard · Touch Locked</string>
+    <string name="notif_title_ready">TouchGuard · Protected &amp; Ready</string>
+    <string name="notif_action_unlock">Unlock</string>
+    <string name="notif_action_lock">Lock Now</string>
+    <string name="capsule_press_tip">%1$s to unlock</string>
+
+    <!-- Device & Software Info -->
+    <string name="info_hardware_section">Device &amp; Hardware Info</string>
+    <string name="info_software_section">Software &amp; Environment</string>
+    <string name="info_android_version">Android OS Version</string>
+    <string name="info_device_model">Device Model &amp; Codename</string>
+    <string name="info_app_version">TouchGuard Version</string>
+    <string name="info_design_style">Design Style &amp; Spec</string>
+    <string name="info_design_content">Built on Miuix UI · SukiSU-Ultra Spec</string>
+    <string name="info_design_content_m3">Built on Material 3 (Material You) Spec</string>
+</resources>

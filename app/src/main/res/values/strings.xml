@@ -1,0 +1,198 @@
+<resources>
+    <string name="app_name">TouchGuard</string>
+    <string name="tile_touch_lock">触控锁定</string>
+
+    <!-- 底部导航 -->
+    <string name="nav_overview">概览</string>
+    <string name="nav_policy">策略</string>
+    <string name="nav_logs">日志</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- 通用状态与操作 -->
+    <string name="action_close">关闭</string>
+    <string name="action_clear">清空</string>
+    <string name="status_ready">已就绪</string>
+    <string name="status_perm_missing">缺少权限</string>
+    <string name="status_unsupported">不支持</string>
+    <string name="status_checking">检测中</string>
+    <string name="tag_root">硬件级 · Root</string>
+    <string name="tag_no_root">视图级 · 免Root</string>
+
+    <!-- 首页 (HomePage) -->
+    <string name="home_status_title">触控锁定状态</string>
+    <string name="home_status_locked">触控拦截生效中</string>
+    <string name="home_status_standby">处于待命状态</string>
+    <string name="home_desc_locked">物理触控与按键手势已被全面接管拦截</string>
+    <string name="home_desc_standby">点击下方大按钮或控制中心快捷开关快速锁定</string>
+    <string name="home_desc_perm_missing">当前选定方案缺少必要权限，点击下方按钮完成配置</string>
+    <string name="home_desc_unsupported">当前选定方案在当前设备系统环境下不可用</string>
+    <string name="home_btn_unlock">解除锁定</string>
+    <string name="home_btn_lock">立即锁定屏幕</string>
+    <string name="home_btn_grant_perm">去授予权限</string>
+    <string name="home_btn_switch_strategy">切换锁定方案</string>
+    <string name="home_quick_controls">快捷锁定控制</string>
+    <string name="home_current_strategy">当前策略</string>
+    <string name="home_unlock_mechanism">解锁机制</string>
+    <string name="home_keep_screen_on">保持屏幕常亮</string>
+    <string name="home_keep_screen_on_summary">锁定期间防止屏幕休眠熄屏</string>
+    <string name="home_quick_settings">快速设置</string>
+    <string name="home_switch_strategy">切换锁定方案</string>
+    <string name="home_switch_strategy_summary">查看各方案权限与兼容性检测</string>
+    <string name="home_configure_unlock">配置解锁方式</string>
+    <string name="home_configure_unlock_summary">选择双击或长按音量键瞬间恢复</string>
+    <string name="home_screen_orientation">屏幕显示方向</string>
+    <string name="home_about_section">关于与设备状态</string>
+    <string name="home_developer">开发者</string>
+    <string name="home_version_spec">核心架构规范</string>
+    <string name="home_license">开源协议</string>
+
+    <!-- 策略页 (PolicyPage) -->
+    <string name="policy_title">锁定策略</string>
+    <string name="policy_core_controls">核心锁定控制</string>
+    <string name="policy_toast_unlock_first">请先解除锁定后再切换方案</string>
+    <string name="policy_strategy_dropdown_title">触控锁定方案</string>
+    <string name="policy_unlock_dropdown_title">解锁机制</string>
+    <string name="policy_emergency_tip_prefix">应急提示: %1$s</string>
+    <string name="policy_display_retention">画面与屏幕保持</string>
+    <string name="policy_keep_screen_on_title">保持屏幕常亮</string>
+    <string name="policy_keep_screen_on_desc">锁定期间保持常亮，防止休眠熄屏</string>
+    <string name="policy_orientation_title">屏幕显示方向</string>
+    <string name="policy_brightness_lock_title">锁定当前亮度</string>
+    <string name="policy_brightness_lock_desc">固定当前屏幕背光亮度</string>
+    <string name="policy_capsule_title">锁定指示悬浮胶囊</string>
+    <string name="policy_capsule_desc">顶部胶囊提示锁定状态与按键</string>
+    <string name="policy_automation_safety">自动化与安全解除</string>
+    <string name="policy_auto_unlock_title">熄屏自动解除锁定</string>
+    <string name="policy_auto_unlock_desc">按电源键熄屏后自动解除</string>
+    <string name="policy_haptic_title">按键与触觉反馈</string>
+    <string name="policy_haptic_desc">锁定与按键操作时提供震动反馈</string>
+    <string name="policy_window_title">按键判定窗口</string>
+    <string name="policy_window_desc">连按应急解锁的时间窗口</string>
+
+    <!-- 日志页 (LogsPage) -->
+    <string name="logs_title">运行日志</string>
+    <string name="logs_summary_format">已记录 %1$d 条触控锁定生命周期事件</string>
+    <string name="logs_stream_title">实时事件流</string>
+    <string name="logs_empty">暂无锁定事件记录</string>
+
+    <!-- 设置页 (SettingsPage) -->
+    <string name="settings_title">全局偏好设置</string>
+    <string name="settings_appearance">界面与外观</string>
+    <string name="settings_style_title">设计风格</string>
+    <string name="settings_style_miuix_summary">当前为 Miuix 设计风格</string>
+    <string name="settings_style_m3_summary">当前为 Material 3 设计风格</string>
+    <string name="settings_language_title">语言</string>
+    <string name="settings_language_summary">选择应用全局语言</string>
+    <string name="settings_dark_mode_title">深色模式</string>
+    <string name="settings_dark_mode_summary">当前为 %1$s</string>
+    <string name="settings_palette_title">主色调配色</string>
+    <string name="settings_palette_summary">选择应用全局调色板主题</string>
+    <string name="settings_floating_bar_title">悬浮底栏</string>
+    <string name="settings_floating_bar_summary">将底部导航切换为悬浮药丸形态</string>
+    <string name="settings_blur_title">悬浮栏背景实时模糊</string>
+    <string name="settings_blur_summary">为悬浮底栏提供亚克力毛玻璃视觉效果</string>
+    <string name="settings_badge_title">导航栏未读角标</string>
+    <string name="settings_badge_summary">在底部导航栏日志图标上展示活跃事件数量</string>
+    <string name="settings_system_section">系统集成与保活</string>
+    <string name="settings_autostart_title">开机自启监听</string>
+    <string name="settings_autostart_summary">设备启动后在后台自动拉起触控保护核心</string>
+    <string name="settings_fgs_title">前台保活服务</string>
+    <string name="settings_fgs_summary">在通知栏常驻专用控制服务，防止后台被系统杀死</string>
+    <string name="settings_about_section">关于 TouchGuard</string>
+    <string name="settings_developer_title">开发者</string>
+    <string name="settings_license_title">开源许可证</string>
+    <string name="settings_source_title">源代码仓库</string>
+    <string name="settings_source_summary">GitHub 开源项目地址</string>
+    <string name="settings_copied_toast">已复制仓库地址到剪贴板</string>
+    <string name="settings_check_update_title">检查更新</string>
+    <string name="settings_check_update_summary">每次启动应用时检查 TouchGuard 核心版本</string>
+    <string name="settings_reset_lock_title">重载并释放触控拦截</string>
+    <string name="settings_reset_lock_summary">紧急释放底层硬件拦截与所有守护服务</string>
+    <string name="settings_clear_logs_title">清空事件日志</string>
+    <string name="settings_clear_logs_summary">清除本地所有已记录的防误触与按键审计日志</string>
+    <string name="settings_clear_logs_toast">已清空所有安全日志</string>
+    <string name="settings_reset_lock_toast">已重置并释放所有触控锁</string>
+    <string name="settings_about_app_title">关于 TouchGuard</string>
+    <string name="settings_about_app_summary">版本 %1$s · 开发者: %2$s</string>
+    <string name="palette_monet_title">Monet 动态取色</string>
+    <string name="palette_monet_desc">提取系统壁纸色调，自适应强调色</string>
+    <string name="palette_classic_title">经典 HyperOS 蓝</string>
+    <string name="palette_classic_desc">MIUI/HyperOS 原生经典蓝色基调</string>
+    <string name="palette_orange_title">小米经典橙</string>
+    <string name="palette_orange_desc">小米标志性活力橙色强调</string>
+    <string name="palette_cyan_title">Suki 原生青</string>
+    <string name="palette_cyan_desc">SukiSU 质感薄荷青强调色</string>
+    <string name="palette_green_title">生机绿</string>
+    <string name="palette_green_desc">清新自然绿色基调</string>
+
+    <!-- 弹窗 (Dialogs) -->
+    <string name="dialog_strategy_title">选择锁定屏幕方案</string>
+    <string name="dialog_strategy_desc">根据设备环境与使用场景选择触控拦截引擎</string>
+    <string name="dialog_spec_prefix">规范: %1$s</string>
+    <string name="dialog_unlock_title">选择解锁机制</string>
+    <string name="dialog_unlock_desc">选择触控锁定期间用于瞬间解除锁定的物理按键交互方式</string>
+    <string name="dialog_orientation_title">锁定屏幕方向</string>
+    <string name="dialog_orientation_desc">选择屏幕防触锁定期间强制保持的机身显示朝向</string>
+
+    <!-- 策略方案 (StrategyType) -->
+    <string name="strat_root_title">Root 硬件独占方案</string>
+    <string name="strat_root_desc">底层硬件级触控信号拦截</string>
+    <string name="strat_root_spec">ioctl(EVIOCGRAB) 硬件独占原语</string>
+    <string name="strat_accessibility_title">无障碍全局拦截方案</string>
+    <string name="strat_accessibility_desc">系统全局悬浮手势拦截</string>
+    <string name="strat_accessibility_spec">无障碍 / TYPE_APPLICATION_OVERLAY 顶层拦截</string>
+
+    <!-- 解锁机制 (UnlockMechanism) -->
+    <string name="unlock_double_vol_down_title">双击音量下键</string>
+    <string name="unlock_double_vol_down_short">双击音量-</string>
+    <string name="unlock_double_vol_down_desc">双击音量下键快速解锁</string>
+    <string name="unlock_double_vol_down_tip">双击音量下键解除</string>
+    <string name="unlock_triple_vol_down_title">三击音量下键</string>
+    <string name="unlock_triple_vol_down_short">三击音量-</string>
+    <string name="unlock_triple_vol_down_desc">连按三次音量下键解锁</string>
+    <string name="unlock_triple_vol_down_tip">连按三次音量下键解除</string>
+    <string name="unlock_double_vol_up_title">双击音量上键</string>
+    <string name="unlock_double_vol_up_short">双击音量+</string>
+    <string name="unlock_double_vol_up_desc">双击音量上键快速解锁</string>
+    <string name="unlock_double_vol_up_tip">双击音量上键解除</string>
+    <string name="unlock_vol_up_down_title">音量加 + 音量减</string>
+    <string name="unlock_vol_up_down_short">音量+ 接着 音量-</string>
+    <string name="unlock_vol_up_down_desc">先按音量+再按音量-解锁</string>
+    <string name="unlock_vol_up_down_tip">先按音量+再按音量-解除</string>
+    <string name="unlock_vol_down_up_title">音量减 + 音量加</string>
+    <string name="unlock_vol_down_up_short">音量- 接着 音量+</string>
+    <string name="unlock_vol_down_up_desc">先按音量-再按音量+解锁</string>
+    <string name="unlock_vol_down_up_tip">先按音量-再按音量+解除</string>
+
+    <!-- 方向锁定 (ScreenOrientationLock) -->
+    <string name="orient_follow_title">跟随系统方向</string>
+    <string name="orient_follow_desc">跟随系统重力感应自适应</string>
+    <string name="orient_current_title">锁定当前方向</string>
+    <string name="orient_current_desc">固定当前屏幕显示朝向</string>
+    <string name="orient_portrait_title">强制锁定竖屏</string>
+    <string name="orient_portrait_desc">固定垂直竖屏显示</string>
+    <string name="orient_landscape_title">强制锁定横屏</string>
+    <string name="orient_landscape_desc">固定水平横屏显示</string>
+
+    <!-- 深色模式 (DarkMode) -->
+    <string name="dark_mode_system">跟随系统</string>
+    <string name="dark_mode_light">浅色模式</string>
+    <string name="dark_mode_dark">深色模式</string>
+
+    <!-- 系统通知与悬浮 -->
+    <string name="notif_title_locked">TouchGuard · 触控锁定中</string>
+    <string name="notif_title_ready">TouchGuard · 保护就绪</string>
+    <string name="notif_action_unlock">解除锁定</string>
+    <string name="notif_action_lock">立即锁定</string>
+    <string name="capsule_press_tip">%1$s解除锁定</string>
+
+    <!-- 设备与软件信息 -->
+    <string name="info_hardware_section">设备与硬件信息</string>
+    <string name="info_software_section">软件与驱动环境</string>
+    <string name="info_android_version">Android 系统版本</string>
+    <string name="info_device_model">设备型号与代号</string>
+    <string name="info_app_version">TouchGuard 版本</string>
+    <string name="info_design_style">设计风格与规范</string>
+    <string name="info_design_content">基于 Miuix UI · SukiSU-Ultra 规范</string>
+    <string name="info_design_content_m3">基于 Material 3 (Material You) 规范</string>
+</resources>
