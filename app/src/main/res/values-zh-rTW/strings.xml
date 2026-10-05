@@ -113,14 +113,11 @@
     <string name="settings_copied_toast">已複製倉庫地址至剪貼簿</string>
     <string name="settings_check_update_title">檢查更新</string>
     <string name="settings_check_update_summary">每次啟動應用時檢查 TouchGuard 核心版本</string>
-    <string name="settings_reset_lock_title">重載並釋放觸控攔截</string>
-    <string name="settings_reset_lock_summary">緊急釋放底層硬件攔截與所有守護服務</string>
     <string name="settings_enable_logging_title">記錄運行事件日誌</string>
     <string name="settings_enable_logging_summary">記錄防誤觸鎖定、解除與實體按鍵審計事件（預設關閉）</string>
     <string name="settings_clear_logs_title">清空事件日誌</string>
     <string name="settings_clear_logs_summary">清除本地所有已記錄的防誤觸與按鍵審計日誌</string>
     <string name="settings_clear_logs_toast">已清空所有安全日誌</string>
-    <string name="settings_reset_lock_toast">已重置並釋放所有觸控鎖</string>
     <string name="settings_about_app_title">關於 TouchGuard</string>
     <string name="settings_about_app_summary">版本 %1$s · 開發者: %2$s</string>
     <string name="palette_monet_title">Monet 動態取色</string>

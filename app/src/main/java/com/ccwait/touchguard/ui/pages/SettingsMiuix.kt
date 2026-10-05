@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material.icons.rounded.SystemUpdate
 import com.ccwait.touchguard.model.UpdateChannel
@@ -64,7 +63,6 @@ fun SettingsMiuix(
     bottomInnerPadding: Dp,
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
-    onResetLock: () -> Unit,
     onVibrate: (Long) -> Unit
 ) {
     val context = LocalContext.current
@@ -277,22 +275,6 @@ fun SettingsMiuix(
                             .padding(vertical = 12.dp)
                             .fillMaxWidth(),
                     ) {
-                        ArrowPreference(
-                            title = stringResource(R.string.settings_reset_lock_title),
-                            summary = stringResource(R.string.settings_reset_lock_summary),
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.RestartAlt,
-                                    modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(R.string.settings_reset_lock_title),
-                                    tint = iconTint
-                                )
-                            },
-                            onClick = {
-                                onResetLock()
-                                onVibrate(30)
-                            }
-                        )
                         SwitchPreference(
                             title = stringResource(R.string.settings_enable_logging_title),
                             summary = stringResource(R.string.settings_enable_logging_summary),

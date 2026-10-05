@@ -14,7 +14,6 @@ fun SettingsPage(
     bottomInnerPadding: Dp,
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
-    onResetLock: () -> Unit,
     onVibrate: (Long) -> Unit
 ) {
     when (LocalAppThemeMode.current) {
@@ -22,14 +21,12 @@ fun SettingsPage(
             bottomInnerPadding = bottomInnerPadding,
             themeMode = themeMode,
             onThemeModeChange = onThemeModeChange,
-            onResetLock = onResetLock,
             onVibrate = onVibrate
         )
         AppThemeMode.Material3 -> SettingsMaterial(
             bottomInnerPadding = bottomInnerPadding,
             themeMode = themeMode,
             onThemeModeChange = onThemeModeChange,
-            onResetLock = onResetLock,
             onVibrate = onVibrate
         )
     }

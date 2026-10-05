@@ -225,11 +225,6 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onVibrate = { duration ->
                                         vibratePhone(duration)
-                                    },
-                                    onResetLock = {
-                                        unlockTouch()
-                                        AppLogManager.addLog("重置", "已手动重载并释放所有触控锁", isSuccess = true)
-                                        Toast.makeText(this@MainActivity, "已重置并释放所有触控锁", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             }

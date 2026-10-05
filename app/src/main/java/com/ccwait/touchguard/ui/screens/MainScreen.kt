@@ -53,8 +53,7 @@ fun MainScreen(
     ),
     onLockToggle: () -> Unit,
     onScreenHoldStateUpdate: () -> Unit,
-    onVibrate: (Long) -> Unit,
-    onResetLock: () -> Unit
+    onVibrate: (Long) -> Unit
 ) {
     val themeMode = AppPreferences.themeMode
 
@@ -144,7 +143,6 @@ fun MainScreen(
                                     bottomInnerPadding = bottomInnerPadding,
                                     themeMode = themeMode,
                                     onThemeModeChange = { AppPreferences.setTheme(it) },
-                                    onResetLock = onResetLock,
                                     onVibrate = onVibrate
                                 )
                             }

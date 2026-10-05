@@ -113,14 +113,11 @@
     <string name="settings_copied_toast">Repository link copied to clipboard</string>
     <string name="settings_check_update_title">Check for Updates</string>
     <string name="settings_check_update_summary">Check TouchGuard core version on app launch</string>
-    <string name="settings_reset_lock_title">Reload and Release Interceptions</string>
-    <string name="settings_reset_lock_summary">Emergency release of underlying hardware grab and services</string>
     <string name="settings_enable_logging_title">Record Event Logs</string>
     <string name="settings_enable_logging_summary">Record touch lock, unlock, and physical key audit events (Disabled by default)</string>
     <string name="settings_clear_logs_title">Clear Event Logs</string>
     <string name="settings_clear_logs_summary">Clear all recorded local touch prevention logs</string>
     <string name="settings_clear_logs_toast">All security logs cleared</string>
-    <string name="settings_reset_lock_toast">All touch locks reset and released</string>
     <string name="settings_about_app_title">About TouchGuard</string>
     <string name="settings_about_app_summary">Version %1$s · Developer: %2$s</string>
     <string name="palette_monet_title">Monet Dynamic</string>
