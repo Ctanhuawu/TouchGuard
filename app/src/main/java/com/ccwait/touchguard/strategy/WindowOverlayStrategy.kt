@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.view.Gravity
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -17,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.ccwait.touchguard.BuildConfig
+import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -94,12 +97,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
             val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             windowManager = wm
 
-            val frameLayout = FrameLayout(context).apply {
-                setBackgroundColor(Color.TRANSPARENT)
-                isClickable = true
-                isFocusable = false
-                setOnTouchListener { _, _ -> true } // 吞噬并消费一切触控手势
-            }
+            val overlay = TouchLockOverlayView(context)
 
             val layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -112,8 +110,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
                 },
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT
             ).apply {
                 gravity = Gravity.TOP or Gravity.START
@@ -122,8 +119,9 @@ class WindowOverlayStrategy : TouchLockStrategy {
                 }
             }
 
-            wm.addView(frameLayout, layoutParams)
-            overlayView = frameLayout
+            wm.addView(overlay, layoutParams)
+            overlay.requestFocus()
+            overlayView = overlay
             _isLocked = true
             Result.success(Unit)
         } catch (e: Exception) {
@@ -164,4 +162,41 @@ class WindowOverlayStrategy : TouchLockStrategy {
         overlayView = null
         _isLocked = false
     }
+
+    private class TouchLockOverlayView(context: Context) : FrameLayout(context) {
+        init {
+            setBackgroundColor(Color.TRANSPARENT)
+            isClickable = true
+            isFocusable = true
+            isFocusableInTouchMode = true
+        }
+
+        override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+            if (!TouchLockManager.isTouchLocked) return super.dispatchKeyEvent(event)
+
+            val keyCode = event.keyCode
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                when (event.action) {
+                    KeyEvent.ACTION_DOWN -> {
+                        if (event.repeatCount == 0) {
+                            PhysicalKeyUnlockHandler.onKeyDown(context, keyCode)
+                        }
+                        return true
+                    }
+                    KeyEvent.ACTION_UP -> {
+                        PhysicalKeyUnlockHandler.onKeyUp(keyCode)
+                        return true
+                    }
+                }
+            } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+                return true
+            }
+            return super.dispatchKeyEvent(event)
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        override fun onTouchEvent(event: MotionEvent): Boolean = true
+        override fun dispatchTouchEvent(ev: MotionEvent): Boolean = true
+    }
 }
+

@@ -170,7 +170,8 @@ private fun MiuixStatusCard(
             if (isDark) Color(0xFF262626) else Color(0xFFECEFF1)
         }
         else -> {
-            if (isDark) Color(0xFF262626) else Color(0xFFF1F3F5)
+            if (isDark) colorScheme.primaryContainer.copy(alpha = 0.25f)
+            else colorScheme.primaryContainer.copy(alpha = 0.40f)
         }
     }
 
@@ -185,7 +186,7 @@ private fun MiuixStatusCard(
         isLocked -> (if (isDynamicColor) colorScheme.primary else Color(0xFF36D167)).copy(alpha = 0.8f)
         isPermMissing -> Color(0xFFFB8C00).copy(alpha = 0.85f)
         isUnsupported -> Color(0xFF78909C).copy(alpha = 0.8f)
-        else -> if (isDark) Color(0xFF555555).copy(alpha = 0.45f) else Color(0xFFB0BEC5).copy(alpha = 0.5f)
+        else -> colorScheme.primary.copy(alpha = if (isDark) 0.35f else 0.25f)
     }
 
     val titleText = if (isLocked) stringResource(R.string.home_status_locked) else stringResource(R.string.home_status_standby)
@@ -195,13 +196,13 @@ private fun MiuixStatusCard(
         isLocked -> if (isDynamicColor) colorScheme.tertiaryContainer else if (isDark) Color(0xFF315D3E) else Color(0xFFB8E8C5)
         isPermMissing -> if (isDark) Color(0xFF5D4037) else Color(0xFFFFCC80)
         isUnsupported -> if (isDark) Color(0xFF424242) else Color(0xFFCFD8DC)
-        else -> if (isDark) Color(0xFF3A3A3A) else Color(0xFFE0E0E0)
+        else -> colorScheme.primary.copy(alpha = if (isDark) 0.25f else 0.18f)
     }
     val badgeTextColor = when {
         isLocked -> if (isDynamicColor) colorScheme.onTertiaryContainer else if (isDark) Color(0xFFB8E8C5) else Color(0xFF164A29)
         isPermMissing -> if (isDark) Color(0xFFFFCC80) else Color(0xFFE65100)
         isUnsupported -> if (isDark) Color(0xFFEEEEEE) else Color(0xFF37474F)
-        else -> if (isDark) Color(0xFFDDDDDD) else Color(0xFF424242)
+        else -> colorScheme.primary
     }
 
     val subtitleText = if (isLocked) {
@@ -276,7 +277,7 @@ private fun MiuixStatusCard(
                     text = bottomTag,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
-                    color = colorScheme.onSurfaceSecondary
+                    color = if (isLocked || isPermMissing) colorScheme.onSurfaceSecondary else colorScheme.primary.copy(alpha = 0.85f)
                 )
             }
 

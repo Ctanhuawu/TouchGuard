@@ -136,7 +136,7 @@ private fun MaterialStatusCard(
         isLocked -> MaterialTheme.colorScheme.primaryContainer
         isPermMissing -> MaterialTheme.colorScheme.errorContainer
         isUnsupported -> MaterialTheme.colorScheme.surfaceVariant
-        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
     }
 
     val watermarkIcon = when {
@@ -150,7 +150,7 @@ private fun MaterialStatusCard(
         isLocked -> MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
         isPermMissing -> MaterialTheme.colorScheme.error.copy(alpha = 0.22f)
         isUnsupported -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.18f)
-        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.20f)
     }
 
     val titleText = if (isLocked) stringResource(R.string.home_status_locked) else stringResource(R.string.home_status_standby)
@@ -164,14 +164,14 @@ private fun MaterialStatusCard(
         isLocked -> MaterialTheme.colorScheme.primary
         isPermMissing -> MaterialTheme.colorScheme.error
         isUnsupported -> MaterialTheme.colorScheme.outline
-        else -> MaterialTheme.colorScheme.surfaceContainerHighest
+        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
     }
 
     val badgeTextColor = when {
         isLocked -> MaterialTheme.colorScheme.onPrimary
         isPermMissing -> MaterialTheme.colorScheme.onError
         isUnsupported -> MaterialTheme.colorScheme.onSurface
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.primary
     }
 
     val subtitleText = if (isLocked) {
@@ -249,7 +249,7 @@ private fun MaterialStatusCard(
                     text = bottomTag,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                    color = if (isLocked || isPermMissing) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
                 )
             }
 

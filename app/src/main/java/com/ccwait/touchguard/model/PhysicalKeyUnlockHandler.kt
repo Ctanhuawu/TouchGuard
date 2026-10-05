@@ -28,7 +28,7 @@ object PhysicalKeyUnlockHandler {
     private var lastMediaSessionAdjustTime: Long = 0
     private var isMediaSessionLongPressing: Boolean = false
 
-    private const val MIN_CLICK_INTERVAL_MS = 180L // 两次独立物理点击的最小真实间隔
+    private const val MIN_CLICK_INTERVAL_MS = 100L // 两次独立物理点击的最小真实间隔（滤除机械抖动与并发派发）
     private const val MAX_CLICK_INTERVAL_MS = 1000L // 双击超时
     private const val MAX_TRIPLE_INTERVAL_MS = 1200L // 三击超时
     private const val MAX_COMBO_INTERVAL_MS = 1500L // 组合键超时
@@ -79,6 +79,11 @@ object PhysicalKeyUnlockHandler {
      */
     fun onVolumeAdjust(context: Context, direction: Int) {
         if (!TouchLockManager.isTouchLocked) return
+        if (direction == 0) {
+            pendingUnlockJob?.cancel()
+            pendingUnlockJob = null
+            return
+        }
         val now = System.currentTimeMillis()
         val delta = now - lastMediaSessionAdjustTime
         lastMediaSessionAdjustTime = now
@@ -92,13 +97,11 @@ object PhysicalKeyUnlockHandler {
             }
         }
 
-        // 如果两次 adjust 间隔小于 200ms，在 Android 底层这是实体按键长按时的快速连发（auto-repeat）
-        // 人类绝不可能在 200ms 内完成两次独立完整按键击发
-        if (delta < 200) {
+        // 如果两次 adjust 间隔极短（< 120ms），在 Android 底层这是实体按键长按时的快速连发（auto-repeat）
+        if (delta < 120) {
             isMediaSessionLongPressing = true
             pendingUnlockJob?.cancel()
             pendingUnlockJob = null
-            reset()
             return
         }
 

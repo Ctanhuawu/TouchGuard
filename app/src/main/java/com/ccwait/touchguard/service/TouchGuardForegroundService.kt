@@ -104,6 +104,15 @@ class TouchGuardForegroundService : Service() {
                     }
                 }
                 setPlaybackToRemote(volumeProvider)
+                val playbackState = android.media.session.PlaybackState.Builder()
+                    .setState(android.media.session.PlaybackState.STATE_PLAYING, 0L, 1.0f)
+                    .setActions(
+                        android.media.session.PlaybackState.ACTION_PLAY or
+                        android.media.session.PlaybackState.ACTION_PAUSE or
+                        android.media.session.PlaybackState.ACTION_STOP
+                    )
+                    .build()
+                setPlaybackState(playbackState)
                 isActive = true
             }
             mediaSession = session
