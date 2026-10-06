@@ -3,6 +3,7 @@ package com.ccwait.touchguard.strategy
 import android.content.Context
 import android.widget.Toast
 import com.ccwait.touchguard.BuildConfig
+import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.ShizukuPermissionManager
 import com.ccwait.touchguard.model.ShizukuStatus
@@ -12,16 +13,6 @@ import kotlinx.coroutines.withContext
 
 /**
  * Shizuku 特权级状态栏与系统手势管控策略方案
- *
- * 核心机制：
- * 1. 利用 Shizuku (UID 2000 shell) 特权，通过 IStatusBarService 精确禁用：
- *    - 顶部状态栏与控制中心下拉 (DISABLE_EXPAND / DISABLE2_QUICK_SETTINGS)
- *    - 全面屏导航手势（返回、桌面、多任务 DISABLE_BACK / DISABLE_HOME / DISABLE_RECENT）
- *    - 完美保留时间、电量、WiFi等状态栏系统信息显示；
- * 2. 通过 Shizuku 自动静默授权全屏悬浮窗权限 (SYSTEM_ALERT_WINDOW)，
- *    配合 WindowOverlayStrategy 吞噬屏幕内所有触控操作；
- * 3. 规避系统原生 LockTask 强制隐藏状态栏和切断音量键的硬性缺陷，
- *    物理按键（如双击音量下键）应急解锁 100% 灵敏可用。
  */
 class ShizukuLockTaskStrategy : TouchLockStrategy {
     override val type: StrategyType = StrategyType.SHIZUKU_PINNING
@@ -41,6 +32,13 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
             ShizukuStatus.CHECKING -> StrategyReadiness.CHECKING
         }
 
+    override fun getBadgeText(context: Context): String = when (readiness) {
+        StrategyReadiness.READY -> context.getString(R.string.badge_ready_shizuku)
+        StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.badge_permission_missing)
+        StrategyReadiness.UNSUPPORTED -> context.getString(R.string.badge_not_running)
+        StrategyReadiness.CHECKING -> context.getString(R.string.badge_checking)
+    }
+
     override val badgeText: String
         get() = when (readiness) {
             StrategyReadiness.READY -> "Shizuku"
@@ -48,6 +46,13 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
             StrategyReadiness.UNSUPPORTED -> "未运行"
             StrategyReadiness.CHECKING -> "检测中"
         }
+
+    override fun getStatusSummary(context: Context): String = when (readiness) {
+        StrategyReadiness.READY -> context.getString(R.string.status_version_beta, BuildConfig.VERSION_NAME)
+        StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.status_shizuku_request_desc)
+        StrategyReadiness.UNSUPPORTED -> context.getString(R.string.status_shizuku_not_running)
+        StrategyReadiness.CHECKING -> context.getString(R.string.status_shizuku_checking)
+    }
 
     override val statusSummary: String
         get() = when (readiness) {
@@ -65,20 +70,20 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
     override suspend fun requestPermission(context: Context): Boolean {
         if (!ShizukuPermissionManager.isRunning()) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Shizuku 服务未运行，正在尝试启动 Shizuku...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.toast_shizuku_not_running), Toast.LENGTH_SHORT).show()
                 ShizukuPermissionManager.launchShizukuApp(context)
             }
             return false
         }
         withContext(Dispatchers.Main) {
-            Toast.makeText(context, "正在向 Shizuku 请求授权，请在弹窗中允许...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.toast_shizuku_requesting), Toast.LENGTH_SHORT).show()
         }
         val isGranted = ShizukuPermissionManager.requestPermission()
         withContext(Dispatchers.Main) {
             if (isGranted) {
-                Toast.makeText(context, "✅ Shizuku 授权成功！系统固定策略已就绪", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.toast_shizuku_success), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "❌ 未获得 Shizuku 授权，请在 Shizuku 应用中允许", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.toast_shizuku_denied), Toast.LENGTH_LONG).show()
             }
         }
         return isGranted
@@ -86,7 +91,7 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
 
     override suspend fun prepare(context: Context): Boolean = withContext(Dispatchers.IO) {
         if (readiness == StrategyReadiness.READY) {
-            ShizukuTaskLockHelper.ensureOverlayPermission(context)
+            com.ccwait.touchguard.system.OverlayPermissionHelper.ensurePermission(context)
         }
         overlayStrategy.prepare(context)
     }
@@ -98,31 +103,40 @@ class ShizukuLockTaskStrategy : TouchLockStrategy {
             }
 
             // 1. 静默确保悬浮窗权限 (SYSTEM_ALERT_WINDOW) 已获得
-            val hasOverlay = ShizukuTaskLockHelper.ensureOverlayPermission(context)
+            val hasOverlay = com.ccwait.touchguard.system.OverlayPermissionHelper.ensurePermission(context)
             if (hasOverlay) {
                 AppLogManager.addLog("Shizuku", "已自动通过 Shizuku 授权悬浮窗权限")
+            } else {
+                AppLogManager.addLog("Shizuku", "静默授予悬浮窗权限未完成，尝试加载遮罩", isWarning = true)
             }
 
-            // 2. 通过 IStatusBarService 冻结状态栏下拉与底层手势（禁用下拉、返回、多任务、桌面手势，保留时间与电量显示）
+            // 2. 覆盖全屏透明遮罩，吞噬应用内所有触控操作
+            val overlayRes = overlayStrategy.lock(context)
+            if (overlayRes.isFailure) {
+                val defaultOverlayErr = context.getString(R.string.toast_unknown_error)
+                val err = overlayRes.exceptionOrNull()?.message ?: defaultOverlayErr
+                AppLogManager.addLog("Shizuku", "全屏遮罩加载失败: $err", isWarning = true)
+                // 遮罩加载失败时绝不判定锁定成功，避免无拦截空跑！
+                _isLocked = false
+                return@withContext Result.failure(Exception(context.getString(R.string.err_shizuku_overlay_failed, err)))
+            }
+
+            // 3. 遮罩激活成功后，再冻结顶部状态栏下拉与底层全面屏手势
             val barSuccess = ShizukuTaskLockHelper.setSystemBarsAndGesturesDisabled(context, true)
             if (barSuccess) {
                 AppLogManager.addLog("Shizuku", "已冻结顶部状态栏下拉与全面屏导航手势")
             } else {
-                AppLogManager.addLog("Shizuku", "状态栏/手势冻结未响应，降级使用常规遮罩", isWarning = true)
-            }
-
-            // 3. 覆盖全屏透明遮罩，吞噬应用内所有触控操作
-            val overlayRes = overlayStrategy.lock(context)
-            if (overlayRes.isFailure) {
-                AppLogManager.addLog("Shizuku", "全屏遮罩加载提示: ${overlayRes.exceptionOrNull()?.message}", isWarning = true)
-            } else {
-                AppLogManager.addLog("Shizuku", "全屏防误触触控拦截已激活")
+                AppLogManager.addLog("Shizuku", "状态栏/手势冻结未响应，已依靠全屏遮罩完成拦截", isWarning = true)
             }
 
             _isLocked = true
+            AppLogManager.addLog("Shizuku", "全屏防误触触控拦截已激活")
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
+            // 发生异常时回滚状态
+            overlayStrategy.unlock(context)
+            ShizukuTaskLockHelper.setSystemBarsAndGesturesDisabled(context, false)
             _isLocked = false
             Result.failure(e)
         }

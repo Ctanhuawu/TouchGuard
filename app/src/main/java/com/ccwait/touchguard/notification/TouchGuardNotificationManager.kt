@@ -20,8 +20,8 @@ object TouchGuardNotificationManager {
 
     fun init(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "TouchGuard 触控守护"
-            val descriptionText = "常驻快捷控制与触控锁定状态提示"
+            val name = context.getString(R.string.notif_channel_name)
+            val descriptionText = context.getString(R.string.notif_channel_desc)
             val importance = NotificationManager.IMPORTANCE_LOW
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText

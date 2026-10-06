@@ -174,7 +174,7 @@ private fun MaterialStatusCard(
         else -> MaterialTheme.colorScheme.primary
     }
 
-    val subtitleText = currentStrategy.statusSummary
+    val subtitleText = currentStrategy.getStatusSummary(context)
 
     val bottomTag = when {
         isLocked -> "WORKING"
@@ -201,11 +201,11 @@ private fun MaterialStatusCard(
                         }
                     } else {
                         TouchLockManager.selectStrategy(context, StrategyType.ACCESSIBILITY_OVERLAY)
-                        Toast.makeText(context, "已为你切换为免 Root 悬浮窗锁定方案", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_switched_to_overlay), Toast.LENGTH_SHORT).show()
                     }
                 }
                 StrategyReadiness.CHECKING -> {
-                    Toast.makeText(context, "正在检测运行环境，请稍候...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.toast_checking_environment), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -281,7 +281,7 @@ private fun MaterialStatusCard(
                                 .padding(horizontal = 7.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = currentStrategy.badgeText,
+                                text = currentStrategy.getBadgeText(context),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = badgeTextColor
@@ -331,7 +331,7 @@ private fun MaterialSoftwareInfoCard() {
             MaterialInfoText(
                 icon = Icons.Rounded.Tag,
                 title = stringResource(R.string.info_app_version),
-                content = "v${BuildConfig.VERSION_NAME} · Beta版"
+                content = stringResource(R.string.status_version_beta, BuildConfig.VERSION_NAME)
             )
             MaterialInfoText(
                 icon = Icons.Rounded.Person,

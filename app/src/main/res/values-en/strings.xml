@@ -67,6 +67,8 @@
     <string name="policy_automation_safety">Automation &amp; Safe Release</string>
     <string name="policy_auto_unlock_title">Auto Unlock on Screen Off</string>
     <string name="policy_auto_unlock_desc">Unlock automatically when screen turns off</string>
+    <string name="policy_lock_screen_overlay_title">Overlay on Lock Screen</string>
+    <string name="policy_lock_screen_overlay_desc">Block touches on lock screen too, unlock via keys or fingerprint</string>
     <string name="policy_haptic_title">Haptic Feedback</string>
     <string name="policy_haptic_desc">Vibration feedback on lock and key actions</string>
     <string name="policy_allow_volume_keys_title">Allow Volume Keys</string>
@@ -256,4 +258,65 @@
     <string name="update_checking">Checking for updates…</string>
     <string name="update_already_latest">You are already on the latest version (v%1$s)</string>
     <string name="update_check_failed">Failed to check for updates, please try again later</string>
+
+    <!-- Notification channel and status -->
+    <string name="notif_channel_name">TouchGuard Touch Guard</string>
+    <string name="notif_channel_desc">Resident quick controls and touch lock status</string>
+
+    <!-- Interactive Toasts -->
+    <string name="toast_touch_locked">Screen touch locked [%1$s]! %2$s</string>
+    <string name="toast_touch_unlocked">✅ Touch restored!</string>
+    <string name="toast_lock_failed">Lock failed: %1$s</string>
+    <string name="toast_unlock_failed">Restore error: %1$s</string>
+    <string name="toast_unknown_error">Unknown error</string>
+    <string name="toast_switched_to_overlay">Switched to No-Root overlay lock strategy</string>
+    <string name="toast_checking_environment">Checking environment, please wait…</string>
+
+    <!-- Physical key and combo unlock hints -->
+    <string name="toast_press_vol_down_again">Press [Volume Down] once more to unlock</string>
+    <string name="toast_press_vol_down_remaining">Press [Volume Down] %1$d more times to unlock</string>
+    <string name="toast_press_vol_up_again">Press [Volume Up] once more to unlock</string>
+    <string name="toast_combo_vol_down_finish">Press [Volume Down] once more to finish combo unlock</string>
+    <string name="toast_combo_vol_up_finish">Press [Volume Up] once more to finish combo unlock</string>
+    <string name="toast_combo_need_up_then_down">Press [Volume Up] first, then [Volume Down]</string>
+    <string name="toast_combo_need_down_then_up">Press [Volume Down] first, then [Volume Up]</string>
+    <string name="toast_combo_key_order_wrong">Incorrect key sequence</string>
+
+    <!-- Strategy badges and readiness status -->
+    <string name="badge_ready_root">Root</string>
+    <string name="badge_ready_shizuku">Shizuku</string>
+    <string name="badge_ready_acc_enhanced">Accessibility</string>
+    <string name="badge_ready_no_root">No Root</string>
+    <string name="badge_permission_missing">Unauthorized</string>
+    <string name="badge_permission_needed">Needs Permission</string>
+    <string name="badge_unsupported">Unsupported</string>
+    <string name="badge_no_root">No Root</string>
+    <string name="badge_not_running">Not Running</string>
+    <string name="badge_checking">Checking</string>
+
+    <string name="status_version_beta">v%1$s · Beta</string>
+    <string name="status_root_request_desc">Tap to request Root access · Driver not ready</string>
+    <string name="status_root_no_env">No Root environment detected · Tap to switch to No-Root</string>
+    <string name="status_root_checking">Checking Root authorization…</string>
+    <string name="status_shizuku_request_desc">Tap to request Shizuku authorization · Pairing required</string>
+    <string name="status_shizuku_not_running">Shizuku service not detected · Tap to open/download</string>
+    <string name="status_shizuku_checking">Checking Shizuku authorization…</string>
+    <string name="status_acc_request_desc">Tap to enable accessibility service or overlay permission</string>
+    <string name="status_acc_unsupported">System does not support overlay or accessibility interception</string>
+    <string name="status_acc_checking">Checking permissions…</string>
+
+    <!-- Permission request Toasts -->
+    <string name="toast_root_requesting">Requesting Root access, please allow in prompt…</string>
+    <string name="toast_root_success">✅ Root authorized! Driver environment ready</string>
+    <string name="toast_root_denied">❌ Root authorization denied, please grant in manager</string>
+    <string name="toast_shizuku_not_running">Shizuku service is not running, launching Shizuku…</string>
+    <string name="toast_shizuku_requesting">Requesting Shizuku authorization, please allow…</string>
+    <string name="toast_shizuku_success">✅ Shizuku authorized! System lock strategy ready</string>
+    <string name="toast_shizuku_denied">❌ Shizuku authorization denied, please grant in Shizuku app</string>
+    <string name="toast_acc_service_guide">Please enable TouchGuard accessibility service in Downloaded Services</string>
+    <string name="toast_overlay_perm_guide">Please grant \"Display over other apps\" permission in Settings</string>
+    <string name="update_dialog_default_notes">A new version of TouchGuard is available. Click below to download the APK update.</string>
+    <string name="err_overlay_perm_required">Please enable TouchGuard Accessibility Service or grant Overlay permission</string>
+    <string name="err_root_perm_required">Root permission not granted or /dev/input/event4 device node abnormal</string>
+    <string name="err_shizuku_overlay_failed">Failed to load fullscreen overlay: %1$s. Please grant Overlay permission in system settings</string>
 </resources>

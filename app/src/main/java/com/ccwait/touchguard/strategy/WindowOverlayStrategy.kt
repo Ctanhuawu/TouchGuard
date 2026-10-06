@@ -3,28 +3,21 @@ package com.ccwait.touchguard.strategy
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.Rect
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.view.Gravity
-import android.view.KeyEvent
-import android.view.MotionEvent
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.BuildConfig
-import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
+import com.ccwait.touchguard.R
 import com.ccwait.touchguard.service.TouchGuardAccessibilityService
+import com.ccwait.touchguard.system.OverlayPermissionHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +37,15 @@ class WindowOverlayStrategy : TouchLockStrategy {
     override var readiness by mutableStateOf(StrategyReadiness.CHECKING)
         private set
 
+    override fun getBadgeText(context: Context): String = when (readiness) {
+        StrategyReadiness.READY -> {
+            if (TouchGuardAccessibilityService.isEnabled) context.getString(R.string.badge_ready_acc_enhanced) else context.getString(R.string.badge_ready_no_root)
+        }
+        StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.badge_permission_needed)
+        StrategyReadiness.UNSUPPORTED -> context.getString(R.string.badge_unsupported)
+        StrategyReadiness.CHECKING -> context.getString(R.string.badge_checking)
+    }
+
     override val badgeText: String
         get() = when (readiness) {
             StrategyReadiness.READY -> {
@@ -53,6 +55,13 @@ class WindowOverlayStrategy : TouchLockStrategy {
             StrategyReadiness.UNSUPPORTED -> "不支持"
             StrategyReadiness.CHECKING -> "检测中"
         }
+
+    override fun getStatusSummary(context: Context): String = when (readiness) {
+        StrategyReadiness.READY -> context.getString(R.string.status_version_beta, BuildConfig.VERSION_NAME)
+        StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.status_acc_request_desc)
+        StrategyReadiness.UNSUPPORTED -> context.getString(R.string.status_acc_unsupported)
+        StrategyReadiness.CHECKING -> context.getString(R.string.status_acc_checking)
+    }
 
     override val statusSummary: String
         get() = when (readiness) {
@@ -84,24 +93,18 @@ class WindowOverlayStrategy : TouchLockStrategy {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "请在「已下载的服务」中开启 TouchGuard 无障碍服务（完美覆盖状态栏与全面屏手势）",
+                    context.getString(R.string.toast_acc_service_guide),
                     Toast.LENGTH_LONG
                 ).show()
             }
             return false
         } catch (_: Exception) {
             // 降级引导悬浮窗权限
-            if (!Settings.canDrawOverlays(context)) {
-                try {
-                    val intent = Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:${context.packageName}")
-                    ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-                    context.startActivity(intent)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "请在设置中开启「显示在其他应用上层」权限", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (_: Exception) {}
+            if (!com.ccwait.touchguard.system.OverlayPermissionHelper.hasPermission(context)) {
+                com.ccwait.touchguard.system.OverlayPermissionHelper.requestPermission(context)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, context.getString(R.string.toast_overlay_perm_guide), Toast.LENGTH_SHORT).show()
+                }
             }
         }
         return false
@@ -116,10 +119,10 @@ class WindowOverlayStrategy : TouchLockStrategy {
     override suspend fun lock(context: Context): Result<Unit> = withContext(Dispatchers.Main) {
         try {
             val accService = TouchGuardAccessibilityService.instance
-            val hasOverlayPerm = Settings.canDrawOverlays(context)
+            val hasOverlayPerm = com.ccwait.touchguard.system.OverlayPermissionHelper.hasPermission(context)
 
             if (accService == null && !hasOverlayPerm) {
-                return@withContext Result.failure(Exception("请开启 TouchGuard 无障碍服务或授予悬浮窗权限"))
+                return@withContext Result.failure(Exception(context.getString(R.string.err_overlay_perm_required)))
             }
 
             if (overlayView != null) {
@@ -162,6 +165,11 @@ class WindowOverlayStrategy : TouchLockStrategy {
             @Suppress("DEPRECATION")
             if (AppPreferences.isHideSystemBarsEnabled) {
                 flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
+            }
+
+            @Suppress("DEPRECATION")
+            if (AppPreferences.isLockScreenOverlayEnabled) {
+                flags = flags or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
             }
 
             val layoutParams = WindowManager.LayoutParams(
@@ -246,13 +254,14 @@ class WindowOverlayStrategy : TouchLockStrategy {
     }
 
     override fun reassert(context: Context) {
-        if (!_isLocked) return
+        val isSystemLocked = TouchLockManager.isTouchLocked
+        if (!_isLocked && !isSystemLocked) return
         val appContext = context.applicationContext
         val wm = windowManager ?: (appContext.getSystemService(Context.WINDOW_SERVICE) as? WindowManager) ?: return
         val currentView = overlayView
 
         val action = Runnable {
-            if (currentView == null || !currentView.isAttachedToWindow) {
+            if (currentView == null || !currentView.isAttachedToWindow || !_isLocked) {
                 // 视图未附加或被系统回收，重新执行 lock
                 kotlinx.coroutines.CoroutineScope(Dispatchers.Main).launch {
                     lock(context)
@@ -266,6 +275,14 @@ class WindowOverlayStrategy : TouchLockStrategy {
                 currentView.requestFocus()
                 (currentView as? TouchLockOverlayView)?.applyImmersiveMode()
                 currentView.layoutParams?.let { lp ->
+                    if (lp is WindowManager.LayoutParams) {
+                        @Suppress("DEPRECATION")
+                        if (AppPreferences.isLockScreenOverlayEnabled) {
+                            lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        } else {
+                            lp.flags = lp.flags and WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED.inv()
+                        }
+                    }
                     wm.updateViewLayout(currentView, lp)
                 }
                 com.ccwait.touchguard.model.AppLogManager.addLog("遮罩", "全屏触控拦截遮罩已加固并重置焦点")
@@ -281,151 +298,6 @@ class WindowOverlayStrategy : TouchLockStrategy {
             action.run()
         } else {
             android.os.Handler(android.os.Looper.getMainLooper()).post(action)
-        }
-    }
-
-    private class TouchLockOverlayView(context: Context) : FrameLayout(context) {
-        init {
-            setBackgroundColor(Color.TRANSPARENT)
-            isClickable = true
-            isFocusable = true
-            isFocusableInTouchMode = true
-            fitsSystemWindows = false
-        }
-
-        override fun onAttachedToWindow() {
-            super.onAttachedToWindow()
-            applyImmersiveMode()
-        }
-
-        fun applyImmersiveMode() {
-            if (!AppPreferences.isHideSystemBarsEnabled) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    windowInsetsController?.show(WindowInsets.Type.systemBars())
-                }
-                @Suppress("DEPRECATION")
-                systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                )
-                return
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsetsController?.let { controller ->
-                    controller.hide(WindowInsets.Type.systemBars())
-                    controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-            }
-            @Suppress("DEPRECATION")
-            systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            )
-        }
-
-        override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                WindowInsets.CONSUMED
-            } else {
-                @Suppress("DEPRECATION")
-                insets.consumeSystemWindowInsets()
-            }
-        }
-
-        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-            super.onLayout(changed, left, top, right, bottom)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // 排除边缘系统手势拦截（单侧高度限制在 Android 规范的 200dp 内，防止系统丢弃请求）
-                val density = context.resources.displayMetrics.density
-                val maxExclusionPx = (200 * density).toInt()
-                val edgeWidth = (60 * density).toInt().coerceAtMost(width / 4)
-                val edgeHeight = (60 * density).toInt().coerceAtMost(height / 4)
-
-                val leftRect = Rect(0, (height - maxExclusionPx).coerceAtLeast(0) / 2, edgeWidth, ((height + maxExclusionPx) / 2).coerceAtMost(height))
-                val rightRect = Rect(width - edgeWidth, (height - maxExclusionPx).coerceAtLeast(0) / 2, width, ((height + maxExclusionPx) / 2).coerceAtMost(height))
-                val topRect = Rect(0, 0, width, edgeHeight)
-                val bottomRect = Rect(0, height - edgeHeight, width, height)
-                try {
-                    systemGestureExclusionRects = listOf(leftRect, rightRect, topRect, bottomRect)
-                } catch (_: Exception) {}
-            }
-        }
-
-        override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
-            super.onWindowFocusChanged(hasWindowFocus)
-            if (!hasWindowFocus && TouchLockManager.isTouchLocked) {
-                postDelayed({
-                    if (TouchLockManager.isTouchLocked) {
-                        TouchLockManager.collapsePanels(context)
-                        applyImmersiveMode()
-                        requestFocus()
-                    }
-                }, 50)
-            }
-        }
-
-        override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-            if (!TouchLockManager.isTouchLocked) return super.dispatchKeyEvent(event)
-
-            val keyCode = event.keyCode
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                when (event.action) {
-                    KeyEvent.ACTION_DOWN -> {
-                        if (event.repeatCount == 0) {
-                            PhysicalKeyUnlockHandler.onKeyDown(context, keyCode)
-                        }
-                        if (AppPreferences.isAllowVolumeKeysEnabled) {
-                            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
-                            val direction = if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                                android.media.AudioManager.ADJUST_RAISE
-                            } else {
-                                android.media.AudioManager.ADJUST_LOWER
-                            }
-                            val streamType = if (audioManager?.mode == android.media.AudioManager.MODE_IN_CALL ||
-                                audioManager?.mode == android.media.AudioManager.MODE_IN_COMMUNICATION) {
-                                android.media.AudioManager.STREAM_VOICE_CALL
-                            } else {
-                                android.media.AudioManager.STREAM_MUSIC
-                            }
-                            try {
-                                audioManager?.adjustStreamVolume(
-                                    streamType,
-                                    direction,
-                                    android.media.AudioManager.FLAG_SHOW_UI or android.media.AudioManager.FLAG_PLAY_SOUND
-                                )
-                            } catch (_: Exception) {}
-                        }
-                        return true
-                    }
-                    KeyEvent.ACTION_UP -> {
-                        PhysicalKeyUnlockHandler.onKeyUp(keyCode)
-                        return true
-                    }
-                }
-            } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-                return true
-            }
-            return super.dispatchKeyEvent(event)
-        }
-
-        @SuppressLint("ClickableViewAccessibility")
-        override fun onTouchEvent(event: MotionEvent): Boolean = TouchLockManager.isTouchLocked
-
-        override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-            if (!TouchLockManager.isTouchLocked) {
-                return false
-            }
-            val density = context.resources.displayMetrics.density
-            if ((ev.y < 120 * density || ev.y > height - 100 * density) && ev.action == MotionEvent.ACTION_DOWN) {
-                TouchLockManager.collapsePanels(context)
-            }
-            return true
         }
     }
 }

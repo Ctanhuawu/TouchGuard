@@ -97,31 +97,29 @@ fun UpdateDialog(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // 更新日志内容区
-                    if (updateInfo.releaseNotes.isNotBlank()) {
+                    val displayNotes = updateInfo.releaseNotes.ifBlank { stringResource(R.string.update_dialog_default_notes) }
+                    top.yukonga.miuix.kmp.basic.Text(
+                        text = stringResource(R.string.update_dialog_changelog_title),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MiuixTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 60.dp, max = 200.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MiuixTheme.colorScheme.surfaceVariant)
+                            .padding(12.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
                         top.yukonga.miuix.kmp.basic.Text(
-                            text = stringResource(R.string.update_dialog_changelog_title),
+                            text = displayNotes,
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
+                            lineHeight = 18.sp,
                             color = MiuixTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 60.dp, max = 200.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(MiuixTheme.colorScheme.surfaceVariant)
-                                .padding(12.dp)
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            top.yukonga.miuix.kmp.basic.Text(
-                                text = updateInfo.releaseNotes,
-                                fontSize = 13.sp,
-                                lineHeight = 18.sp,
-                                color = MiuixTheme.colorScheme.onSurface
-                            )
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -192,28 +190,27 @@ fun UpdateDialog(
                         )
                     }
 
-                    if (updateInfo.releaseNotes.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(12.dp))
+                    val displayNotes = updateInfo.releaseNotes.ifBlank { stringResource(R.string.update_dialog_default_notes) }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.update_dialog_changelog_title),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 200.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(12.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
                         Text(
-                            text = stringResource(R.string.update_dialog_changelog_title),
-                            style = MaterialTheme.typography.labelMedium
+                            text = displayNotes,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 200.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .padding(12.dp)
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            Text(
-                                text = updateInfo.releaseNotes,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
                     }
                 }
             },

@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import com.ccwait.touchguard.AppPreferences
 import com.ccwait.touchguard.BuildConfig
+import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.model.RootPermissionManager
@@ -34,6 +35,13 @@ class KernelEvgrabStrategy : TouchLockStrategy {
             RootStatus.CHECKING -> StrategyReadiness.CHECKING
         }
 
+    override fun getBadgeText(context: Context): String = when (readiness) {
+        StrategyReadiness.READY -> context.getString(R.string.badge_ready_root)
+        StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.badge_permission_missing)
+        StrategyReadiness.UNSUPPORTED -> context.getString(R.string.badge_no_root)
+        StrategyReadiness.CHECKING -> context.getString(R.string.badge_checking)
+    }
+
     override val badgeText: String
         get() = when (readiness) {
             StrategyReadiness.READY -> "Root"
@@ -41,6 +49,13 @@ class KernelEvgrabStrategy : TouchLockStrategy {
             StrategyReadiness.UNSUPPORTED -> "无 Root"
             StrategyReadiness.CHECKING -> "检测中"
         }
+
+    override fun getStatusSummary(context: Context): String = when (readiness) {
+        StrategyReadiness.READY -> context.getString(R.string.status_version_beta, BuildConfig.VERSION_NAME)
+        StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.status_root_request_desc)
+        StrategyReadiness.UNSUPPORTED -> context.getString(R.string.status_root_no_env)
+        StrategyReadiness.CHECKING -> context.getString(R.string.status_root_checking)
+    }
 
     override val statusSummary: String
         get() = when (readiness) {
@@ -57,15 +72,15 @@ class KernelEvgrabStrategy : TouchLockStrategy {
 
     override suspend fun requestPermission(context: Context): Boolean {
         withContext(Dispatchers.Main) {
-            Toast.makeText(context, "正在申请 Root 授权，请在弹窗中允许...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.toast_root_requesting), Toast.LENGTH_SHORT).show()
         }
         val res = RootPermissionManager.checkPermission(forceRequest = true)
         val isOk = res == RootStatus.AUTHORIZED
         withContext(Dispatchers.Main) {
             if (isOk) {
-                Toast.makeText(context, "✅ Root 授权成功！驱动环境已就绪", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.toast_root_success), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "❌ 未获得 Root 授权，请在授权管理器中允许", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.toast_root_denied), Toast.LENGTH_LONG).show()
             }
         }
         return isOk
@@ -156,7 +171,7 @@ class KernelEvgrabStrategy : TouchLockStrategy {
                 Result.success(Unit)
             } else {
                 unlock(context)
-                Result.failure(Exception("Root 权限未授予或 /dev/input/event4 驱动节点异常"))
+                Result.failure(Exception(context.getString(R.string.err_root_perm_required)))
             }
         } catch (e: Exception) {
             e.printStackTrace()

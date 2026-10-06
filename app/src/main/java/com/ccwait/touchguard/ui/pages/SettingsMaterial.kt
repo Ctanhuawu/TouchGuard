@@ -240,7 +240,7 @@ fun SettingsMaterial(
                             leadingIcon = Icons.Rounded.Info,
                             onClick = {
                                 onVibrate(20)
-                                Toast.makeText(context, "TouchGuard v${BuildConfig.VERSION_NAME} · 开发者: Ctanhuawu", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.settings_about_app_summary, BuildConfig.VERSION_NAME, "Ctanhuawu"), Toast.LENGTH_SHORT).show()
                             }
                         )
                     }

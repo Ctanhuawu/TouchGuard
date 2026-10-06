@@ -190,7 +190,7 @@ private fun MiuixStatusCard(
     }
 
     val titleText = if (isLocked) stringResource(R.string.home_status_locked) else stringResource(R.string.home_status_standby)
-    val badgeText = currentStrategy.badgeText
+    val badgeText = currentStrategy.getBadgeText(context)
 
     val badgeBgColor = when {
         isLocked -> if (isDynamicColor) colorScheme.tertiaryContainer else if (isDark) Color(0xFF315D3E) else Color(0xFFB8E8C5)
@@ -205,7 +205,7 @@ private fun MiuixStatusCard(
         else -> colorScheme.primary
     }
 
-    val subtitleText = currentStrategy.statusSummary
+    val subtitleText = currentStrategy.getStatusSummary(context)
 
     val bottomTag = when {
         isLocked -> "WORKING"
@@ -232,11 +232,11 @@ private fun MiuixStatusCard(
                         }
                     } else {
                         TouchLockManager.selectStrategy(context, StrategyType.ACCESSIBILITY_OVERLAY)
-                        Toast.makeText(context, "已为你切换为免 Root 悬浮窗锁定方案", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_switched_to_overlay), Toast.LENGTH_SHORT).show()
                     }
                 }
                 StrategyReadiness.CHECKING -> {
-                    Toast.makeText(context, "正在检测运行环境，请稍候...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.toast_checking_environment), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -359,7 +359,7 @@ private fun MiuixSoftwareInfoCard() {
             MiuixInfoText(
                 icon = Icons.Rounded.Tag,
                 title = stringResource(R.string.info_app_version),
-                content = "v${BuildConfig.VERSION_NAME} · Beta版"
+                content = stringResource(R.string.status_version_beta, BuildConfig.VERSION_NAME)
             )
             MiuixInfoText(
                 icon = Icons.Rounded.Person,

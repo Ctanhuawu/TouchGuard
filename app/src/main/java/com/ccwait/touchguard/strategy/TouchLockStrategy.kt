@@ -103,11 +103,13 @@ interface TouchLockStrategy {
      * 状态徽章文本 (如 "Root", "未授权", "免 Root", "需授权", "无 Root", "检测中")
      */
     val badgeText: String
+    fun getBadgeText(context: Context): String = badgeText
 
     /**
      * 状态摘要或引导说明
      */
     val statusSummary: String
+    fun getStatusSummary(context: Context): String = statusSummary
 
     /**
      * 检测并刷新策略环境与权限状态

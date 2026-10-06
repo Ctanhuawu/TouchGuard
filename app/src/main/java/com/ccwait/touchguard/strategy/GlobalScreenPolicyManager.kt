@@ -68,8 +68,8 @@ class DefaultScreenOverlayController : ScreenOverlayController {
 
     override fun attach(context: Context) {
         val appContext = context.applicationContext
-        ensureOverlayPermission(appContext)
-        if (!Settings.canDrawOverlays(appContext)) {
+        com.ccwait.touchguard.system.OverlayPermissionHelper.ensurePermission(appContext)
+        if (!com.ccwait.touchguard.system.OverlayPermissionHelper.hasPermission(appContext)) {
             android.util.Log.w("ScreenOverlayController", "No overlay permission, skip global window policy")
             return
         }
@@ -128,6 +128,10 @@ class DefaultScreenOverlayController : ScreenOverlayController {
                 if (AppPreferences.isHideSystemBarsEnabled) {
                     @Suppress("DEPRECATION")
                     flags = flags or WindowManager.LayoutParams.FLAG_FULLSCREEN
+                }
+                if (AppPreferences.isLockScreenOverlayEnabled) {
+                    @Suppress("DEPRECATION")
+                    flags = flags or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                 }
 
                 val layoutParams = WindowManager.LayoutParams(
@@ -208,20 +212,6 @@ class DefaultScreenOverlayController : ScreenOverlayController {
                 android.os.Handler(android.os.Looper.getMainLooper()).post(action)
             }
         }
-    }
-
-    private fun ensureOverlayPermission(context: Context) {
-        if (Settings.canDrawOverlays(context)) return
-        try {
-            if (com.ccwait.touchguard.system.ShizukuTaskLockHelper.ensureOverlayPermission(context)) {
-                return
-            }
-        } catch (_: Throwable) {}
-        try {
-            Runtime.getRuntime().exec(
-                arrayOf("su", "-c", "appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow")
-            ).waitFor()
-        } catch (_: Throwable) {}
     }
 }
 

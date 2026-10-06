@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.provider.Settings
 import android.util.Log
-import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.Method
@@ -122,47 +120,10 @@ object ShizukuTaskLockHelper {
         return setSystemBarsAndGesturesDisabled(context, disabled)
     }
 
-    @Volatile
-    private var cachedNewProcessMethod: Method? = null
-    @Volatile
-    private var isNewProcessCached = false
-
-    private fun getNewProcessMethod(): Method? {
-        if (isNewProcessCached) return cachedNewProcessMethod
-        return try {
-            val method = Shizuku::class.java.declaredMethods.firstOrNull {
-                it.name == "newProcess" && it.parameterTypes.size == 3
-            }?.apply { isAccessible = true }
-            cachedNewProcessMethod = method
-            isNewProcessCached = true
-            method
-        } catch (e: Throwable) {
-            Log.e(TAG, "Failed to resolve Shizuku.newProcess", e)
-            null
-        }
-    }
-
     /**
-     * 通过 Shizuku 静默为 TouchGuard 授予悬浮窗权限 (SYSTEM_ALERT_WINDOW)
-     * 同步注入 HyperOS / MIUI 锁屏显示(10008)与悬浮窗(10021)专属权限
+     * 静默确保悬浮窗权限（委托至 OverlayPermissionHelper）
      */
     fun ensureOverlayPermission(context: Context): Boolean {
-        if (Settings.canDrawOverlays(context)) return true
-        return try {
-            val method = getNewProcessMethod() ?: return false
-            val cmds = arrayOf(
-                "sh", "-c",
-                "appops set ${context.packageName} SYSTEM_ALERT_WINDOW allow; " +
-                "appops set ${context.packageName} 10021 allow; " +
-                "appops set ${context.packageName} 10020 allow; " +
-                "appops set ${context.packageName} 10008 allow"
-            )
-            val p = method.invoke(null, cmds, null, null) as? Process
-            p?.waitFor()
-            Settings.canDrawOverlays(context)
-        } catch (e: Throwable) {
-            Log.e(TAG, "ensureOverlayPermission failed", e)
-            false
-        }
+        return OverlayPermissionHelper.ensurePermission(context)
     }
 }

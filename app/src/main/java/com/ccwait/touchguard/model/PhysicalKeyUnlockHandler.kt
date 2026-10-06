@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.KeyEvent
 import android.widget.Toast
 import com.ccwait.touchguard.AppPreferences
+import com.ccwait.touchguard.R
 import com.ccwait.touchguard.strategy.TouchLockManager
 import com.ccwait.touchguard.system.DefaultHapticFeedbackService
 import com.ccwait.touchguard.system.adaptation.VendorDeviceHelper
@@ -132,7 +133,7 @@ object PhysicalKeyUnlockHandler {
                     } else {
                         lastKeyPressTime = now
                         DefaultHapticFeedbackService.vibrate(context, 40)
-                        Toast.makeText(context, "再按一次【音量减】解除锁定", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_press_vol_down_again), Toast.LENGTH_SHORT).show()
                         return true
                     }
                 }
@@ -147,14 +148,14 @@ object PhysicalKeyUnlockHandler {
                             return true
                         } else {
                             DefaultHapticFeedbackService.vibrate(context, 40)
-                            Toast.makeText(context, "还需按 1 次【音量减】解除锁定", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.toast_press_vol_down_remaining, 1), Toast.LENGTH_SHORT).show()
                             return true
                         }
                     } else {
                         keyPressCount = 1
                         lastKeyPressTime = now
                         DefaultHapticFeedbackService.vibrate(context, 40)
-                        Toast.makeText(context, "还需按 2 次【音量减】解除锁定", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_press_vol_down_remaining, 2), Toast.LENGTH_SHORT).show()
                         return true
                     }
                 }
@@ -167,7 +168,7 @@ object PhysicalKeyUnlockHandler {
                     } else {
                         lastKeyPressTime = now
                         DefaultHapticFeedbackService.vibrate(context, 40)
-                        Toast.makeText(context, "再按一次【音量加】解除锁定", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_press_vol_up_again), Toast.LENGTH_SHORT).show()
                         return true
                     }
                 }
@@ -177,7 +178,7 @@ object PhysicalKeyUnlockHandler {
                     lastKeyCode = KeyEvent.KEYCODE_VOLUME_UP
                     lastKeyPressTime = now
                     DefaultHapticFeedbackService.vibrate(context, 40)
-                    Toast.makeText(context, "再按一次【音量减】完成组合解除", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.toast_combo_vol_down_finish), Toast.LENGTH_SHORT).show()
                     return true
                 } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     if (lastKeyCode == KeyEvent.KEYCODE_VOLUME_UP && interval < maxComboInterval) {
@@ -186,7 +187,7 @@ object PhysicalKeyUnlockHandler {
                     } else {
                         reset()
                         DefaultHapticFeedbackService.vibrate(context, 40)
-                        Toast.makeText(context, "需先按【音量加】再按【音量减】", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_combo_need_up_then_down), Toast.LENGTH_SHORT).show()
                         return true
                     }
                 }
@@ -196,7 +197,7 @@ object PhysicalKeyUnlockHandler {
                     lastKeyCode = KeyEvent.KEYCODE_VOLUME_DOWN
                     lastKeyPressTime = now
                     DefaultHapticFeedbackService.vibrate(context, 40)
-                    Toast.makeText(context, "再按一次【音量加】完成组合解除", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.toast_combo_vol_up_finish), Toast.LENGTH_SHORT).show()
                     return true
                 } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                     if (lastKeyCode == KeyEvent.KEYCODE_VOLUME_DOWN && interval < MAX_COMBO_INTERVAL_MS) {
@@ -205,7 +206,7 @@ object PhysicalKeyUnlockHandler {
                     } else {
                         reset()
                         DefaultHapticFeedbackService.vibrate(context, 40)
-                        Toast.makeText(context, "需先按【音量减】再按【音量加】", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_combo_need_down_then_up), Toast.LENGTH_SHORT).show()
                         return true
                     }
                 }
@@ -240,18 +241,18 @@ object PhysicalKeyUnlockHandler {
         DefaultHapticFeedbackService.vibrate(context, 40)
         val text = if (isWrong) {
             when (AppPreferences.unlockMechanism) {
-                UnlockMechanism.VOLUME_UP_THEN_DOWN -> "需先按【音量加】再按【音量减】"
-                UnlockMechanism.VOLUME_DOWN_THEN_UP -> "需先按【音量减】再按【音量加】"
-                else -> "按键顺序不符"
+                UnlockMechanism.VOLUME_UP_THEN_DOWN -> context.getString(R.string.toast_combo_need_up_then_down)
+                UnlockMechanism.VOLUME_DOWN_THEN_UP -> context.getString(R.string.toast_combo_need_down_then_up)
+                else -> context.getString(R.string.toast_combo_key_order_wrong)
             }
         } else {
             val remaining = total - current
             when (AppPreferences.unlockMechanism) {
-                UnlockMechanism.DOUBLE_VOLUME_DOWN -> "再按一次【音量减】解除锁定"
-                UnlockMechanism.DOUBLE_VOLUME_UP -> "再按一次【音量加】解除锁定"
-                UnlockMechanism.TRIPLE_VOLUME_DOWN -> "还需按 $remaining 次【音量减】解除锁定"
-                UnlockMechanism.VOLUME_UP_THEN_DOWN -> "再按一次【音量减】完成组合解除"
-                UnlockMechanism.VOLUME_DOWN_THEN_UP -> "再按一次【音量加】完成组合解除"
+                UnlockMechanism.DOUBLE_VOLUME_DOWN -> context.getString(R.string.toast_press_vol_down_again)
+                UnlockMechanism.DOUBLE_VOLUME_UP -> context.getString(R.string.toast_press_vol_up_again)
+                UnlockMechanism.TRIPLE_VOLUME_DOWN -> context.getString(R.string.toast_press_vol_down_remaining, remaining)
+                UnlockMechanism.VOLUME_UP_THEN_DOWN -> context.getString(R.string.toast_combo_vol_down_finish)
+                UnlockMechanism.VOLUME_DOWN_THEN_UP -> context.getString(R.string.toast_combo_vol_up_finish)
             }
         }
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()

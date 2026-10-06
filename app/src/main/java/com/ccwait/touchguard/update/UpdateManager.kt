@@ -189,7 +189,7 @@ object UpdateManager {
                     return UpdateInfo(
                         tagName = tagName,
                         versionName = tagName.removePrefix("v").removePrefix("V"),
-                        releaseNotes = "发现 TouchGuard 最新发布版本，点击下方按钮即可直接下载 APK 安装包更新。",
+                        releaseNotes = "",
                         downloadUrl = downloadUrl,
                         releasePageUrl = location,
                         isManualCheck = isManual

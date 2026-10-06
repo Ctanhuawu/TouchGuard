@@ -44,6 +44,13 @@ class TouchGuardForegroundService : Service() {
                         AppLogManager.addLog("唤醒加固", "检测到$eventName，立即重新激活全屏触控拦截与状态栏冻结")
                         CoroutineScope(Dispatchers.Main).launch {
                             TouchLockManager.reassert(this@TouchGuardForegroundService)
+                            if (intent.action == Intent.ACTION_USER_PRESENT) {
+                                // 锁屏退出可能伴随数百毫秒的过渡动画，在动画结束后再次加固防止定制系统重置标志
+                                kotlinx.coroutines.delay(350)
+                                if (TouchLockManager.isTouchLocked) {
+                                    TouchLockManager.reassert(this@TouchGuardForegroundService)
+                                }
+                            }
                         }
                     }
                 }
@@ -125,9 +132,7 @@ class TouchGuardForegroundService : Service() {
                         android.util.Log.d("TouchGuard", "MediaSession onAdjustVolume: direction=$direction")
                         PhysicalKeyUnlockHandler.onVolumeAdjust(this@TouchGuardForegroundService, direction)
                         if (AppPreferences.isAllowVolumeKeysEnabled) {
-                            val audioManager = getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
-                            val adjustDir = if (direction > 0) android.media.AudioManager.ADJUST_RAISE else android.media.AudioManager.ADJUST_LOWER
-                            audioManager?.adjustSuggestedStreamVolume(adjustDir, android.media.AudioManager.USE_DEFAULT_STREAM_TYPE, android.media.AudioManager.FLAG_SHOW_UI)
+                            com.ccwait.touchguard.system.AudioVolumeHelper.adjustVolume(this@TouchGuardForegroundService, direction)
                         }
                     }
                 }

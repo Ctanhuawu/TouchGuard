@@ -46,6 +46,9 @@ class MainActivity : ComponentActivity() {
     private val latestIntent = mutableStateOf<Intent?>(null)
     private val intentSequence = androidx.compose.runtime.mutableLongStateOf(0L)
 
+    /**
+     * 处理外部再次拉起时的 Intent 传参（如快捷设置图块）
+     */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -53,6 +56,9 @@ class MainActivity : ComponentActivity() {
         intentSequence.longValue = System.currentTimeMillis()
     }
 
+    /**
+     * 初始化入口：加载配置、初始化策略引擎、注册常驻服务并渲染 UI
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -98,23 +104,6 @@ class MainActivity : ComponentActivity() {
         if (AppPreferences.isCheckUpdateEnabled) {
             com.ccwait.touchguard.update.UpdateManager.checkUpdate(this, isManual = false)
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        }
-        try {
-            val pm = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
-            @Suppress("DEPRECATION")
-            val wl = pm.newWakeLock(
-                android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or
-                    android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP or
-                    android.os.PowerManager.ON_AFTER_RELEASE,
-                "TouchGuard:WakeScreen"
-            )
-            wl.acquire(3000)
-            wl.release()
-        } catch (_: Exception) {}
 
         applyScreenHoldState(TouchLockManager.isTouchLocked)
 
@@ -210,6 +199,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * 解析外部 Intent 参数（如切换锁定策略、底部栏显示、主题色、语言等）
+     */
     private fun handleIntentParameters(intent: Intent?) {
         val targetIntent = intent ?: return
         if (targetIntent.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
@@ -233,22 +225,34 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * 应用 Activity 维度的屏幕保持状态（常亮、屏幕方向、亮度锁定及系统栏隐藏）
+     */
     private fun applyScreenHoldState(locked: Boolean) {
         GlobalScreenPolicyManager.applyToActivity(this, locked)
     }
 
+    /**
+     * 主界面锁定按钮响应：启动协程执行底层触控锁定
+     */
     private fun lockTouch() {
         lifecycleScope.launch {
             TouchLockManager.lock(this@MainActivity, source = "应用界面")
         }
     }
 
+    /**
+     * 主界面解除按钮响应：启动协程恢复底层触控
+     */
     private fun unlockTouch() {
         lifecycleScope.launch {
             TouchLockManager.unlock(this@MainActivity, source = "应用界面")
         }
     }
 
+    /**
+     * 前台按键分发：拦截音量键转交物理按键解锁器处理，并根据配置放行音量调节
+     */
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (TouchLockManager.isTouchLocked) {
             val keyCode = event.keyCode
@@ -278,10 +282,16 @@ class MainActivity : ComponentActivity() {
         return super.dispatchKeyEvent(event)
     }
 
+    /**
+     * 执行按键与状态切换的振动反馈
+     */
     private fun vibratePhone(durationMs: Long) {
         DefaultHapticFeedbackService.vibrate(this, durationMs)
     }
 
+    /**
+     * 页面重回前台：若处于锁定中重新加固置顶，并刷新各方案就绪状态
+     */
     override fun onResume() {
         super.onResume()
         if (TouchLockManager.isTouchLocked) {
@@ -292,6 +302,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * 页面销毁：清理锁定状态回调并重置屏幕保持属性
+     */
     override fun onDestroy() {
         super.onDestroy()
         TouchLockManager.onLockStateChanged = null

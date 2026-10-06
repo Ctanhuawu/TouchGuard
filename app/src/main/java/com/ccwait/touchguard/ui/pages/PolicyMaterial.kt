@@ -118,7 +118,7 @@ fun PolicyMaterial(
                         val strategySummary = if (readiness == StrategyReadiness.READY) {
                             stringResource(currentStrategy.type.descRes)
                         } else {
-                            currentStrategy.statusSummary
+                            currentStrategy.getStatusSummary(context)
                         }
 
                         val strategyItems = StrategyType.entries.map { stringResource(it.titleRes) }
@@ -250,6 +250,17 @@ fun PolicyMaterial(
                             showDivider = true,
                             onCheckedChange = {
                                 AppPreferences.setAutoUnlockOnScreenOff(it)
+                                onVibrate(25)
+                            }
+                        )
+
+                        MaterialSwitchPreference(
+                            title = stringResource(R.string.policy_lock_screen_overlay_title),
+                            summary = stringResource(R.string.policy_lock_screen_overlay_desc),
+                            checked = AppPreferences.isLockScreenOverlayEnabled,
+                            showDivider = true,
+                            onCheckedChange = {
+                                AppPreferences.setLockScreenOverlay(it)
                                 onVibrate(25)
                             }
                         )

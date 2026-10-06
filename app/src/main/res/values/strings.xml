@@ -67,6 +67,8 @@
     <string name="policy_automation_safety">自动化与安全解除</string>
     <string name="policy_auto_unlock_title">熄屏自动解除锁定</string>
     <string name="policy_auto_unlock_desc">按电源键熄屏后自动解除</string>
+    <string name="policy_lock_screen_overlay_title">覆盖锁屏界面</string>
+    <string name="policy_lock_screen_overlay_desc">锁屏时也保持触控拦截，需指纹或按键解锁</string>
     <string name="policy_haptic_title">按键与触觉反馈</string>
     <string name="policy_haptic_desc">锁定与按键操作时提供震动反馈</string>
     <string name="policy_allow_volume_keys_title">不屏蔽音量按键</string>
@@ -256,4 +258,65 @@
     <string name="update_checking">正在检查更新…</string>
     <string name="update_already_latest">当前已是最新版本 (v%1$s)</string>
     <string name="update_check_failed">检查更新失败，请稍后重试</string>
+
+    <!-- 通知渠道与状态 -->
+    <string name="notif_channel_name">TouchGuard 触控守护</string>
+    <string name="notif_channel_desc">常驻快捷控制与触控锁定状态提示</string>
+
+    <!-- 交互提示 (Toasts) -->
+    <string name="toast_touch_locked">屏幕触控已锁定【%1$s】！%2$s</string>
+    <string name="toast_touch_unlocked">✅ 触控已恢复正常！</string>
+    <string name="toast_lock_failed">锁定失败：%1$s</string>
+    <string name="toast_unlock_failed">恢复异常：%1$s</string>
+    <string name="toast_unknown_error">未知异常</string>
+    <string name="toast_switched_to_overlay">已为你切换为免 Root 悬浮窗锁定方案</string>
+    <string name="toast_checking_environment">正在检测运行环境，请稍候…</string>
+
+    <!-- 物理按键与连击提示 -->
+    <string name="toast_press_vol_down_again">再按一次【音量减】解除锁定</string>
+    <string name="toast_press_vol_down_remaining">还需按 %1$d 次【音量减】解除锁定</string>
+    <string name="toast_press_vol_up_again">再按一次【音量加】解除锁定</string>
+    <string name="toast_combo_vol_down_finish">再按一次【音量减】完成组合解除</string>
+    <string name="toast_combo_vol_up_finish">再按一次【音量加】完成组合解除</string>
+    <string name="toast_combo_need_up_then_down">需先按【音量加】再按【音量减】</string>
+    <string name="toast_combo_need_down_then_up">需先按【音量减】再按【音量加】</string>
+    <string name="toast_combo_key_order_wrong">按键顺序不符</string>
+
+    <!-- 方案徽章与就绪状态 -->
+    <string name="badge_ready_root">Root</string>
+    <string name="badge_ready_shizuku">Shizuku</string>
+    <string name="badge_ready_acc_enhanced">无障碍增强</string>
+    <string name="badge_ready_no_root">免 Root</string>
+    <string name="badge_permission_missing">未授权</string>
+    <string name="badge_permission_needed">需授权</string>
+    <string name="badge_unsupported">不支持</string>
+    <string name="badge_no_root">无 Root</string>
+    <string name="badge_not_running">未运行</string>
+    <string name="badge_checking">检测中</string>
+
+    <string name="status_version_beta">v%1$s · Beta版</string>
+    <string name="status_root_request_desc">点击申请 Root 授权 · 驱动未就绪</string>
+    <string name="status_root_no_env">未检测到 Root 环境 · 点击切换为免 Root</string>
+    <string name="status_root_checking">正在检测底层 Root 授权…</string>
+    <string name="status_shizuku_request_desc">点击申请 Shizuku 授权 · 需启动配对</string>
+    <string name="status_shizuku_not_running">未检测到 Shizuku 服务 · 点击打开/下载</string>
+    <string name="status_shizuku_checking">正在检测 Shizuku 授权…</string>
+    <string name="status_acc_request_desc">点击开启无障碍服务或悬浮窗权限</string>
+    <string name="status_acc_unsupported">系统不支持悬浮窗或无障碍拦截</string>
+    <string name="status_acc_checking">正在检测权限…</string>
+
+    <!-- 权限请求提示 -->
+    <string name="toast_root_requesting">正在申请 Root 授权，请在弹窗中允许…</string>
+    <string name="toast_root_success">✅ Root 授权成功！驱动环境已就绪</string>
+    <string name="toast_root_denied">❌ 未获得 Root 授权，请在授权管理器中允许</string>
+    <string name="toast_shizuku_not_running">Shizuku 服务未运行，正在尝试启动 Shizuku…</string>
+    <string name="toast_shizuku_requesting">正在向 Shizuku 请求授权，请在弹窗中允许…</string>
+    <string name="toast_shizuku_success">✅ Shizuku 授权成功！系统固定策略已就绪</string>
+    <string name="toast_shizuku_denied">❌ 未获得 Shizuku 授权，请在 Shizuku 应用中允许</string>
+    <string name="toast_acc_service_guide">请在「已下载的服务」中开启 TouchGuard 无障碍服务（完美覆盖状态栏与全面屏手势）</string>
+    <string name="toast_overlay_perm_guide">请在设置中开启「显示在其他应用上层」权限</string>
+    <string name="update_dialog_default_notes">发现 TouchGuard 最新发布版本，点击下方按钮即可直接下载 APK 安装包更新。</string>
+    <string name="err_overlay_perm_required">请开启 TouchGuard 无障碍服务或授予悬浮窗权限</string>
+    <string name="err_root_perm_required">Root 权限未授予或 /dev/input/event4 驱动节点异常</string>
+    <string name="err_shizuku_overlay_failed">全屏触控拦截遮罩加载失败：%1$s。请在系统设置中为 TouchGuard 开启悬浮窗权限</string>
 </resources>

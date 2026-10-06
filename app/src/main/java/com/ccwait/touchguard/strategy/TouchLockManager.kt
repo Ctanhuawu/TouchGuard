@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.ccwait.touchguard.AppPreferences
+import com.ccwait.touchguard.R
 import com.ccwait.touchguard.model.AppLogManager
 import com.ccwait.touchguard.model.PhysicalKeyUnlockHandler
 import com.ccwait.touchguard.notification.TouchGuardNotificationManager
@@ -121,18 +122,20 @@ object TouchLockManager : TouchLockCoordinator {
                     "屏幕触控已锁定【${strategy.type.title}】",
                     isWarning = true
                 )
-                val tip = AppPreferences.unlockMechanism.promptTip
+                val tip = context.getString(AppPreferences.unlockMechanism.promptTipRes)
+                val stratTitle = context.getString(strategy.type.titleRes)
                 Toast.makeText(
                     context,
-                    "屏幕触控已锁定【${strategy.type.title}】！$tip",
+                    context.getString(R.string.toast_touch_locked, stratTitle, tip),
                     Toast.LENGTH_LONG
                 ).show()
                 notifyLockStateChanged(true)
             } else {
                 vibratePhone(context, 40)
-                val errMsg = result.exceptionOrNull()?.message ?: "未知异常"
+                val defaultErr = context.getString(R.string.toast_unknown_error)
+                val errMsg = result.exceptionOrNull()?.message ?: defaultErr
                 AppLogManager.addLog(source, "触控锁定失败: $errMsg", isWarning = true)
-                Toast.makeText(context, "锁定失败: $errMsg", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.toast_lock_failed, errMsg), Toast.LENGTH_LONG).show()
                 strategy.checkReadiness(context, forceRequest = false)
             }
             TouchGuardNotificationManager.updateNotification(context)
@@ -161,13 +164,14 @@ object TouchLockManager : TouchLockCoordinator {
             if (lastError == null) {
                 vibratePhone(context, 80)
                 AppLogManager.addLog(source, "触控已恢复正常，释放底层驱动", isSuccess = true)
-                Toast.makeText(context, "✅ 触控已恢复正常！", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.toast_touch_unlocked), Toast.LENGTH_SHORT).show()
                 notifyLockStateChanged(false)
             } else {
                 vibratePhone(context, 40)
-                val errMsg = lastError.message ?: "未知异常"
+                val defaultErr = context.getString(R.string.toast_unknown_error)
+                val errMsg = lastError.message ?: defaultErr
                 AppLogManager.addLog(source, "恢复异常: $errMsg", isWarning = true)
-                Toast.makeText(context, "恢复异常: $errMsg", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.toast_unlock_failed, errMsg), Toast.LENGTH_SHORT).show()
                 notifyLockStateChanged(false)
             }
             TouchGuardNotificationManager.updateNotification(context)

@@ -132,7 +132,7 @@ fun PolicyMiuix(
                             val strategySummary = if (readiness == StrategyReadiness.READY) {
                                 stringResource(currentStrategy.type.descRes)
                             } else {
-                                currentStrategy.statusSummary
+                                currentStrategy.getStatusSummary(context)
                             }
 
                             val strategyItems = StrategyType.entries.map { stringResource(it.titleRes) }
@@ -264,6 +264,16 @@ fun PolicyMiuix(
                                 checked = AppPreferences.isAutoUnlockOnScreenOffEnabled,
                                 onCheckedChange = {
                                     AppPreferences.setAutoUnlockOnScreenOff(it)
+                                    onVibrate(25)
+                                }
+                            )
+
+                            SwitchPreference(
+                                title = stringResource(R.string.policy_lock_screen_overlay_title),
+                                summary = stringResource(R.string.policy_lock_screen_overlay_desc),
+                                checked = AppPreferences.isLockScreenOverlayEnabled,
+                                onCheckedChange = {
+                                    AppPreferences.setLockScreenOverlay(it)
                                     onVibrate(25)
                                 }
                             )
