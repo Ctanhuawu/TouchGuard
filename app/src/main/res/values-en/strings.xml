@@ -272,7 +272,7 @@
     <string name="toast_lock_failed">Lock failed: %1$s</string>
     <string name="toast_unlock_failed">Restore error: %1$s</string>
     <string name="toast_unknown_error">Unknown error</string>
-    <string name="toast_switched_to_overlay">Switched to No-Root overlay lock strategy</string>
+    <string name="toast_switched_to_overlay">Switched to Accessibility lock strategy</string>
     <string name="toast_checking_environment">Checking environment, please wait…</string>
 
     <!-- Physical key and combo unlock hints -->
@@ -288,6 +288,7 @@
     <!-- Strategy badges and readiness status -->
     <string name="badge_ready_root">Root</string>
     <string name="badge_ready_shizuku">Shizuku</string>
+    <string name="badge_ready_accessibility">Accessibility</string>
     <string name="badge_ready_acc_enhanced">Accessibility</string>
     <string name="badge_ready_no_root">No Root</string>
     <string name="badge_permission_missing">Unauthorized</string>
@@ -299,7 +300,7 @@
 
     <string name="status_version_beta">v%1$s · Beta</string>
     <string name="status_root_request_desc">Tap to request Root access · Driver not ready</string>
-    <string name="status_root_no_env">No Root environment detected · Tap to switch to No-Root</string>
+    <string name="status_root_no_env">No Root environment detected · Tap to switch to Accessibility</string>
     <string name="status_root_checking">Checking Root authorization…</string>
     <string name="status_shizuku_request_desc">Tap to request Shizuku authorization · Pairing required</string>
     <string name="status_shizuku_not_running">Shizuku service not detected · Tap to open/download</string>

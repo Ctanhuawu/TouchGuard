@@ -272,7 +272,7 @@
     <string name="toast_lock_failed">锁定失败：%1$s</string>
     <string name="toast_unlock_failed">恢复异常：%1$s</string>
     <string name="toast_unknown_error">未知异常</string>
-    <string name="toast_switched_to_overlay">已为你切换为免 Root 悬浮窗锁定方案</string>
+    <string name="toast_switched_to_overlay">已为你切换为无障碍锁定方案</string>
     <string name="toast_checking_environment">正在检测运行环境，请稍候…</string>
 
     <!-- 物理按键与连击提示 -->
@@ -288,6 +288,7 @@
     <!-- 方案徽章与就绪状态 -->
     <string name="badge_ready_root">Root</string>
     <string name="badge_ready_shizuku">Shizuku</string>
+    <string name="badge_ready_accessibility">无障碍</string>
     <string name="badge_ready_acc_enhanced">无障碍增强</string>
     <string name="badge_ready_no_root">免 Root</string>
     <string name="badge_permission_missing">未授权</string>
@@ -299,7 +300,7 @@
 
     <string name="status_version_beta">v%1$s · Beta版</string>
     <string name="status_root_request_desc">点击申请 Root 授权 · 驱动未就绪</string>
-    <string name="status_root_no_env">未检测到 Root 环境 · 点击切换为免 Root</string>
+    <string name="status_root_no_env">未检测到 Root 环境 · 点击切换为无障碍</string>
     <string name="status_root_checking">正在检测底层 Root 授权…</string>
     <string name="status_shizuku_request_desc">点击申请 Shizuku 授权 · 需启动配对</string>
     <string name="status_shizuku_not_running">未检测到 Shizuku 服务 · 点击打开/下载</string>
