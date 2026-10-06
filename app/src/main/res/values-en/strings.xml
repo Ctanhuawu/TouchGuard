@@ -323,4 +323,9 @@
     <string name="err_overlay_perm_required">Please enable TouchGuard Accessibility Service or grant Overlay permission</string>
     <string name="err_root_perm_required">Root permission not granted or /dev/input/event4 device node abnormal</string>
     <string name="err_shizuku_overlay_failed">Failed to load fullscreen overlay: %1$s. Please grant Overlay permission in system settings</string>
+
+    <!-- Signature verification warning -->
+    <string name="warning_signature_title">Unofficial Signature</string>
+    <string name="warning_signature_desc">This app signature does not match the official release and may have been repackaged by a third party. To ensure safety, please obtain TouchGuard from the official GitHub release.</string>
+    <string name="warning_signature_action">Visit Official GitHub</string>
 </resources>

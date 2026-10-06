@@ -1,6 +1,8 @@
 package com.ccwait.touchguard.ui.pages
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -30,9 +32,11 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.Tag
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.ccwait.touchguard.system.SignatureValidator
 import com.ccwait.touchguard.system.adaptation.VendorDeviceHelper
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,6 +85,8 @@ fun HomeMiuix(
     bottomInnerPadding: Dp,
     onLockToggle: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val isSignatureTampered = remember { SignatureValidator.isTamperedOrCustom(context) }
     val scrollBehavior = MiuixScrollBehavior()
     val backdrop = rememberBlurBackdrop(true)
     val blurActive = backdrop != null
@@ -117,6 +123,18 @@ fun HomeMiuix(
                         modifier = Modifier.padding(top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
+                        // 0. 非官方签名安全提示
+                        if (isSignatureTampered) {
+                            MiuixSignatureWarningCard(
+                                onVisitRepo = {
+                                    runCatching {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Ctanhuawu/TouchGuard"))
+                                        context.startActivity(intent)
+                                    }
+                                }
+                            )
+                        }
+
                         // 1. 经典工作状态看板 (SukiSU-Ultra 1:1 对齐)
                         MiuixStatusCard(
                             isLocked = TouchLockManager.isTouchLocked,
@@ -417,3 +435,51 @@ private fun MiuixInfoText(
         }
     }
 }
+
+@Composable
+private fun MiuixSignatureWarningCard(
+    onVisitRepo: () -> Unit
+) {
+    val isDark = AppPreferences.colorMode.isDark || (AppPreferences.colorMode.isSystem && isSystemInDarkTheme())
+    val bgColor = if (isDark) Color(0xFF3E1F1F) else Color(0xFFFFEBEE)
+    val contentColor = if (isDark) Color(0xFFFF8A80) else Color(0xFFC62828)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.defaultColors(color = bgColor),
+        onClick = onVisitRepo,
+        pressFeedbackType = PressFeedbackType.Tilt
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier
+                    .size(28.dp)
+                    .padding(end = 10.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.warning_signature_title),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = contentColor
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.warning_signature_desc),
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    color = contentColor.copy(alpha = 0.9f)
+                )
+            }
+        }
+    }
+}
+

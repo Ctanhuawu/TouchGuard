@@ -323,4 +323,9 @@
     <string name="err_overlay_perm_required">請開啟 TouchGuard 無障礙服務或授予懸浮窗權限</string>
     <string name="err_root_perm_required">Root 權限未授予或 /dev/input/event4 驅動節點異常</string>
     <string name="err_shizuku_overlay_failed">全螢幕觸控攔截遮罩載入失敗：%1$s。請在系統設定中為 TouchGuard 開啟懸浮窗權限</string>
+
+    <!-- 簽名校驗安全提示 -->
+    <string name="warning_signature_title">非官方正版簽名</string>
+    <string name="warning_signature_desc">檢測到目前應用簽名與官方發布版本不符，可能已被第三方重新打包。為保障裝置安全，請認準 GitHub 官方發布管道。</string>
+    <string name="warning_signature_action">前往 GitHub 官方倉庫</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.ccwait.touchguard.ui.pages
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.Tag
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +44,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.ccwait.touchguard.system.SignatureValidator
 import com.ccwait.touchguard.system.adaptation.VendorDeviceHelper
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +76,9 @@ fun HomeMaterial(
     bottomInnerPadding: Dp,
     onLockToggle: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val isSignatureTampered = remember { SignatureValidator.isTamperedOrCustom(context) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,6 +109,18 @@ fun HomeMaterial(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // 0. 非官方签名安全提示
+                    if (isSignatureTampered) {
+                        MaterialSignatureWarningCard(
+                            onVisitRepo = {
+                                runCatching {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Ctanhuawu/TouchGuard"))
+                                    context.startActivity(intent)
+                                }
+                            }
+                        )
+                    }
+
                     // 1. 状态指示看板
                     MaterialStatusCard(
                         isLocked = TouchLockManager.isTouchLocked,
@@ -389,3 +408,50 @@ private fun MaterialInfoText(
         }
     }
 }
+
+@Composable
+private fun MaterialSignatureWarningCard(
+    onVisitRepo: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onVisitRepo),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .size(28.dp)
+                    .padding(end = 10.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.warning_signature_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.warning_signature_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+        }
+    }
+}
+
