@@ -157,6 +157,11 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 > 进入应用「锁定策略」页面，开启 **「不屏蔽音量按键」** 选项即可。开启后，单次按下音量键将正常调节媒体音量，只有在快速连续按下时才会触发解锁判断。
 </details>
 
+## 👨‍💻 开发者 / Developers
+
+- [Ctanhuawu](https://github.com/Ctanhuawu)
+- [Gemini](https://deepmind.google/technologies/gemini/)
+
 ---
 
 ## 📄 开源许可证 / License

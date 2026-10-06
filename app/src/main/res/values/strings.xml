@@ -112,6 +112,7 @@
     <string name="settings_fgs_summary">在通知栏常驻专用控制服务，防止后台被系统杀死</string>
     <string name="settings_about_section">关于 TouchGuard</string>
     <string name="settings_developer_title">开发者</string>
+    <string name="developer_names">Ctanhuawu、Gemini</string>
     <string name="settings_license_title">开源许可证</string>
     <string name="settings_source_title">源代码仓库</string>
     <string name="settings_source_summary">GitHub 开源项目地址</string>

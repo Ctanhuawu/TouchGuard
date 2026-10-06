@@ -391,7 +391,7 @@ private fun MiuixSoftwareInfoCard() {
             MiuixInfoText(
                 icon = Icons.Rounded.Person,
                 title = stringResource(R.string.settings_developer_title),
-                content = "Ctanhuawu",
+                content = stringResource(R.string.developer_names),
                 bottomPadding = 0.dp
             )
         }

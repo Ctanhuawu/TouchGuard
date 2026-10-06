@@ -311,7 +311,7 @@ fun SettingsMiuix(
                         )
                         ArrowPreference(
                             title = stringResource(R.string.settings_about_app_title),
-                            summary = stringResource(R.string.settings_about_app_summary, BuildConfig.VERSION_NAME, "Ctanhuawu"),
+                            summary = stringResource(R.string.settings_about_app_summary, BuildConfig.VERSION_NAME, stringResource(R.string.developer_names)),
                             startAction = {
                                 Icon(
                                     Icons.Rounded.Info,
@@ -322,7 +322,7 @@ fun SettingsMiuix(
                             },
                             onClick = {
                                 onVibrate(20)
-                                Toast.makeText(context, context.getString(R.string.settings_about_app_summary, BuildConfig.VERSION_NAME, "Ctanhuawu"), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.settings_about_app_summary, BuildConfig.VERSION_NAME, context.getString(R.string.developer_names)), Toast.LENGTH_SHORT).show()
                             }
                         )
                     }

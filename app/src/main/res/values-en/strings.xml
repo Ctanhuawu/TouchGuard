@@ -111,7 +111,8 @@
     <string name="settings_fgs_title">Foreground Service</string>
     <string name="settings_fgs_summary">Keep persistent notification service to prevent system kill</string>
     <string name="settings_about_section">About TouchGuard</string>
-    <string name="settings_developer_title">Developer</string>
+    <string name="settings_developer_title">Developers</string>
+    <string name="developer_names">Ctanhuawu, Gemini</string>
     <string name="settings_license_title">Open Source License</string>
     <string name="settings_source_title">Source Repository</string>
     <string name="settings_source_summary">GitHub open source repository link</string>
@@ -124,7 +125,7 @@
     <string name="settings_clear_logs_summary">Clear all recorded local touch prevention logs</string>
     <string name="settings_clear_logs_toast">All security logs cleared</string>
     <string name="settings_about_app_title">About TouchGuard</string>
-    <string name="settings_about_app_summary">Version %1$s · Developer: %2$s</string>
+    <string name="settings_about_app_summary">Version %1$s · Developers: %2$s</string>
     <string name="palette_monet_title">Monet Dynamic</string>
     <string name="palette_monet_desc">Extract wallpaper tones, adaptive accent color</string>
     <string name="palette_classic_title">Classic HyperOS Blue</string>
