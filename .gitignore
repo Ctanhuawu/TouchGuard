@@ -11,6 +11,7 @@
 *.apk
 *.aab
 *.keystore
+!app/keystore/debug.keystore
 *.jks
 .kotlin
 /evgrab
