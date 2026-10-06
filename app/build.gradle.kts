@@ -32,13 +32,45 @@ android {
                 keyPassword = "android"
             }
         }
+
+        create("release") {
+            val envPath = System.getenv("KEYSTORE_PATH")
+            val propPath = project.findProperty("RELEASE_STORE_FILE") as? String
+            val localReleaseJks = file("keystore/touchguard-release.jks")
+
+            val targetStore = when {
+                !envPath.isNullOrEmpty() -> file(envPath)
+                !propPath.isNullOrEmpty() -> file(propPath)
+                localReleaseJks.exists() -> localReleaseJks
+                else -> null
+            }
+
+            if (targetStore != null && targetStore.exists()) {
+                storeFile = targetStore
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                    ?: project.findProperty("RELEASE_STORE_PASSWORD") as? String
+                    ?: "TouchGuard@2026Release"
+                keyAlias = System.getenv("KEY_ALIAS")
+                    ?: project.findProperty("RELEASE_KEY_ALIAS") as? String
+                    ?: "touchguard"
+                keyPassword = System.getenv("KEY_PASSWORD")
+                    ?: project.findProperty("RELEASE_KEY_PASSWORD") as? String
+                    ?: "TouchGuard@2026Release"
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            } else {
+                initWith(getByName("debug"))
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -13,6 +13,7 @@
 *.keystore
 !app/keystore/debug.keystore
 *.jks
+app/keystore/*.txt
 .kotlin
 /evgrab
 /output-apks/
