@@ -159,8 +159,28 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## 👨‍💻 开发者 / Developers
 
-- [Ctanhuawu](https://github.com/Ctanhuawu)
-- [Gemini](https://deepmind.google/technologies/gemini/)
+<table align="center">
+  <tr>
+    <td align="center" width="220">
+      <a href="https://github.com/Ctanhuawu">
+        <img src="https://github.com/Ctanhuawu.png" width="84" height="84" style="border-radius: 50%;" alt="Ctanhuawu"/>
+        <br /><br />
+        <b>Ctanhuawu</b>
+      </a>
+      <br />
+      <sub>项目发起者 & 核心开发者</sub>
+    </td>
+    <td align="center" width="220">
+      <a href="https://deepmind.google/technologies/gemini/">
+        <img src="https://avatars.githubusercontent.com/u/161781182?s=200&v=4" width="84" height="84" style="border-radius: 50%;" alt="Gemini"/>
+        <br /><br />
+        <b>Gemini (Antigravity)</b>
+      </a>
+      <br />
+      <sub>AI 结对全栈协作者</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
