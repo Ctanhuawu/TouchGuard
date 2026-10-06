@@ -24,13 +24,16 @@ import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.ccwait.touchguard.system.adaptation.VendorDeviceHelper
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -335,12 +338,18 @@ private fun MiuixStatusCard(
 
 @Composable
 private fun MiuixDeviceInfoCard() {
+    val osVersion = remember { VendorDeviceHelper.getOsVersion() }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             MiuixInfoText(
                 icon = Icons.Rounded.Android,
                 title = stringResource(R.string.info_android_version),
                 content = "${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})"
+            )
+            MiuixInfoText(
+                icon = Icons.Rounded.Layers,
+                title = stringResource(R.string.info_os_version),
+                content = osVersion
             )
             MiuixInfoText(
                 icon = Icons.Rounded.Smartphone,

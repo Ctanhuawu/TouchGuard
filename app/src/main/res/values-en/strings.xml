@@ -206,6 +206,7 @@
     <string name="info_hardware_section">Device &amp; Hardware Info</string>
     <string name="info_software_section">Software &amp; Environment</string>
     <string name="info_android_version">Android OS Version</string>
+    <string name="info_os_version">OS Version</string>
     <string name="info_device_model">Device Model &amp; Codename</string>
     <string name="info_app_version">TouchGuard Version</string>
     <string name="info_design_style">Design Style &amp; Spec</string>
@@ -245,9 +246,11 @@
     <string name="settings_enable_predictive_back_summary">Enable system predictive back gestures and animation</string>
     <string name="settings_update_channel_title">Update Channel</string>
     <string name="settings_check_update_now">Check for Updates Now</string>
-    <string name="channel_stable">Stable (GitHub Release)</string>
-    <string name="channel_beta">Beta (Pre-release)</string>
-    <string name="channel_mirror">FastGit Mirror</string>
+    <string name="channel_stable">Stable</string>
+    <string name="channel_beta">Beta (Always Latest)</string>
+    <string name="update_downloading">Downloading update in background...</string>
+    <string name="update_download_failed">Download failed to start, opened browser instead</string>
+    <string name="update_install_hint">Download completed, preparing installation...</string>
     <string name="update_dialog_title">New Version Available</string>
     <string name="update_dialog_current_version">Current version: %1$s</string>
     <string name="update_dialog_latest_version">Latest version: %1$s</string>

@@ -1,12 +1,18 @@
 package com.ccwait.touchguard.update
 
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
+import android.os.Environment
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.ccwait.touchguard.BuildConfig
 import com.ccwait.touchguard.R
 import com.ccwait.touchguard.AppPreferences
@@ -18,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -27,7 +34,8 @@ data class UpdateInfo(
     val releaseNotes: String,
     val downloadUrl: String,
     val releasePageUrl: String,
-    val isManualCheck: Boolean = false
+    val isManualCheck: Boolean = false,
+    val isDebugAsset: Boolean = BuildConfig.DEBUG
 )
 
 object UpdateManager {
@@ -35,7 +43,6 @@ object UpdateManager {
     private const val TAG = "UpdateManager"
     private const val REPO_OWNER = "Ctanhuawu"
     private const val REPO_NAME = "TouchGuard"
-    private const val APK_NAME = "TouchGuard-release.apk"
 
     var activeUpdate by mutableStateOf<UpdateInfo?>(null)
         private set
@@ -47,7 +54,109 @@ object UpdateManager {
         activeUpdate = null
     }
 
+    private var downloadReceiver: BroadcastReceiver? = null
+
     fun openDownload(context: Context, updateInfo: UpdateInfo) {
+        startSystemDownload(context, updateInfo)
+    }
+
+    private fun startSystemDownload(context: Context, updateInfo: UpdateInfo) {
+        try {
+            val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+            if (downloadManager == null) {
+                openBrowserDownload(context, updateInfo)
+                return
+            }
+
+            val downloadUri = Uri.parse(updateInfo.downloadUrl)
+            val fileName = if (updateInfo.isDebugAsset) {
+                "TouchGuard-v${updateInfo.versionName}-debug.apk"
+            } else {
+                "TouchGuard-v${updateInfo.versionName}.apk"
+            }
+            val destinationFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+            if (destinationFile.exists()) {
+                destinationFile.delete()
+            }
+
+            val appTitle = if (updateInfo.isDebugAsset) {
+                "${context.getString(R.string.app_name)} (Debug) v${updateInfo.versionName}"
+            } else {
+                "${context.getString(R.string.app_name)} v${updateInfo.versionName}"
+            }
+
+            val request = DownloadManager.Request(downloadUri).apply {
+                setTitle(appTitle)
+                setDescription(context.getString(R.string.update_downloading))
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setMimeType("application/vnd.android.package-archive")
+                setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(true)
+            }
+
+            val downloadId = downloadManager.enqueue(request)
+            Toast.makeText(context, context.getString(R.string.update_downloading), Toast.LENGTH_SHORT).show()
+
+            registerDownloadReceiver(context.applicationContext, downloadId, destinationFile)
+        } catch (e: Exception) {
+            AppLogManager.addLog("更新", "系统下载器启动失败，降级调用浏览器: ${e.message}", isWarning = true)
+            Toast.makeText(context, context.getString(R.string.update_download_failed), Toast.LENGTH_SHORT).show()
+            openBrowserDownload(context, updateInfo)
+        }
+    }
+
+    private fun registerDownloadReceiver(appContext: Context, targetDownloadId: Long, targetApkFile: File) {
+        downloadReceiver?.let {
+            runCatching { appContext.unregisterReceiver(it) }
+        }
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(c: Context?, intent: Intent?) {
+                if (intent?.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+                    val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
+                    if (id == targetDownloadId) {
+                        runCatching { appContext.unregisterReceiver(this) }
+                        downloadReceiver = null
+
+                        if (targetApkFile.exists() && targetApkFile.length() > 0) {
+                            Toast.makeText(appContext, appContext.getString(R.string.update_install_hint), Toast.LENGTH_SHORT).show()
+                            installApk(appContext, targetApkFile)
+                        }
+                    }
+                }
+            }
+        }
+        downloadReceiver = receiver
+
+        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        ContextCompat.registerReceiver(
+            appContext,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
+    }
+
+    fun installApk(context: Context, apkFile: File) {
+        runCatching {
+            val apkUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                apkFile
+            )
+            val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(installIntent)
+        }.onFailure { e ->
+            AppLogManager.addLog("更新", "拉起安装器失败: ${e.message}", isWarning = true)
+        }
+    }
+
+    fun openBrowserDownload(context: Context, updateInfo: UpdateInfo) {
         runCatching {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(updateInfo.downloadUrl)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -154,7 +263,9 @@ object UpdateManager {
             val releaseNotes = releaseObj.optString("body").trim()
             val releasePageUrl = releaseObj.optString("html_url", "https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/$tagName")
 
-            val downloadUrl = buildDownloadUrl(tagName, channel)
+            val assetsArray = releaseObj.optJSONArray("assets")
+            val (downloadUrl, isDebugAsset) = findMatchingAsset(assetsArray, isDebug = BuildConfig.DEBUG)
+                ?: (buildDownloadUrl(tagName, isDebug = BuildConfig.DEBUG) to BuildConfig.DEBUG)
 
             return UpdateInfo(
                 tagName = tagName,
@@ -162,7 +273,8 @@ object UpdateManager {
                 releaseNotes = releaseNotes,
                 downloadUrl = downloadUrl,
                 releasePageUrl = releasePageUrl,
-                isManualCheck = isManual
+                isManualCheck = isManual,
+                isDebugAsset = isDebugAsset
             )
         } finally {
             conn.disconnect()
@@ -185,14 +297,15 @@ object UpdateManager {
             if ((code == 301 || code == 302 || code == 307) && !location.isNullOrBlank()) {
                 val tagName = location.substringAfterLast("/tag/").substringAfterLast("/")
                 if (tagName.isNotBlank()) {
-                    val downloadUrl = buildDownloadUrl(tagName, channel)
+                    val downloadUrl = buildDownloadUrl(tagName, isDebug = BuildConfig.DEBUG)
                     return UpdateInfo(
                         tagName = tagName,
                         versionName = tagName.removePrefix("v").removePrefix("V"),
                         releaseNotes = "",
                         downloadUrl = downloadUrl,
                         releasePageUrl = location,
-                        isManualCheck = isManual
+                        isManualCheck = isManual,
+                        isDebugAsset = BuildConfig.DEBUG
                     )
                 }
             }
@@ -202,13 +315,42 @@ object UpdateManager {
         }
     }
 
-    private fun buildDownloadUrl(tagName: String, channel: UpdateChannel): String {
-        val rawUrl = "https://github.com/$REPO_OWNER/$REPO_NAME/releases/download/$tagName/$APK_NAME"
-        return if (channel == UpdateChannel.MIRROR) {
-            "https://ghproxy.net/$rawUrl"
-        } else {
-            rawUrl
+    private fun findMatchingAsset(assetsArray: JSONArray?, isDebug: Boolean): Pair<String, Boolean>? {
+        if (assetsArray == null || assetsArray.length() == 0) return null
+
+        val apkAssets = mutableListOf<Pair<String, String>>()
+        for (i in 0 until assetsArray.length()) {
+            val asset = assetsArray.optJSONObject(i) ?: continue
+            val name = asset.optString("name", "")
+            val downloadUrl = asset.optString("browser_download_url", "")
+            if (name.endsWith(".apk", ignoreCase = true) && downloadUrl.isNotBlank()) {
+                apkAssets.add(name to downloadUrl)
+            }
         }
+
+        if (apkAssets.isEmpty()) return null
+
+        return if (isDebug) {
+            val debugAsset = apkAssets.firstOrNull { it.first.contains("debug", ignoreCase = true) }
+            if (debugAsset != null) {
+                debugAsset.second to true
+            } else {
+                apkAssets.first().second to false
+            }
+        } else {
+            val releaseAsset = apkAssets.firstOrNull { it.first.contains("release", ignoreCase = true) }
+                ?: apkAssets.firstOrNull { !it.first.contains("debug", ignoreCase = true) }
+            if (releaseAsset != null) {
+                releaseAsset.second to false
+            } else {
+                apkAssets.first().second to false
+            }
+        }
+    }
+
+    private fun buildDownloadUrl(tagName: String, isDebug: Boolean = BuildConfig.DEBUG): String {
+        val apkName = if (isDebug) "TouchGuard-debug.apk" else "TouchGuard-release.apk"
+        return "https://github.com/$REPO_OWNER/$REPO_NAME/releases/download/$tagName/$apkName"
     }
 
     fun isNewerVersion(remoteTag: String, localVersion: String): Boolean {

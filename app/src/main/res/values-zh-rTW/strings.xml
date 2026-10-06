@@ -206,6 +206,7 @@
     <string name="info_hardware_section">裝置與硬體資訊</string>
     <string name="info_software_section">軟體與驅動環境</string>
     <string name="info_android_version">Android 系統版本</string>
+    <string name="info_os_version">OS 版本</string>
     <string name="info_device_model">裝置型號與代號</string>
     <string name="info_app_version">TouchGuard 版本</string>
     <string name="info_design_style">設計風格與規範</string>
@@ -245,9 +246,11 @@
     <string name="settings_enable_predictive_back_summary">啟用系統級預測性返回手勢與動畫</string>
     <string name="settings_update_channel_title">更新渠道</string>
     <string name="settings_check_update_now">立即檢查更新</string>
-    <string name="channel_stable">穩定版 (GitHub Release)</string>
-    <string name="channel_beta">測試版 (Beta / 預發佈)</string>
-    <string name="channel_mirror">國內加速源 (FastGit / 鏡像)</string>
+    <string name="channel_stable">正式版</string>
+    <string name="channel_beta">嘗鮮版 (追蹤最新)</string>
+    <string name="update_downloading">正在下載新版本...</string>
+    <string name="update_download_failed">下載啟動失敗，已切換至瀏覽器</string>
+    <string name="update_install_hint">下載完成，正在準備安裝...</string>
     <string name="update_dialog_title">發現新版本</string>
     <string name="update_dialog_current_version">目前版本：%1$s</string>
     <string name="update_dialog_latest_version">最新版本：%1$s</string>

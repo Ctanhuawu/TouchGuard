@@ -82,13 +82,15 @@ fun UpdateDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        val currentVer = if (BuildConfig.DEBUG) "v${BuildConfig.VERSION_NAME} (Debug)" else "v${BuildConfig.VERSION_NAME}"
+                        val latestVer = if (updateInfo.isDebugAsset) "${updateInfo.tagName} (Debug)" else updateInfo.tagName
                         top.yukonga.miuix.kmp.basic.Text(
-                            text = stringResource(R.string.update_dialog_current_version, "v${BuildConfig.VERSION_NAME}"),
+                            text = stringResource(R.string.update_dialog_current_version, currentVer),
                             fontSize = 13.sp,
                             color = MiuixTheme.colorScheme.onSurfaceVariantSummary
                         )
                         top.yukonga.miuix.kmp.basic.Text(
-                            text = stringResource(R.string.update_dialog_latest_version, updateInfo.tagName),
+                            text = stringResource(R.string.update_dialog_latest_version, latestVer),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MiuixTheme.colorScheme.primary
@@ -177,13 +179,15 @@ fun UpdateDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        val currentVer = if (BuildConfig.DEBUG) "v${BuildConfig.VERSION_NAME} (Debug)" else "v${BuildConfig.VERSION_NAME}"
+                        val latestVer = if (updateInfo.isDebugAsset) "${updateInfo.tagName} (Debug)" else updateInfo.tagName
                         Text(
-                            text = stringResource(R.string.update_dialog_current_version, "v${BuildConfig.VERSION_NAME}"),
+                            text = stringResource(R.string.update_dialog_current_version, currentVer),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = stringResource(R.string.update_dialog_latest_version, updateInfo.tagName),
+                            text = stringResource(R.string.update_dialog_latest_version, latestVer),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary

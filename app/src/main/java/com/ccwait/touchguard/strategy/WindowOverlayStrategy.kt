@@ -38,9 +38,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
         private set
 
     override fun getBadgeText(context: Context): String = when (readiness) {
-        StrategyReadiness.READY -> {
-            if (TouchGuardAccessibilityService.isEnabled) context.getString(R.string.badge_ready_acc_enhanced) else context.getString(R.string.badge_ready_no_root)
-        }
+        StrategyReadiness.READY -> context.getString(R.string.badge_ready_no_root)
         StrategyReadiness.PERMISSION_MISSING -> context.getString(R.string.badge_permission_needed)
         StrategyReadiness.UNSUPPORTED -> context.getString(R.string.badge_unsupported)
         StrategyReadiness.CHECKING -> context.getString(R.string.badge_checking)
@@ -48,9 +46,7 @@ class WindowOverlayStrategy : TouchLockStrategy {
 
     override val badgeText: String
         get() = when (readiness) {
-            StrategyReadiness.READY -> {
-                if (TouchGuardAccessibilityService.isEnabled) "无障碍增强" else "免 Root"
-            }
+            StrategyReadiness.READY -> "免 Root"
             StrategyReadiness.PERMISSION_MISSING -> "需授权"
             StrategyReadiness.UNSUPPORTED -> "不支持"
             StrategyReadiness.CHECKING -> "检测中"

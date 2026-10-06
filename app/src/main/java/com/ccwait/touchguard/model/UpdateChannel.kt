@@ -12,8 +12,7 @@ enum class UpdateChannel(
     val apiUrl: String
 ) {
     STABLE("stable", R.string.channel_stable, "https://api.github.com/repos/Ctanhuawu/TouchGuard/releases/latest"),
-    BETA("beta", R.string.channel_beta, "https://api.github.com/repos/Ctanhuawu/TouchGuard/releases"),
-    MIRROR("mirror", R.string.channel_mirror, "https://ghproxy.net/https://api.github.com/repos/Ctanhuawu/TouchGuard/releases/latest");
+    BETA("beta", R.string.channel_beta, "https://api.github.com/repos/Ctanhuawu/TouchGuard/releases");
 
     companion object {
         fun fromId(id: String?): UpdateChannel {
